@@ -1,0 +1,82 @@
+{
+    "dependencies": [
+        {
+            "link": "https://github.com/matgla/EmbeddedHAL.git",
+            "type": "git",
+            "version": "master",
+            "directory": "hal",
+            "target": "hal",
+            "options": {
+            }
+        },
+        {
+            "name": "gsl",
+            "link": "https://github.com/microsoft/GSL.git",
+            "type": "git",
+            "version": "v3.0.0",
+            "directory": "gsl",
+            "target": "GSL",
+            "options": {
+                "cmake_variables": {
+                    "GSL_TERMINATE_ON_CONTRACT_VIOLATION": "ON",
+                    "GSL_MSVC_USE_STL_NOEXCEPTION_WORKAROUND": "ON"
+                }
+            }
+        },
+        {
+            "link": "https://github.com/matgla/MsGUI.git",
+            "type": "git",
+            "version": "master",
+            "directory": "msgui",
+            "target": "msgui",
+            "options": {
+                "cmake_variables": {
+                    "msgui_cxx_compilation_flags": "${hal_cxx_compilation_flags}",
+                    "msgui_linking_flags": "${hal_linker_flags}"
+                }
+            }
+        },
+        {
+            "link": "https://github.com/matgla/ms_romfs.git",
+            "type": "git",
+            "version": "master",
+            "directory": "romfs",
+            "target": "romfs",
+            "options": {
+                "cmake_variables": {
+                    "DISABLE_ROMFS_TESTS": "ON",
+                    "romfs_cxx_compilation_flags": "${hal_cxx_compilation_flags}",
+                    "romfs_linking_flags": "${hal_linker_flags}"
+                }
+            }
+        },
+        {
+            "link": "https://github.com/matgla/MsTest",
+            "type": "git",
+            "version": "master",
+            "directory": "mstest",
+            "target": "mstest",
+            "options": {
+                "cmake_variables": {
+                    "MSTEST_CXX_COMPILER_FLAGS": "${hal_cxx_compilation_flags}",
+                    "MSTEST_LINKER_FLAGS": "${hal_exe_linker_flags}"
+                }
+            }
+        },
+        {
+            "link": "https://github.com/matgla/msos_curses.git",
+            "type": "git",
+            "version": "master",
+            "directory": "msos_curses",
+            "target": "msos_curses",
+            "options": {
+                "cmake_variables": {
+                    "MSOS_CURSES_CXX_COMPILER_FLAGS": "${hal_cxx_compilation_flags}",
+                    "MSOS_CURSES_C_COMPILER_FLAGS": "${hal_c_compilation_flags}",
+                    "MSOS_CURSES_LINKER_FLAGS": "${hal_exe_linker_flags}"
+                }
+            }
+
+        }
+    ]
+}
