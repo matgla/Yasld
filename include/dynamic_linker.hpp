@@ -17,13 +17,12 @@
 #pragma once
 
 #include <string_view>
-#include <vector>
 
 #include <eul/error/error_code.hpp>
 #include <eul/error/error_category.hpp>
 
-#include "msos/dynamic_linker/fwd.hpp"
-#include "msos/dynamic_linker/loaded_module.hpp"
+#include "fwd.hpp"
+#include "loaded_module.hpp"
 
 namespace msos
 {

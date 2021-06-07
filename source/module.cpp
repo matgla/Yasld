@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "msos/dynamic_linker/module.hpp"
+#include "module.hpp"
 
-#include <gsl/span>
-
-#include "msos/dynamic_linker/module_header.hpp"
-#include "msos/dynamic_linker/module_data.hpp"
+#include "module_header.hpp"
+#include "module_data.hpp"
 
 namespace msos
 {
@@ -38,13 +36,13 @@ Module::Module(const ModuleHeader& header)
 
 Module::DataSpan Module::get_text() const
 {
-    return gsl::span(text_, module_header_->code_size());
+    return std::span(text_, module_header_->code_size());
 }
 
 
 Module::DataSpan Module::get_data() const
 {
-    return gsl::span(data_, module_header_->data_size());
+    return std::span(data_, module_header_->data_size());
 }
 
 const ModuleHeader& Module::get_header() const

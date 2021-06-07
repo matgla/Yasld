@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <string_view>
 
-#include "msos/dynamic_linker/fwd.hpp"
+#include "fwd.hpp"
 
 namespace msos
 {

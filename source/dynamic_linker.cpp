@@ -25,14 +25,10 @@
 #include "relocation.hpp"
 #include "symbol.hpp"
 
-#include "msos/usart_printer.hpp"
-
 namespace msos
 {
 namespace dl
 {
-
-UsartWriter writer;
 
 DynamicLinker::DynamicLinker()
     : modules_{}
@@ -85,7 +81,7 @@ const LoadedModule* DynamicLinker::load_module(const std::size_t* module_address
     }
     else
     {
-        module.set_text(gsl::span(reinterpret_cast<uint8_t*>(code_address), header.code_size()));
+        module.set_text(std::span(reinterpret_cast<uint8_t*>(code_address), header.code_size()));
     }
 
     if (!module.allocate_data())
@@ -233,7 +229,7 @@ bool DynamicLinker::process_external_relocations(std::size_t external_relocation
         }
         else
         {
-            writer << "Can't find symbol: " << symbol.code() << endl;
+            printf("Can't find symbol: %d\n", symbol.code()); 
             status = false;
         }
     }

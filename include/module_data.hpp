@@ -19,7 +19,7 @@
 #include <cstdint>
 #include <memory>
 
-#include <gsl/span>
+#include <span>
 
 namespace msos
 {
@@ -29,7 +29,7 @@ namespace dl
 class ModuleData
 {
 public:
-    using DataSpan = gsl::span<uint8_t>;
+    using DataSpan = std::span<uint8_t>;
 
     uint8_t* allocate_text(const std::size_t size);
     uint8_t* allocate_data(const std::size_t size);

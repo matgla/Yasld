@@ -16,7 +16,22 @@
 
 cmake_minimum_required(VERSION 3.10)
 
-project(msos_dl NONE)
+project(msos_dl CXX)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  mspkg
+  GIT_REPOSITORY https://github.com/matgla/mspkg.git
+  GIT_TAG        master
+)
+
+FetchContent_MakeAvailable(mspkg)
+
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${mspkg_SOURCE_DIR}/cmake)
+include (mspkg)
+
+setup_mspkg(${mspkg_SOURCE_DIR})
 
 add_subdirectory(source)
 

@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "msos/dynamic_linker/dynamic_linker_errors.hpp"
+#include "dynamic_linker_errors.hpp"
 
 #include <eul/error/error_category.hpp>
 

@@ -20,10 +20,10 @@
 #include <string_view>
 #include <vector>
 
-#include <gsl/span>
+#include <span>
 
-#include "msos/dynamic_linker/fwd.hpp"
-#include "msos/dynamic_linker/module_data.hpp"
+#include "fwd.hpp"
+#include "module_data.hpp"
 
 namespace msos
 {
@@ -34,7 +34,7 @@ class Module
 {
 public:
     Module();
-    using DataSpan = gsl::span<uint8_t>;
+    using DataSpan = std::span<uint8_t>;
     Module(const ModuleHeader& module_header);
 
     DataSpan get_text() const;

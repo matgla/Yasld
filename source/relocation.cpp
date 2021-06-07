@@ -14,9 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "msos/dynamic_linker/relocation.hpp"
+#include "relocation.hpp"
 
-#include "msos/dynamic_linker/symbol.hpp"
+#include "symbol.hpp"
 
 namespace msos
 {

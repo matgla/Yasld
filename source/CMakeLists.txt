@@ -77,6 +77,8 @@ target_compile_options(msos_dynamic_linker
         $<$<COMPILE_LANGUAGE:CXX>:-Werror -Wall -Wextra -Wpedantic -Wconversion -Wunused -Wshadow -Wold-style-cast -Wpointer-arith -Wcast-qual -Wno-missing-braces>
 )
 
+find_package(eul REQUIRED)
+
 target_link_libraries(msos_dynamic_linker
     PUBLIC
         GSL

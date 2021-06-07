@@ -18,7 +18,7 @@
 
 #include <memory>
 
-#include "msos/dynamic_linker/module.hpp"
+#include "module.hpp"
 
 namespace msos
 {
