@@ -10,6 +10,7 @@ SECTIONS
         . = ALIGN(4);
         *(.text)
         *(.text*)
+        *(.rel.text*)
         *(.glue_7)
         *(.glue_7t)
         *(.eh_frame)
@@ -40,5 +41,15 @@ SECTIONS
     .got :
     {
         *(.got*)
-    }
+    } >image
+
+    .ARM.exidx :
+    {
+        *(.ARM.exidx*)
+    } >image
+
+    .ARM.extab.t : 
+    {
+        *(.ARM.extab*)
+    } >image
 }

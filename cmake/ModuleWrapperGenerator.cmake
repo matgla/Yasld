@@ -25,7 +25,7 @@ function (configure_virtual_env)
         add_custom_command(
             OUTPUT venv.stamp
             COMMAND ${virtualenv_exec} ${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env
-            COMMAND ${MSOS_DYNAMIC_LINKER_ROOT}/module_generator_env/bin/pip install -r ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/requirements.txt --upgrade
+            COMMAND ${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env/bin/pip install -r ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/requirements.txt --upgrade
             DEPENDS ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/requirements.txt
         )
 
@@ -48,10 +48,7 @@ function (add_module module_name module_library)
         add_custom_command(
             TARGET ${module_name}
             POST_BUILD
-            COMMAND echo "${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env/bin/python3 ${GENERATE_BINARY}
-            generate_wrapper_code --disable_logs --elf_filename=$<TARGET_FILE:${module_name}>
-            --module_name=${module_name} --objcopy=${CMAKE_OBJCOPY} --as_executable
-            --api=${MSOS_DYNAMIC_LINKER_API_FILE}"
+            COMMAND echo "${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env/bin/python3 ${GENERATE_BINARY} generate_wrapper_code --disable_logs --elf_filename=$<TARGET_FILE:${module_name}> --module_name=${module_name} --objcopy=${CMAKE_OBJCOPY} --as_executable --api=${MSOS_DYNAMIC_LINKER_API_FILE}"
             COMMAND ${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env/bin/python3 ${GENERATE_BINARY}
             generate_wrapper_code --elf_filename=$<TARGET_FILE:${module_name}> --module_name=${module_name}
             --objcopy=${CMAKE_OBJCOPY} --as_executable --api=${generated_api_file}
