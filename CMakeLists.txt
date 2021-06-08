@@ -33,7 +33,16 @@ include (mspkg)
 
 setup_mspkg(${mspkg_SOURCE_DIR})
 
+set (MSOS_DYNAMIC_LINKER_ROOT ${PROJECT_SOURCE_DIR} CACHE INTERNAL "")
+set (MSOS_DYNAMIC_LINKER_BINARY_ROOT ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
+
 add_subdirectory(source)
+
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake PARENT_SCOPE)
+
+include (cmake/ModuleWrapperGenerator.cmake)
+
+add_module_flags_target()
 
 
 

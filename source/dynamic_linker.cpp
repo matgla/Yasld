@@ -14,16 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "dynamic_linker.hpp"
+#include "msos/dynamic_linker/dynamic_linker.hpp"
 
 #include <cstring>
 
-#include "dynamic_linker_errors.hpp"
-#include "environment.hpp"
-#include "module.hpp"
-#include "module_header.hpp"
-#include "relocation.hpp"
-#include "symbol.hpp"
+#include "msos/dynamic_linker/dynamic_linker_errors.hpp"
+#include "msos/dynamic_linker/environment.hpp"
+#include "msos/dynamic_linker/module.hpp"
+#include "msos/dynamic_linker/module_header.hpp"
+#include "msos/dynamic_linker/relocation.hpp"
+#include "msos/dynamic_linker/symbol.hpp"
 
 namespace msos
 {
@@ -229,7 +229,7 @@ bool DynamicLinker::process_external_relocations(std::size_t external_relocation
         }
         else
         {
-            printf("Can't find symbol: %d\n", symbol.code()); 
+            printf("Can't find symbol: %ld\n", symbol.code()); 
             status = false;
         }
     }

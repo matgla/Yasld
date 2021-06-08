@@ -23,6 +23,18 @@
 #    VERBATIM
 #)
 
+message (STATUS "Using api file: ${MSOS_DYNAMIC_LINKER_API_FILE}")
+
+message (STATUS "Scripts directory: ${PROJECT_SOURCE_DIR}/scripts")
+set (GENERATE_API ${PROJECT_SOURCE_DIR}/scripts/generate_api.py)
+
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/symbol_codes.h ${CMAKE_CURRENT_BINARY_DIR}/generated_symbols.json
+    COMMAND python3 ${GENERATE_API} --api=${MSOS_DYNAMIC_LINKER_API_FILE} --output ${CMAKE_CURRENT_BINARY_DIR}/ --input ${PROJECT_BINARY_DIR}
+    DEPENDS ${GENERATE_API} ${MSOS_DYNAMIC_LINKER_API_FILE}
+    VERBATIM
+)
+
 add_custom_target(api_generator
     DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/generated_symbols.json ${CMAKE_CURRENT_BINARY_DIR}/symbol_codes.h
     VERBATIM
@@ -35,7 +47,10 @@ set_source_files_properties(${CMAKE_CURRENT_BINARY_DIR}/generated_symbols.json P
 
 set_source_files_properties(${generated_api_file} PROPERTIES GENERATED 1 )
 
-set (library_includes ${PROJECT_SOURCE_DIR}/include/)
+set (library_includes ${PROJECT_SOURCE_DIR}/include/msos/dynamic_linker)
+
+add_subdirectory(arch)
+
 add_library(msos_dynamic_linker STATIC ${CMAKE_CURRENT_BINARY_DIR}/symbol_codes.h)
 
 target_sources(msos_dynamic_linker
@@ -81,11 +96,7 @@ find_package(eul REQUIRED)
 
 target_link_libraries(msos_dynamic_linker
     PUBLIC
-        GSL
         eul_error
-    PRIVATE
-        msos_libc
-        msos_arch
-        msos_printer
-        hal_flags
+    PRIVATE 
+        msos_dynamic_linker_arch
 )

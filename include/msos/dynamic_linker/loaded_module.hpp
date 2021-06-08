@@ -14,24 +14,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#include "msos/dynamic_linker/module_data.hpp"
+#pragma once
+
+#include <memory>
+
+#include "msos/dynamic_linker/module.hpp"
 
 namespace msos
 {
 namespace dl
 {
 
-uint8_t* ModuleData::allocate_text(const std::size_t size)
+class LoadedModule
 {
-    text_.reset(new uint8_t[size]);
-    return text_.get();
-}
+public:
+    LoadedModule();
+    LoadedModule(const ModuleHeader& header);
 
-uint8_t* ModuleData::allocate_data(const std::size_t size)
-{
-    data_.reset(new uint8_t[size]);
-    return data_.get();
-}
+    const Module& get_module() const;
+    Module& get_module();
+
+    void set_start_address(const std::size_t start_address);
+    int execute(int argc, char *argv[]) const;
+    int execute(int argc, const char *argv[]) const;
+    int execute() const;
+
+// private:
+    std::size_t start_address_;
+    Module module_;
+};
 
 } // namespace dl
 } // namespace msos

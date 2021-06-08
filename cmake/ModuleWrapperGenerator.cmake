@@ -24,9 +24,9 @@ function (configure_virtual_env)
 
         add_custom_command(
             OUTPUT venv.stamp
-            COMMAND ${virtualenv_exec} ${PROJECT_BINARY_DIR}/module_generator_env
-            COMMAND ${PROJECT_BINARY_DIR}/module_generator_env/bin/pip install -r ${PROJECT_SOURCE_DIR}/scripts/requirements.txt --upgrade
-            DEPENDS ${PROJECT_SOURCE_DIR}/scripts/requirements.txt
+            COMMAND ${virtualenv_exec} ${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env
+            COMMAND ${MSOS_DYNAMIC_LINKER_ROOT}/module_generator_env/bin/pip install -r ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/requirements.txt --upgrade
+            DEPENDS ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/requirements.txt
         )
 
         add_custom_target(
@@ -41,15 +41,18 @@ function (add_module module_name module_library)
     if (${arch} STREQUAL "ARM")
         configure_virtual_env()
 
-        find_file (GENERATE_BINARY generate_binary.py ${PROJECT_SOURCE_DIR}/scripts)
+        set (GENERATE_BINARY ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/generate_binary.py)
 
         add_dependencies(${module_name} api_generator)
 
         add_custom_command(
             TARGET ${module_name}
             POST_BUILD
-            COMMAND echo "${PROJECT_BINARY_DIR}/module_generator_env/bin/python3 ${GENERATE_BINARY} generate_wrapper_code --disable_logs --elf_filename=$<TARGET_FILE:${module_name}> --module_name=${module_name} --objcopy=${CMAKE_OBJCOPY} --as_executable --api=${PROJECT_SOURCE_DIR}/api/symbol_codes.json"
-            COMMAND ${PROJECT_BINARY_DIR}/module_generator_env/bin/python3 ${GENERATE_BINARY}
+            COMMAND echo "${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env/bin/python3 ${GENERATE_BINARY}
+            generate_wrapper_code --disable_logs --elf_filename=$<TARGET_FILE:${module_name}>
+            --module_name=${module_name} --objcopy=${CMAKE_OBJCOPY} --as_executable
+            --api=${MSOS_DYNAMIC_LINKER_API_FILE}"
+            COMMAND ${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env/bin/python3 ${GENERATE_BINARY}
             generate_wrapper_code --elf_filename=$<TARGET_FILE:${module_name}> --module_name=${module_name}
             --objcopy=${CMAKE_OBJCOPY} --as_executable --api=${generated_api_file}
             COMMAND echo "Module generated: ${module_name}"
@@ -71,7 +74,7 @@ function (add_module_flags_target)
 
     if (${arch} STREQUAL "ARM")
         target_link_options(module_flags INTERFACE
-            "${hal_linker_flags};-T${PROJECT_SOURCE_DIR}/linker_scripts/dynamic_module.ld;-nostartfiles;-nodefaultlibs;-nostdlib;-Wl,--unresolved-symbols=ignore-in-object-files;-Wl,--emit-relocs;-fvisibility=hidden;")
+            "${hal_linker_flags};-T${MSOS_DYNAMIC_LINKER_ROOT}/linker_scripts/dynamic_module.ld;-nostartfiles;-nodefaultlibs;-nostdlib;-Wl,--unresolved-symbols=ignore-in-object-files;-Wl,--emit-relocs;-fvisibility=hidden;")
 
         set(module_common_flags "-fvisibility-inlines-hidden;-fno-function-sections;-fno-data-sections;-fno-section-anchors;-msingle-pic-base;-mno-pic-data-is-text-relative;-fPIE;-mlong-calls;-fvisibility=hidden;")
         target_compile_options(module_flags INTERFACE
@@ -80,7 +83,7 @@ function (add_module_flags_target)
 
             $<$<CONFIG:DEBUG>:-Og -g>
             $<$<CONFIG:RELEASE>:-Os>)
-        target_include_directories(module_flags INTERFACE ${PROJECT_SOURCE_DIR}/include)
+        target_include_directories(module_flags INTERFACE ${MSOS_DYNAMIC_LINKER_ROOT}/include)
     else ()
         target_link_options(module_flags INTERFACE
             "${hal_linker_flags}")

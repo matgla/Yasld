@@ -1,3 +1,4 @@
+
 // This file is part of MSOS project. This is simple OS for embedded development devices.
 // Copyright (C) 2019 Mateusz Stadnik
 //
@@ -14,34 +15,28 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#pragma once
+.thumb
+.syntax unified
+.arch armv7-m
 
-#include <cstdint>
-#include <string_view>
 
-#include "fwd.hpp"
+.global call_external
+.thumb_func
+.align 1
+.type call_external, %function
+call_external:
+    push    {r9, lr}
+    mov     r9, r1
+    blx     r0
+    pop     {r9, pc}
 
-namespace msos
-{
-namespace dl
-{
-
-class Relocation
-{
-public:
-    uint32_t index() const;
-    const Symbol& symbol() const;
-    constexpr static std::size_t size()
-    {
-        return sizeof(uint32_t) * 2;
-    }
-    const Relocation& next() const;
-    uint32_t offset() const;
-private:
-    uint32_t index_;
-    uint32_t symbol_offset_;
-};
-
-} // namespace dl
-} // namespace msos
+.global call_external_with_args
+.thumb_func
+.align 1
+.type call_external_with_args, %function
+call_external_with_args:
+    push    {r9, lr}
+    mov     r9, r3
+    blx     r2
+    pop     {r9, pc}
 
