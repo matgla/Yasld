@@ -89,7 +89,8 @@ target_compile_options(msos_dynamic_linker
         $<$<CONFIG:DEBUG>:-Og -g>
         $<$<CONFIG:RELEASE>:-Os>
     PRIVATE
-        $<$<COMPILE_LANGUAGE:CXX>:-Werror -Wall -Wextra -Wpedantic -Wconversion -Wunused -Wshadow -Wold-style-cast -Wpointer-arith -Wcast-qual -Wno-missing-braces>
+    $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions -ffunction-sections -fdata-sections -fno-unwind-tables -fno-rtti
+    -fno-use-cxa-atexit -Werror -Wall -Wextra -Wpedantic -Wconversion -Wunused -Wshadow -Wold-style-cast -Wpointer-arith -Wcast-qual -Wno-missing-braces>
 )
 
 find_package(eul REQUIRED)
