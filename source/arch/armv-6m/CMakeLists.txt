@@ -18,7 +18,13 @@ add_library(msos_dynamic_linker_arch)
 
 target_sources(msos_dynamic_linker_arch
     PRIVATE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/call_external.s
+        ${CMAKE_CURRENT_SOURCE_DIR}/call_external.S
+)
+
+target_compile_options(msos_dynamic_linker_arch
+    PUBLIC
+        $<$<COMPILE_LANGUAGE:ASM>:-fno-exceptions -ffunction-sections -fdata-sections -fno-unwind-tables -fno-rtti
+        -fno-use-cxa-atexit>
 )
 
 

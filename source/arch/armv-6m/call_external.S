@@ -17,7 +17,7 @@
 
 .thumb
 .syntax unified
-.arch armv7-m
+.arch armv6-m
 
 
 .global call_external
@@ -25,18 +25,26 @@
 .align 1
 .type call_external, %function
 call_external:
-    push    {r9, lr}
+    push    {r4, lr}
+    mov     r4, r9 
+    push    {r4}
     mov     r9, r1
     blx     r0
-    pop     {r9, pc}
+    pop     {r4} 
+    mov     r9, r4
+    pop     {r4, pc}
 
 .global call_external_with_args
 .thumb_func
 .align 1
 .type call_external_with_args, %function
 call_external_with_args:
-    push    {r9, lr}
+    push    {r4, lr}
+    mov     r4, r9
+    push    {r4}
     mov     r9, r3
     blx     r2
-    pop     {r9, pc}
+    pop     {r4}
+    mov     r9, r4
+    pop     {r4, pc}
 

@@ -69,6 +69,8 @@ int LoadedModule::execute(int argc, const char *argv[]) const
 
 int LoadedModule::execute() const
 {
+    auto& m = module_.get_lot();
+    printf("Address of LOT: %p\n", static_cast<void*>(m.get()));
     return call_external(start_address_, module_.get_lot().get());
 }
 

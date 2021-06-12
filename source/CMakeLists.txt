@@ -93,6 +93,43 @@ target_compile_options(msos_dynamic_linker
     -fno-use-cxa-atexit -Werror -Wall -Wextra -Wpedantic -Wconversion -Wunused -Wshadow -Wold-style-cast -Wpointer-arith -Wcast-qual -Wno-missing-braces>
 )
 
+if (MSOS_ENABLE_LOGGING)
+    string(TOLOWER ${MSOS_ENABLE_LOGGING} logging_severity)
+
+    if (${logging_severity} STREQUAL "error")
+        target_compile_definitions(msos_dynamic_linker
+            PRIVATE
+            -DMSOS_DYNAMIC_LINKER_ENABLE_LOGGING
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_ERROR
+        )
+    elseif (${logging_severity} STREQUAL "warning")
+        target_compile_definitions(msos_dynamic_linker
+            PRIVATE
+            -DMSOS_DYNAMIC_LINKER_ENABLE_LOGGING
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_ERROR
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_WARNING
+        )
+    elseif (${logging_severity} STREQUAL "info")
+        target_compile_definitions(msos_dynamic_linker
+            PRIVATE
+            -DMSOS_DYNAMIC_LINKER_ENABLE_LOGGING
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_ERROR
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_WARNING
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_INFO
+        )
+    elseif (${logging_severity} STREQUAL "debug")
+        target_compile_definitions(msos_dynamic_linker
+            PRIVATE
+            -DMSOS_DYNAMIC_LINKER_ENABLE_LOGGING
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_ERROR
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_WARNING
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_INFO
+            -DMSOS_DYNAMIC_LINKER_SEVERITY_DEBUG 
+        )
+    endif ()
+
+endif()
+
 find_package(eul REQUIRED)
 
 target_link_libraries(msos_dynamic_linker
