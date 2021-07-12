@@ -36,7 +36,11 @@ setup_mspkg(${mspkg_SOURCE_DIR})
 set (MSOS_DYNAMIC_LINKER_ROOT ${PROJECT_SOURCE_DIR} CACHE INTERNAL "")
 set (MSOS_DYNAMIC_LINKER_BINARY_ROOT ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
 
-add_subdirectory(source)
+if (${MSOS_DL_ARCH} STREQUAL "x86_64-linux")
+    add_subdirectory(stub)
+else ()
+    add_subdirectory(source)
+endif ()
 
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake PARENT_SCOPE)
 
