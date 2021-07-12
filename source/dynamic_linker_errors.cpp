@@ -45,13 +45,11 @@ public:
     }
 };
 
-//static DynamicLinkerErrorCategory category_;
+static DynamicLinkerErrorCategory category_;
 
 eul::error::error_code make_error_code(DynamicLinkerErrors e)
 {
- //return eul::error::error_code(static_cast<int>(e), category_);
-    static_cast<void>(e); 
-    return {};
+    return eul::error::error_code(static_cast<int>(e), category_);
 }
 
 } // namespace dl

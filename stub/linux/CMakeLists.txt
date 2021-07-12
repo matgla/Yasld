@@ -14,8 +14,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_library(api_generator INTERFACE)
-
 add_library(msos_dynamic_linker INTERFACE) 
 
-target_include_directories(msos_dynamic_linker INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_sources(msos_dynamic_linker 
+    INTERFACE 
+        ${msos_dl_api_header_dir}/symbol_codes.h 
+)
+
+target_include_directories(msos_dynamic_linker 
+    INTERFACE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+        ${msos_dl_api_header_dir}
+)
+
+target_link_libraries(msos_dynamic_linker 
+    INTERFACE 
+        msos_dl_public_interface
+)
