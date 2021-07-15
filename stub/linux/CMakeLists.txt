@@ -14,20 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_library(msos_dynamic_linker INTERFACE) 
+add_library(msos_dynamic_linker STATIC) 
+
+add_dependencies(msos_dynamic_linker api_generator)
 
 target_sources(msos_dynamic_linker 
-    INTERFACE 
-        ${msos_dl_api_header_dir}/symbol_codes.h 
+    PUBLIC 
+        ${CMAKE_CURRENT_SOURCE_DIR}/dynamic_linker.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/loaded_module.cpp
 )
 
 target_include_directories(msos_dynamic_linker 
-    INTERFACE 
+    PUBLIC 
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${msos_dl_api_header_dir}
 )
 
 target_link_libraries(msos_dynamic_linker 
-    INTERFACE 
+    PUBLIC 
         msos_dl_public_interface
 )
