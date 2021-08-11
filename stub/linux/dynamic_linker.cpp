@@ -16,6 +16,8 @@
 
 #include "msos/dynamic_linker/dynamic_linker.hpp"
 
+#include <eul/utils/unused.hpp>
+
 #include "msos/dynamic_linker/loaded_module.hpp"
 #include "msos/dynamic_linker/symbol.hpp"
 
@@ -29,11 +31,13 @@ DynamicLinker::DynamicLinker()
 
 const Symbol* DynamicLinker::find_symbol(const std::size_t address, const uint32_t number_of_symbols, uint32_t symbol_code)
 {
+    UNUSED3(address, number_of_symbols, symbol_code);
     return nullptr;
 }
 
 const LoadedModule* DynamicLinker::load_module(const std::size_t *module_address, const int mode, const SymbolEntry *entries, std::size_t number_of_entries, eul::error::error_code &ec)
 {
+    UNUSED5(module_address, mode, entries, number_of_entries, ec);
     return nullptr; 
 }
 

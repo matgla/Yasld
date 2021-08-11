@@ -30,7 +30,10 @@ target_include_directories(msos_dynamic_linker
         ${msos_dl_api_header_dir}
 )
 
+find_package(eul REQUIRED)
 target_link_libraries(msos_dynamic_linker 
     PUBLIC 
         msos_dl_public_interface
+    PRIVATE 
+        eul_utils
 )
