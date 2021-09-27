@@ -7,6 +7,9 @@
             "directory": "eul",
             "target": "eul",
             "options": {
+                "cmake_variables": {
+                    "DISABLE_TESTS": "ON"
+                }
             }
         }
     ]

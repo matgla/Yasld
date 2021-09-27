@@ -36,16 +36,23 @@ setup_mspkg(${mspkg_SOURCE_DIR})
 set (MSOS_DYNAMIC_LINKER_ROOT ${PROJECT_SOURCE_DIR} CACHE INTERNAL "")
 set (MSOS_DYNAMIC_LINKER_BINARY_ROOT ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
 
+if (${MSOS_DL_ARCH} STREQUAL "x86_64-linux")
+set (MSOS_DYNAMIC_LINKER_API_FILE ${PROJECT_SOURCE_DIR}/stub/linux/symbol_codes.json)
+endif ()
+
 add_subdirectory(include)
 add_subdirectory(api_generator)
 
 if (${MSOS_DL_ARCH} STREQUAL "x86_64-linux")
     add_subdirectory(stub)
+    set (arch "x86")
 else ()
     add_subdirectory(source)
 endif ()
 
-set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake PARENT_SCOPE)
+if (PARENT_SCOPE)
+  set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake PARENT_SCOPE)
+endif ()
 
 include (cmake/ModuleWrapperGenerator.cmake)
 

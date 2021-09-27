@@ -1,3 +1,4 @@
 pyelftools
 jinja2
 colorama
+clang

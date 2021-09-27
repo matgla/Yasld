@@ -16,11 +16,17 @@
 
 message (STATUS "Using api file: ${MSOS_DYNAMIC_LINKER_API_FILE}")
 
-set (GENERATE_API ${CMAKE_CURRENT_SOURCE_DIR}/generate_api.py)
+find_package(CMakeUtils REQUIRED)
+include (virtualenv)
 
+setup_virtualenv(generate_api_venv ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt)
+
+set (GENERATE_API ${CMAKE_CURRENT_SOURCE_DIR}/generate_api.py)
+set (python_executable ${CMAKE_CURRENT_BINARY_DIR}/generate_api_venv/bin/python3)
+message(STATUS "API generator uses: ${python_executable}")
 add_custom_command(
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/symbol_codes.h ${CMAKE_CURRENT_BINARY_DIR}/generated_symbols.json
-    COMMAND python3 ${GENERATE_API} --api=${MSOS_DYNAMIC_LINKER_API_FILE} --output ${CMAKE_CURRENT_BINARY_DIR}/ --input ${PROJECT_BINARY_DIR}
+    COMMAND ${python_executable} ${GENERATE_API} --api=${MSOS_DYNAMIC_LINKER_API_FILE} --output ${CMAKE_CURRENT_BINARY_DIR}/ --input ${PROJECT_BINARY_DIR}
     DEPENDS ${GENERATE_API} ${MSOS_DYNAMIC_LINKER_API_FILE}
     VERBATIM
 )
