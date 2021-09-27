@@ -16,7 +16,7 @@
 
 message (STATUS "Using api file: ${MSOS_DYNAMIC_LINKER_API_FILE}")
 
-find_package(CMakeUtils REQUIRED)
+find_package(cmakeutils REQUIRED)
 include (virtualenv)
 
 setup_virtualenv(generate_api_venv ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt)

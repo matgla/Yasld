@@ -11,6 +11,16 @@
                     "DISABLE_TESTS": "ON"
                 }
             }
+        },
+        {
+            "link": "https://github.com/matgla/CMakeUtils.git",
+            "type": "git",
+            "version": "master",
+            "target": "cmakeutils",
+            "options": {
+                "is_cmake_library": true
+            }
+ 
         }
     ]
 }
