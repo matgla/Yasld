@@ -24,4 +24,14 @@ Module::Module()
 {
 }
 
+void Module::set_text(const DataSpan& text)
+{
+    text_ = text.data();
+}
+
+Module::DataSpan Module::get_text() const 
+{
+    return DataSpan(text_, 0);
+}
+
 } // namespace msos::dl

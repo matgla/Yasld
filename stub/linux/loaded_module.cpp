@@ -16,6 +16,8 @@
 
 #include "msos/dynamic_linker/loaded_module.hpp"
 
+#include <dlfcn.h>
+
 namespace msos::dl 
 {
 
@@ -25,13 +27,24 @@ LoadedModule::LoadedModule()
 
 int LoadedModule::execute() const
 {
-
-    return 0;
+    int(*main)();
+    *(void**)(&main) = dlsym(static_cast<void*>(module_.get_text().data()), "main");
+    return main();
 }
 
 void LoadedModule::set_start_address(const std::size_t start_address)
 {
     start_address_ = start_address;
+}
+
+const Module& LoadedModule::get_module() const 
+{
+    return module_;
+}
+
+Module& LoadedModule::get_module()
+{
+    return module_;
 }
 
 } // namespace msos::dl

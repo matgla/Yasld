@@ -62,7 +62,6 @@ function (add_module_flags_target)
         target_link_options(module_flags INTERFACE
             "${hal_linker_flags}")
 
-
         target_compile_options(module_flags
             INTERFACE
                 $<$<COMPILE_LANGUAGE:CXX>:-std=c++2a;-fPIC>

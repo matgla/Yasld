@@ -21,21 +21,25 @@
 #include "msos/dynamic_linker/environment.hpp"
 #include "msos/dynamic_linker/symbol.hpp"
 
-const char* filename = "/var/data/repos/msos_dl/build/tests/modules/module_a/libmodule_a.so";
+const char* filename = LIB_PATH;
 
-void printf_()
+extern "C"
 {
-    std::cout << "My printf called" << std::endl;
+void my_print(const char* data)
+{
+    std::cout << "My printf called: " << data << std::endl;
 }
+} // extern "C"
 
 int main()
 {
     msos::dl::DynamicLinker dl;
     static msos::dl::Environment env{
-        msos::dl::SymbolAddress{0, &printf_},
+        msos::dl::SymbolAddress{0, &my_print},
     };
 
     eul::error::error_code ec;
+    std::cout << "Load file: " << filename << std::endl;
     const auto *module = dl.load_module(reinterpret_cast<const std::size_t*>(filename), msos::dl::LoadingModeCopyData, env, ec);
     module->execute();
 }

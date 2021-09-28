@@ -19,13 +19,19 @@
 
 #include "module_a.hpp"
 
+extern "C"
+{
+void my_print(const char*);
+} // extern C
+
 int sum(int a, int b) 
 {
-    printf("Print\n");
+    my_print("Print\n");
     return a + b;
 }
 
 int main()
 {
+    printf("Ola\n");
     sum(4, 5);
 }

@@ -52,18 +52,20 @@ const LoadedModule* DynamicLinker::load_module(const std::size_t *module_address
 {
     std::cout << "Load module" << std::endl;
     const char* filename = reinterpret_cast<const char*>(module_address);
-    deps[module_address] = dlopen(filename, RTLD_LOCAL | RTLD_LAZY); 
+    deps[module_address] = dlopen(filename, RTLD_NOW | RTLD_GLOBAL); 
 
     if (!deps[module_address])
     {
-        std::cerr << "Can't load: " << filename << ". Error: " << dlerror() << std::endl;
+        std::cerr << "Can't load: " << dlerror() << std::endl;
     } 
 
 
     modules_.emplace_back();
     auto &lm = modules_.back();
-    lm.set_start_address(reinterpret_cast<std::size_t>(module_address));
+    auto &m = lm.get_module(); 
     
+    m.set_text(Module::DataSpan(reinterpret_cast<uint8_t*>(deps[module_address]), 0)); 
+    lm.set_start_address(reinterpret_cast<std::size_t>(module_address));
     UNUSED5(module_address, mode, entries, number_of_entries, ec);
     return &lm; 
 }
