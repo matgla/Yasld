@@ -33,6 +33,8 @@ include (mspkg)
 
 setup_mspkg(${mspkg_SOURCE_DIR})
 
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+
 set (MSOS_DYNAMIC_LINKER_ROOT ${PROJECT_SOURCE_DIR} CACHE INTERNAL "")
 set (MSOS_DYNAMIC_LINKER_BINARY_ROOT ${PROJECT_BINARY_DIR} CACHE INTERNAL "")
 
@@ -45,6 +47,7 @@ add_subdirectory(api_generator)
 
 if (${MSOS_DL_ARCH} STREQUAL "x86_64-linux")
     add_subdirectory(stub)
+    add_subdirectory(tests)
     set (arch "x86")
 else ()
     add_subdirectory(source)

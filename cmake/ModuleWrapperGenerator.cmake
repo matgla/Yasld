@@ -14,31 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-function (configure_virtual_env)
-    if (NOT TARGET configure-venv)
-        find_program (virtualenv_exec virtualenv)
-
-        if(NOT virtualenv_exec)
-            message(FATAL_ERROR "Couldn't find virtualenv")
-        endif()
-
-        add_custom_command(
-            OUTPUT venv.stamp
-            COMMAND ${virtualenv_exec} ${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env
-            COMMAND ${MSOS_DYNAMIC_LINKER_BINARY_ROOT}/module_generator_env/bin/pip install -r ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/requirements.txt --upgrade
-            DEPENDS ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/requirements.txt
-        )
-
-        add_custom_target(
-            configure-venv
-            DEPENDS venv.stamp
-        )
-    endif()
-
-endfunction()
-
 function (add_module module_name module_library)
-    if (${arch} STREQUAL "ARM")
+    if (${MSOS_DL_ARCH} STREQUAL "ARM")
         configure_virtual_env()
 
         set (GENERATE_BINARY ${MSOS_DYNAMIC_LINKER_ROOT}/scripts/generate_binary.py)
@@ -58,7 +35,7 @@ function (add_module module_name module_library)
         )
 
         add_dependencies(${module_name} configure-venv)
-    elseif (${arch} STREQUAL "x86")
+    elseif (${MSOS_DL_ARCH} STREQUAL "x86")
     endif()
 endfunction ()
 

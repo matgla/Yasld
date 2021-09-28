@@ -47,7 +47,7 @@ public:
     const LoadedModule* load_module(const std::size_t* module_address, const int mode, const SymbolEntry* entries, std::size_t number_of_entries, eul::error::error_code& ec);
     const Symbol* find_symbol(const std::size_t address, const uint32_t number_of_symbols, uint32_t symbol_code);
     std::size_t get_lot_for_module_at(std::size_t address);
-
+    void* find_symbol(const char* name);
 
 private:
 
@@ -69,7 +69,6 @@ private:
 
     std::size_t get_relocations_size(const ModuleHeader& header);
     std::size_t get_symbols_size(const std::size_t address, const uint32_t number_of_symbols);
-
 
 private:
     std::vector<LoadedModule> modules_;

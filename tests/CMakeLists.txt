@@ -1,4 +1,3 @@
-# This file is part of MSOS project.
 # Copyright (C) 2021 Mateusz Stadnik
 #
 # This program is free software: you can redistribute it and/or modify
@@ -14,28 +13,5 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-add_library(msos_dynamic_linker STATIC) 
-
-add_dependencies(msos_dynamic_linker api_generator)
-
-target_sources(msos_dynamic_linker 
-    PRIVATE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/dynamic_linker.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/loaded_module.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/module.cpp
-)
-
-target_include_directories(msos_dynamic_linker 
-    PUBLIC 
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
-        ${msos_dl_api_header_dir}
-)
-
-find_package(eul REQUIRED)
-target_link_libraries(msos_dynamic_linker 
-    PUBLIC 
-        msos_dl_public_interface
-    PRIVATE 
-        eul_utils
-        dl
-)
+add_subdirectory(loader)
+add_subdirectory(modules)

@@ -16,6 +16,11 @@
 
 #include "msos/dynamic_linker/dynamic_linker.hpp"
 
+#include <iostream>
+#include <map> 
+
+#include <dlfcn.h>
+
 #include <eul/utils/unused.hpp>
 
 #include "msos/dynamic_linker/loaded_module.hpp"
@@ -23,6 +28,14 @@
 
 namespace msos::dl 
 {
+
+namespace 
+{
+
+static std::map<const std::size_t*, void*> deps;
+
+} // namespace 
+
 
 DynamicLinker::DynamicLinker()
 {
@@ -37,8 +50,27 @@ const Symbol* DynamicLinker::find_symbol(const std::size_t address, const uint32
 
 const LoadedModule* DynamicLinker::load_module(const std::size_t *module_address, const int mode, const SymbolEntry *entries, std::size_t number_of_entries, eul::error::error_code &ec)
 {
+    std::cout << "Load module" << std::endl;
+    const char* filename = reinterpret_cast<const char*>(module_address);
+    deps[module_address] = dlopen(filename, RTLD_LOCAL | RTLD_LAZY); 
+
+    if (!deps[module_address])
+    {
+        std::cerr << "Can't load: " << filename << ". Error: " << dlerror() << std::endl;
+    } 
+
+
+    modules_.emplace_back();
+    auto &lm = modules_.back();
+    lm.set_start_address(reinterpret_cast<std::size_t>(module_address));
+    
     UNUSED5(module_address, mode, entries, number_of_entries, ec);
-    return nullptr; 
+    return &lm; 
+}
+
+void* DynamicLinker::find_symbol(const char* name)
+{
+    
 }
 
 } // namespace msos::dl

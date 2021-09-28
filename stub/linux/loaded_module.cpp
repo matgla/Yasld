@@ -19,9 +19,19 @@
 namespace msos::dl 
 {
 
+LoadedModule::LoadedModule() 
+{
+}
+
 int LoadedModule::execute() const
 {
+
     return 0;
+}
+
+void LoadedModule::set_start_address(const std::size_t start_address)
+{
+    start_address_ = start_address;
 }
 
 } // namespace msos::dl
