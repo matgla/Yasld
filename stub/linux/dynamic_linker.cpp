@@ -16,8 +16,10 @@
 
 #include "msos/dynamic_linker/dynamic_linker.hpp"
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
-#include <map> 
+#include <map>
 
 #include <dlfcn.h>
 
@@ -26,53 +28,63 @@
 #include "msos/dynamic_linker/loaded_module.hpp"
 #include "msos/dynamic_linker/symbol.hpp"
 
-namespace msos::dl 
+namespace msos::dl
 {
 
-namespace 
+namespace
 {
 
-static std::map<const std::size_t*, void*> deps;
+static std::map<const void *, void *> deps;
 
-} // namespace 
-
+} // namespace
 
 DynamicLinker::DynamicLinker()
 {
-
 }
 
-const Symbol* DynamicLinker::find_symbol(const std::size_t address, const uint32_t number_of_symbols, uint32_t symbol_code)
+const Symbol *DynamicLinker::find_symbol(const std::size_t address,
+                                         const uint32_t number_of_symbols, uint32_t symbol_code)
 {
     UNUSED3(address, number_of_symbols, symbol_code);
     return nullptr;
 }
 
-const LoadedModule* DynamicLinker::load_module(const std::size_t *module_address, const int mode, const SymbolEntry *entries, std::size_t number_of_entries, eul::error::error_code &ec)
+const LoadedModule *DynamicLinker::load_module(const void *module_address, const std::size_t size,
+                                               const int mode, const SymbolEntry *entries,
+                                               std::size_t number_of_entries,
+                                               eul::error::error_code &ec)
 {
     std::cout << "Load module" << std::endl;
-    const char* filename = reinterpret_cast<const char*>(module_address);
-    deps[module_address] = dlopen(filename, RTLD_NOW | RTLD_GLOBAL); 
+    static int library_number = 0;
+
+    std::string filename = "lib";
+    filename += std::to_string(library_number++);
+
+    std::ofstream out;
+    out.open(filename, std::ios::binary | std::ios::out);
+    out.write(static_cast<const char *>(module_address), size);
+    out.close();
+
+    std::filesystem::path p = std::filesystem::absolute(std::filesystem::path(filename));
+    deps[module_address]    = dlopen(p.c_str(), RTLD_NOW | RTLD_GLOBAL);
 
     if (!deps[module_address])
     {
         std::cerr << "Can't load: " << dlerror() << std::endl;
-    } 
-
+    }
 
     modules_.emplace_back();
     auto &lm = modules_.back();
-    auto &m = lm.get_module(); 
-    
-    m.set_text(Module::DataSpan(reinterpret_cast<uint8_t*>(deps[module_address]), 0)); 
+    auto &m  = lm.get_module();
+
+    m.set_text(Module::DataSpan(reinterpret_cast<uint8_t *>(deps[module_address]), 0));
     lm.set_start_address(reinterpret_cast<std::size_t>(module_address));
     UNUSED5(module_address, mode, entries, number_of_entries, ec);
-    return &lm; 
+    return &lm;
 }
 
-void* DynamicLinker::find_symbol(const char* name)
+void *DynamicLinker::find_symbol(const char *name)
 {
-    
 }
 
 } // namespace msos::dl
