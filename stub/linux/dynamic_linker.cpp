@@ -54,7 +54,6 @@ const LoadedModule *DynamicLinker::load_module(const void *module_address, const
                                                std::size_t number_of_entries,
                                                eul::error::error_code &ec)
 {
-    std::cout << "Load module" << std::endl;
     static int library_number = 0;
 
     std::string filename = "lib";
@@ -67,7 +66,6 @@ const LoadedModule *DynamicLinker::load_module(const void *module_address, const
 
     std::filesystem::path p = std::filesystem::absolute(std::filesystem::path(filename));
     deps[module_address]    = dlopen(p.c_str(), RTLD_NOW | RTLD_GLOBAL);
-
     if (!deps[module_address])
     {
         std::cerr << "Can't load: " << dlerror() << std::endl;
