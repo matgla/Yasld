@@ -1,46 +1,51 @@
-# This file is part of MSOS project. This is simple OS for embedded development devices.
-# Copyright (C) 2019 Mateusz Stadnik
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 #
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# printers.py
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
-# You should have received a copy of the GNU General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+# This program is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation, either version
+# 3 of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be
+# useful, but WITHOUT ANY WARRANTY; without even the implied
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+# PURPOSE. See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General
+# Public License along with this program. If not, see
+# <https://www.gnu.org/licenses/>.
+#
 
-from colorama import Fore, Style, init
+from colorama import Fore, Style, init 
 
-enable_debugs = False
-enable_logs = True
+class Logger:
+    def __init__(self, verbose, disable):
+        self.verbose_output = verbose 
+        self.disable = disable 
 
-def print_debug(text):
-    global enable_debugs
-    if enable_debugs and enable_logs:
-        print(Fore.BLUE + "[DBG] " + Style.RESET_ALL + text)
+    def verbose(self, text):
+        if self.verbose_output and not self.disable: 
+            print(Fore.BLUE + "  [VERBOSE] " + Style.RESET_ALL + text)
 
-def print_error(text):
-    print(Fore.RED + "[ERR] " + text + Style.RESET_ALL)
+    def info(self, text):
+        if not self.disable:
+            print(Fore.GREEN + "  [INFO]    " + Style.RESET_ALL + text)
 
-def print_step(text):
-    global enable_logs
-    if enable_logs:
-        print(Fore.YELLOW + "[INF] " + Style.RESET_ALL + text)
+    def log(self, text): 
+        if not self.disable:
+            print(text)
 
-def print_menu(text):
-    global enable_logs
-    if enable_logs:
-        print(Fore.CYAN + text + Style.RESET_ALL)
+    def error(self, text):
+        if not self.disable:
+            print(Fore.RED + "  [ERROR]   " + Style.RESET_ALL + text)
 
-def enable_debugs():
-    global enable_debugs
-    enable_debugs = True
+    def step(self, text):
+        if not self.disable:
+            print(Fore.CYAN + "[STEP]    " + Style.RESET_ALL + text)
 
-def disable_prints():
-    global enable_logs
-    enable_logs = False
+    
