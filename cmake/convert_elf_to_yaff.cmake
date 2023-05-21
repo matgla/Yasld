@@ -16,6 +16,17 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-function(convert_elf_to_yaff file)
+set(CURRENT_FILE_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(SCRIPTS_DIR ${CURRENT_FILE_DIR}/../scripts)
+function(convert_elf_to_yaff target)
+  message(STATUS "Adding conversion step for target: ${target}")
+
+  add_custom_command(
+    TARGET ${target}
+    POST_BUILD
+    COMMAND
+      ${yasld_python} ${SCRIPTS_DIR}/mkimage.py --input=$<TARGET_FILE:${target}>
+      --output=${target} -v DEPENDS ${target} ${SCRIPTS_DIR}/scripts/mkimage.py
+    VERBATIM)
 
 endfunction()

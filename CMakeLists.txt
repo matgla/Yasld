@@ -18,6 +18,8 @@
 
 cmake_minimum_required(VERSION 3.10)
 
+message(STATUS "Yasld configuration started")
+
 # NONE temporary
 project(yasld NONE)
 
@@ -40,6 +42,16 @@ setup_yaspem(
 find_package(CMakeUtils REQUIRED)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+
+if(NOT PROJECT_IS_TOP_LEVEL)
+  set(CMAKE_MODULE_PATH
+      ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake
+      PARENT_SCOPE)
+endif()
+
+include(virtualenv)
+create_virtualenv(yasld ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
+                  ${CMAKE_CURRENT_BINARY_DIR}/venvs)
 
 if(YASLD_ARCH STREQUAL "cortex-m0+")
   include(arch/arm.cmake)
