@@ -56,3 +56,5 @@ create_virtualenv(yasld ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
 if(YASLD_ARCH STREQUAL "cortex-m0+")
   include(arch/arm.cmake)
 endif()
+
+add_subdirectory(source)
