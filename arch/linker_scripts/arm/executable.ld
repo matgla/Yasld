@@ -27,9 +27,11 @@ SECTIONS
 {
   .text : 
   {
-    . = ALIGN(4);
+    . = ALIGN(16);
+    KEEP(*(.entry))
     *(.text)
     *(.text*)
+    *(.rel.text)
     *(.rel.text*)
     *(.glue_7) /* This is for armv-7, but it's not harmful for rest */
     *(.glue_7t) /*  Same for that */
@@ -38,12 +40,14 @@ SECTIONS
     KEEP(*(.fini))
     *(.rodata)
     *(.rodata*)
-    . = ALIGN(4);
+    *(.ARM.extab*)
+    *(.ARM.exidx*)
+    . = ALIGN(16);
   } > image 
 
   .data : 
   {
-    . = ALIGN(4);
+    . = ALIGN(16);
     *(.data)
     *(.data*)
     . = ALIGN(4);
@@ -62,4 +66,5 @@ SECTIONS
   {
     *(.got*)
   } > image 
+
 }

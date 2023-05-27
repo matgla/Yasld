@@ -13,12 +13,14 @@
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along with
-# this program. If not, see <https://www.gnu.org/licenses/>.
+# this program. If not, see <h:ttps://www.gnu.org/licenses/>.
 #
 
 add_library(yasld_executable_flags INTERFACE)
 
 # TODO: check if linker script may be overriden by client code
+
+add_link_options(-fvisibility=hidden)
 
 target_link_options(
   yasld_executable_flags
@@ -26,17 +28,18 @@ target_link_options(
   -T${PROJECT_SOURCE_DIR}/arch/linker_scripts/arm/executable.ld
   -nostartfiles
   -Wl,--emit-relocs
-  -fvisibility=hidden
-  -Wl,--no-warn-rwx-segments)
-
+  -Wl,--no-warn-rwx-segments
+  -fvisibility-inlines-hidden
+  -Wl,--exclude-libs=ALL
+  -fvisibility=hidden)
 # exceptions are not supported right now
 target_compile_options(
   yasld_executable_flags
-  INTERFACE -fno-exceptions
-            -fno-function-sections
-            -fno-data-sections
+  INTERFACE -s # strip debug symbols
+            -fno-exceptions
             -fvisibility-inlines-hidden
             -fno-section-anchors
+            -mpic-register=r9
             -msingle-pic-base
             -mno-pic-data-is-text-relative
             -fPIE

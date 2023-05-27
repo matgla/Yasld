@@ -190,11 +190,15 @@ class Application:
             if relocation["info_type"] in skipped_relocations:
                 continue 
             elif relocation["info_type"] == "R_ARM_ABS32":
+
                 if relocation["symbol_name"] in self.processed_symbols:
                     visibility = self.processed_symbols[relocation["symbol_name"]]["localization"]
                     symbol = self.processed_symbols[relocation["symbol_name"]] 
                     if symbol["type"] == "STT_OBJECT" or symbol["type"] == "STT_FUNC":
+                        print(hex(relocation["offset"]))
                         offset = int((relocation["offset"] - code_size)/4)
+                        if (offset < 0):
+                            raise RuntimeError("Offset negative for: " + str(relocation["symbol_name"]))
                         self.relocation_table.add_data_relocation(relocation, offset, visibility)
                 else:
                     raise RuntimeError("Symbol not found in symbol table: " + relocation["symbol_name"])

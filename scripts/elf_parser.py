@@ -86,15 +86,21 @@ class ElfParser:
                 if not isinstance(section, SymbolTableSection):
                     continue
                 for symbol in section.iter_symbols():
+                    type = symbol["st_info"]["type"]
+                    if type == "STT_SECTION":
+                        section_index = symbol["st_shndx"]
+                        name = elf.get_section(section_index).name
+                    else: 
+                        name = symbol.name
                     data = {}
                     data["type"] = symbol["st_info"]["type"]
                     data["binding"] = symbol["st_info"]["bind"]
-                    data["name"] = symbol["st_name"]
+                    data["name"] = name
                     data["value"] = symbol["st_value"]
                     data["size"] = symbol["st_size"]
                     data["section_index"] = symbol["st_shndx"]
                     data["visibility"] = symbol["st_other"]["visibility"]
-                    symbols[symbol.name] = data
+                    symbols[name] = data
         return symbols
 
     def _parse_sections(self):
