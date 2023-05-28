@@ -4,7 +4,7 @@
       "link": "https://github.com/matgla/CMakeUtils.git",
       "type": "git",
       "version": "master",
-      "target": "cmakeutils",
+      "target": "CMakeUtils",
       "options": {
         "is_cmake_library": true
       }
