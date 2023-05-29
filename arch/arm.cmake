@@ -23,15 +23,8 @@ add_library(yasld_executable_flags INTERFACE)
 add_link_options(-fvisibility=hidden)
 
 target_link_options(
-  yasld_executable_flags
-  INTERFACE
-  -nostartfiles
-  -nostdlib
-  -nodefaultlibs
-  -Wl,--emit-relocs
-  -Wl,--no-warn-rwx-segments
-  -fvisibility-inlines-hidden
-  -fvisibility=hidden)
+  yasld_executable_flags INTERFACE -Wl,--emit-relocs -Wl,--no-warn-rwx-segments
+  -fvisibility-inlines-hidden -fvisibility=hidden)
 
 if(NOT ${YASLD_USE_CUSTOM_LINKER_SCRIPT})
   target_link_options(
@@ -42,16 +35,13 @@ endif()
 # exceptions are not supported right now
 target_compile_options(
   yasld_executable_flags
-  INTERFACE -s # strip debug symbols
+  INTERFACE # strip debug symbols
             -fno-exceptions
             $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>
             -mpic-register=r9
             -msingle-pic-base
-            -nodefaultlibs
-            -nostdlib
             -mno-pic-data-is-text-relative
-            -fPIE
-            -fvisibility=hidden)
+            -fPIE)
 
 add_library(yasld_dynamic_link_stdlib INTERFACE)
 
