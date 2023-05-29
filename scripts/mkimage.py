@@ -172,7 +172,9 @@ class Application:
             "R_ARM_THM_JUMP11",
             "R_ARM_THM_JUMP8",
             "R_ARM_REL32",
-            "R_ARM_PREL31"
+            "R_ARM_PREL31",
+            "R_ARM_CALL",
+            "R_ARM_JUMP24",
         ]
 
         self.relocation_table = RelocationSet()
@@ -198,7 +200,9 @@ class Application:
             "R_ARM_THM_JUMP11",
             "R_ARM_THM_JUMP8",
             "R_ARM_REL32",
-            "R_ARM_PREL31"
+            "R_ARM_PREL31",
+            "R_ARM_CALL",
+            "R_ARM_JUMP24"
         ] 
 
         for relocation in self.parser.get_relocations():
