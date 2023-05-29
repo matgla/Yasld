@@ -88,6 +88,7 @@ class Application:
     def fetch_sections(self):
         self.logger.step("Parsing ELF file: " + self.args.input)
         self.parser = ElfParser(self.args.input)
+        self.is_executable = self.parser.get_file_type() == "ET_EXEC"
         self.text_section = self.fetch_section(".text", 0x00000000)
         
         data_section_address = self.text_section["address"] + self.text_section["size"]
@@ -115,13 +116,20 @@ class Application:
 
             self.processed_symbols[name] = data
             
-            if is_main or is_global_and_visible:
-                if data["section_index"] == "SHN_UNDEF":
-                    self.processed_symbols[name]["localization"] = "external"
-                else:
+            # If executable then hide all symbols except main
+            if self.is_executable:
+                if is_main: 
                     self.processed_symbols[name]["localization"] = "exported"
+                else: 
+                    self.processed_symbols[name]["localization"] = "internal"
             else:
-                self.processed_symbols[name]["localization"] = "internal"
+                if is_main or is_global_and_visible:
+                    if data["section_index"] == "SHN_UNDEF":
+                        self.processed_symbols[name]["localization"] = "external"
+                    else:
+                        self.processed_symbols[name]["localization"] = "exported"
+                else:
+                    self.processed_symbols[name]["localization"] = "internal"
     
     def dump_processed_symbols(self):
         self.logger.verbose("Symbol table")
@@ -156,11 +164,15 @@ class Application:
         self.logger.step("Processing relocation table") 
         # Only GOT relocations must be added to GOT table
         # Great ARM ABI description for relocations: https://github.com/ARM-software/abi-aa/blob/main/aaelf32/aaelf32.rst
+        # https://android.googlesource.com/toolchain/gdb/+/refs/heads/honeycomb/gdb-6.4/bfd/elf32-arm.c 
         skipped_relocations = [
             "R_ARM_THM_CALL", 
             "R_ARM_ABS32",
             "R_ARM_THM_JUMP24",
-            "R_ARM_THM_JUMP11"
+            "R_ARM_THM_JUMP11",
+            "R_ARM_THM_JUMP8",
+            "R_ARM_REL32",
+            "R_ARM_PREL31"
         ]
 
         self.relocation_table = RelocationSet()
@@ -183,7 +195,10 @@ class Application:
             "R_ARM_THM_CALL",
             "R_ARM_GOT_BREL",
             "R_ARM_THM_JUMP24",
-            "R_ARM_THM_JUMP11"
+            "R_ARM_THM_JUMP11",
+            "R_ARM_THM_JUMP8",
+            "R_ARM_REL32",
+            "R_ARM_PREL31"
         ] 
 
         for relocation in self.parser.get_relocations():

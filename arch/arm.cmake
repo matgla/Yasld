@@ -25,25 +25,32 @@ add_link_options(-fvisibility=hidden)
 target_link_options(
   yasld_executable_flags
   INTERFACE
-  -T${PROJECT_SOURCE_DIR}/arch/linker_scripts/arm/executable.ld
   -nostartfiles
+  -nostdlib
+  -nodefaultlibs
   -Wl,--emit-relocs
   -Wl,--no-warn-rwx-segments
   -fvisibility-inlines-hidden
-  -Wl,--exclude-libs=ALL
   -fvisibility=hidden)
+
+if(NOT ${YASLD_USE_CUSTOM_LINKER_SCRIPT})
+  target_link_options(
+    yasld_executable_flags INTERFACE
+    -T${PROJECT_SOURCE_DIR}/arch/linker_scripts/arm/executable.ld)
+
+endif()
 # exceptions are not supported right now
 target_compile_options(
   yasld_executable_flags
   INTERFACE -s # strip debug symbols
             -fno-exceptions
-            -fvisibility-inlines-hidden
-            -fno-section-anchors
+            $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>
             -mpic-register=r9
             -msingle-pic-base
+            -nodefaultlibs
+            -nostdlib
             -mno-pic-data-is-text-relative
             -fPIE
-            -mlong-calls
             -fvisibility=hidden)
 
 add_library(yasld_dynamic_link_stdlib INTERFACE)

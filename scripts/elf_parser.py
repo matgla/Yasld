@@ -51,7 +51,9 @@ class ElfParser:
         self.symbols = self._parse_symbols() 
         self.sections = self._parse_sections()
         self.relocations = self._parse_relocations() 
-
+        with open(self.filename, "rb") as file:
+            self.elf = ELFFile(file)
+ 
     def get_symbols(self):
         return self.symbols
 
@@ -205,4 +207,6 @@ class ElfParser:
         for key in self.symbols:
             symbol_names.append(key)
         return symbol_names
-
+    
+    def get_file_type(self):
+        return self.elf.header["e_type"]

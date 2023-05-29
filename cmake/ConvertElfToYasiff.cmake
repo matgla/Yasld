@@ -18,7 +18,7 @@
 
 set(CURRENT_FILE_DIR ${CMAKE_CURRENT_LIST_DIR})
 set(SCRIPTS_DIR ${CURRENT_FILE_DIR}/../scripts)
-function(convert_elf_to_yaff target)
+function(convert_elf_to_yasiff target)
   message(STATUS "Adding conversion step for target: ${target}")
   # set_target_properties(${target} PROPERTIES LINK_FLAGS_RELEASE -s)
 
@@ -27,10 +27,12 @@ function(convert_elf_to_yaff target)
   add_custom_command(
     TARGET ${target}
     POST_BUILD
-    COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}>
+    # COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}> ${yasld_python}
+    COMMAND ${CMAKE_OBJCOPY} --localize-hidden $<TARGET_FILE:${target}>
+    COMMAND cmake -E copy $<TARGET_FILE:${target}> $<TARGET_FILE:${target}>.bak
+    COMMAND
+      ${SCRIPTS_DIR}/mkimage.py --input=$<TARGET_FILE:${target}>
+      --output=${target} -v DEPENDS ${target} ${SCRIPTS_DIR}/scripts/mkimage.py
     VERBATIM)
-  # ${yasld_python} ${SCRIPTS_DIR}/mkimage.py --input=$<TARGET_FILE:${target}>
-  # --output=${target} -v DEPENDS ${target} ${SCRIPTS_DIR}/scripts/mkimage.py
-  # VERBATIM)
 
 endfunction()
