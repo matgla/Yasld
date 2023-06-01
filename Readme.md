@@ -32,31 +32,30 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 |   Data Size   | 4B - size of data section 
 +---------------+           in bytes
 |    BSS Size   | 4B - size of bss section 
-+---------------+           in bytes
-|               |
-.  future arch  . CPU Arch section, unused yet
-|               |   needed for arch verification
-+---------------+
++-------+-------+           in bytes
 | dls   |  res  | dls - 2B dependend libraries number
-+---------------+ res - 2B reserved
-|               |
-. dls library   .   names in ASCII followed by versio  
-|   names       |   ended with \0 aligned to 4 
-+-------+-------+
++-------+-------+ res - 2B reserved
 | iv mj | iv mn | 2B iv mj/iv mn - image version 
 +-------+-------+                  major/minor
 |  ers  |  lrs  | 2B ers/lrs - number of external
 +-------+-------+          / local relocations 
 |  drs  |  epr  | 2B drs - number of data relocations,
 +-------+-------+ 2B epr - number of external symbols 
-|  epr  |  eps  | 2B epr/eps - number of exported  
-+-------+-------+              relocations/symbols
+|               |
+.  future arch  . CPU Arch section, unused yet
+|               |   needed for arch verification
++---------------+
+|               |
+. dls library   .   names in ASCII followed by versio  
+|   names       |   ended with \0 aligned to 4 
++---------------+
 |               |
 .   symbols     . symbol table 
 |               |  
 +---------------+
 |               |
 .  relocations  . (ers + lrs + drs) relocation headers |               |     - encoded local relocations 
+|               |
 +---------------+
 |               |
 .     code      . code section aligned to 16 bytes 

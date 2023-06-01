@@ -1,5 +1,5 @@
 /**
- * loader.hpp
+ * header.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -25,19 +25,39 @@
 namespace yasld
 {
 
-class Loader
+struct Header
 {
 public:
-  Loader();
-
-  enum class Mode : uint8_t
+  enum class Type : uint8_t
   {
-    CopyData,
-    CopyTextAndData
+    Unknown = 0,
+    Executable = 1,
+    Library = 2,
   };
 
-  // Todo: add way to load from not mapped memory, like mmc card
-  const LoadedModule *load_module(const void *module_address);
+  enum class Architecture : uint16_t
+  {
+    Unknown = 0,
+    ArmV6_M = 1,
+  };
+
+  const char cookie[4];
+  Type type;
+  Architecture arch;
+  uint8_t yasiff_version;
+  uint32_t code_length;
+  uint32_t data_length;
+  uint32_t bss_length;
+  uint16_t external_libraries_amount;
+  uint16_t _reserved;
+  uint16_t version_major;
+  uint16_t version_minor;
+  uint16_t external_relocations_amount;
+  uint16_t local_relocations_amount;
+  uint16_t data_relocations_amount;
+  uint16_t exported_symbols_amount;
 };
+
+void print(const Header &header);
 
 } // namespace yasld

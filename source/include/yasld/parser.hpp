@@ -1,5 +1,5 @@
 /**
- * loader.hpp
+ * parser.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -20,24 +20,13 @@
 
 #pragma once
 
-#include <cstdint>
-
 namespace yasld
 {
 
-class Loader
+class Parser
 {
 public:
-  Loader();
-
-  enum class Mode : uint8_t
-  {
-    CopyData,
-    CopyTextAndData
-  };
-
-  // Todo: add way to load from not mapped memory, like mmc card
-  const LoadedModule *load_module(const void *module_address);
+  Parser();
 };
 
 } // namespace yasld
