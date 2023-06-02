@@ -28,16 +28,16 @@ namespace yasld
 class Loader
 {
 public:
-  Loader();
-
-  enum class Mode : uint8_t
-  {
-    CopyData,
-    CopyTextAndData
-  };
-
-  // Todo: add way to load from not mapped memory, like mmc card
-  const LoadedModule *load_module(const void *module_address);
+  //  Loader();
+  //
+  //  enum class Mode : uint8_t
+  //  {
+  //    CopyData,
+  //    CopyTextAndData
+  //  };
+  //
+  //  // Todo: add way to load from not mapped memory, like mmc card
+  //  const LoadedModule *load_module(const void *module_address);
 };
 
 } // namespace yasld

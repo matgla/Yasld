@@ -25,7 +25,7 @@
 namespace yasld
 {
 
-struct Header
+struct __attribute__((packed)) Header
 {
 public:
   enum class Type : uint8_t
