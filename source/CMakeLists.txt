@@ -23,6 +23,7 @@ set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
 target_sources(
   yasld
   PUBLIC ${include_dir}/loader.hpp ${include_dir}/header.hpp
-  PRIVATE loader.cpp header.cpp)
+         ${include_dir}/relocation.hpp ${include_dir}/symbol.hpp
+  PRIVATE loader.cpp header.cpp relocation.cpp symbol.cpp)
 
 target_include_directories(yasld PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

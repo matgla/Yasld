@@ -1,5 +1,5 @@
 /**
- * header.hpp
+ * relocation.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -25,41 +25,23 @@
 namespace yasld
 {
 
-struct __attribute__((packed)) Header
+class Symbol;
+
+class __attribute__((packed)) Relocation
 {
 public:
-  enum class Type : uint8_t
+  [[nodiscard]] uint32_t index() const;
+  [[nodiscard]] const Symbol &symbol() const;
+  [[nodiscard]] uint32_t symbol_offset() const;
+  constexpr static std::size_t size()
   {
-    Unknown = 0,
-    Executable = 1,
-    Library = 2,
-  };
+    return sizeof(Relocation);
+  }
+  [[nodiscard]] const Relocation &next() const;
 
-  enum class Architecture : uint16_t
-  {
-    Unknown = 0,
-    ArmV6_M = 1,
-  };
-
-  const char cookie[4];
-  Type type;
-  Architecture arch;
-  uint8_t yasiff_version;
-  uint32_t code_length;
-  uint32_t data_length;
-  uint32_t bss_length;
-  uint16_t external_libraries_amount;
-  uint16_t _reserved;
-  uint16_t version_major;
-  uint16_t version_minor;
-  uint16_t external_relocations_amount;
-  uint16_t local_relocations_amount;
-  uint16_t data_relocations_amount;
-  uint16_t exported_relocations_amount;
-  uint16_t exported_symbols_amount;
-  uint16_t external_symbols_amount;
+private:
+  uint32_t index_;
+  uint32_t symbol_offset_;
 };
-
-void print(const Header &header);
 
 } // namespace yasld

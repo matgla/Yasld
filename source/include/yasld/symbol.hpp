@@ -1,5 +1,5 @@
 /**
- * header.hpp
+ * symbol.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -21,45 +21,33 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 namespace yasld
 {
 
-struct __attribute__((packed)) Header
+enum class Section : uint8_t
 {
-public:
-  enum class Type : uint8_t
-  {
-    Unknown = 0,
-    Executable = 1,
-    Library = 2,
-  };
-
-  enum class Architecture : uint16_t
-  {
-    Unknown = 0,
-    ArmV6_M = 1,
-  };
-
-  const char cookie[4];
-  Type type;
-  Architecture arch;
-  uint8_t yasiff_version;
-  uint32_t code_length;
-  uint32_t data_length;
-  uint32_t bss_length;
-  uint16_t external_libraries_amount;
-  uint16_t _reserved;
-  uint16_t version_major;
-  uint16_t version_minor;
-  uint16_t external_relocations_amount;
-  uint16_t local_relocations_amount;
-  uint16_t data_relocations_amount;
-  uint16_t exported_relocations_amount;
-  uint16_t exported_symbols_amount;
-  uint16_t external_symbols_amount;
+  code = 0,
+  data = 1,
+  unknown = 2
 };
 
-void print(const Header &header);
+class __attribute__((packed)) Symbol
+{
+public:
+  [[nodiscard]] Section section() const;
+  [[nodiscard]] uint32_t offset() const;
+  [[nodiscard]] std::string_view name() const;
+  [[nodiscard]] const Symbol *next() const;
+  [[nodiscard]] std::size_t size() const;
+
+private:
+  Section section_;
+  uint8_t _r1;
+  uint16_t _r2;
+  uint32_t offset_;
+  const char *name_;
+};
 
 } // namespace yasld

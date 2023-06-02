@@ -21,8 +21,10 @@
 #include "yasld/header.hpp"
 
 #include <cstdio>
-
 #include <string_view>
+
+#include "yasld/relocation.hpp"
+#include "yasld/symbol.hpp"
 
 namespace yasld
 {
@@ -68,7 +70,24 @@ void print(const Header &header)
   printf("External relocations amount: %d\n", header.external_relocations_amount);
   printf("Local relocations amount: %d\n", header.local_relocations_amount);
   printf("Data relocations amount: %d\n", header.data_relocations_amount);
+  printf("Exported relocations amount: %d\n", header.exported_relocations_amount);
   printf("Exported symbols amount: %d\n", header.exported_symbols_amount);
+  printf("External symbols amount: %d\n", header.external_symbols_amount);
+  const uint8_t *ptr = reinterpret_cast<const uint8_t *>(&header) + sizeof(Header);
+
+  ptr += header.external_relocations_amount * sizeof(Relocation);
+  ptr += header.local_relocations_amount * sizeof(Relocation);
+  ptr += header.data_relocations_amount * sizeof(Relocation);
+  ptr += header.external_relocations_amount * sizeof(Relocation);
+  ptr -= sizeof(Relocation);
+
+  printf("Exported symbols:\n");
+  const Symbol *symbol = reinterpret_cast<const Symbol *>(ptr);
+  for (int i = 0; i < header.exported_symbols_amount; ++i)
+  {
+    printf("%s: %x\n", symbol->name().data(), symbol->offset());
+    symbol = symbol->next();
+  }
 }
 
 } // namespace yasld

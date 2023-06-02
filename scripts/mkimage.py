@@ -321,7 +321,7 @@ class Application:
             
             symbol_table += struct.pack("<BBH", symbol["section"].value, 0, 0)
             symbol_table += struct.pack("<I", value)
-            symbol_table += bytearray(symbol["name"], "ascii") 
+            symbol_table += bytearray(symbol["name"] + "\0", "ascii") 
         
         return Application.align_bytes(symbol_table, 4) 
 
