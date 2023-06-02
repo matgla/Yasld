@@ -52,6 +52,9 @@ class RelocationSet:
         self.index += 1
 
     def add_relocation(self, relocation, visibility):
+        for r in self.relocations:
+            if r["name"] == relocation["symbol_name"]:
+              return
         self.relocations.append({
             "name": relocation["symbol_name"],
             "offset": relocation["offset"],
@@ -61,12 +64,13 @@ class RelocationSet:
         })
     
     def add_data_relocation(self, relocation, offset, visibility):
+        print("Adding data relocation: ", offset, self.index) 
         self.relocations.append({
             "name": relocation["symbol_name"],
-            "offset": int(offset + self.index),
+            "offset": relocation["symbol_value"],
             "symbol_value": relocation["symbol_value"],
             "type": "data",
-            "index": self._create_index(relocation)
+            "index": int(offset + self.index)
         }) 
 
     def get_relocations(self):

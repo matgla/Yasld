@@ -184,6 +184,7 @@ class Application:
                 continue 
             elif relocation["info_type"] == "R_ARM_GOT_BREL":
                 visibility = self.processed_symbols[relocation["symbol_name"]]["localization"]
+                print(relocation["symbol_name"], visibility)
                 if visibility == "internal":
                     self.relocation_table.add_local_relocation(relocation)
                 else:
@@ -334,16 +335,15 @@ class Application:
             + len(external_relocations) + len(local_relocations) \
             + len(data_relocations)
 
-
         for rel in exported_relocations:
             # offset from current relocation to start of symbol table
             offset_to_symbol_table = (number_of_relocations - relocation_position) * size_of_relocation 
-
+  
             # calculate offset to symbol
             offset_to_symbol = offset_to_symbol_table + self.calculate_offset_to_exported_symbol(rel["name"])
             relocation_table.append({"index": rel["index"], "offset": offset_to_symbol}) 
             relocation_position += 1
- 
+
         for rel in external_relocations:
             # offset to external symbols table
             offset_to_symbol_table = len(exported_symbol_table) + (number_of_relocations - relocation_position) * size_of_relocation
@@ -361,13 +361,19 @@ class Application:
                 raise RuntimeError("Unknown section code: " + str(section))
 
             index_with_section = rel["index"] << 1 | section.value
-
             relocation_table.append({"index": index_with_section, "offset": value}) 
 
         for rel in data_relocations:
             relocation_table.append({"index": rel["offset"], "offset": rel["symbol_value"]}) 
         
         return relocation_table
+
+    def print_relocations(self, local_relocations, exported_relocations, external_relocations, data_relocations):
+        self.logger.verbose("  Local relocations:")  
+        row = [Fore.BLUE + "name", "symbol value", "relocation offset", "relocation index" + Style.RESET_ALL]
+        self.logger.verbose("{: >25} {: >20} {: >25} {: >22}".format(*row))
+        for relocation in local_relocations:
+            self.logger.verbose(str(relocation))
 
     def build_image(self):
         self.logger.step("Creating binary image") 
@@ -389,6 +395,10 @@ class Application:
         external_relocations = self.get_relocations("external", True)
         local_relocations = self.get_relocations("local", False)
         data_relocations = self.get_relocations("data", False)
+       
+        self.print_relocations(local_relocations, exported_relocations, 
+                               external_relocations, data_relocations)
+
         self.image += struct.pack("<HHHH", len(external_relocations),
                                   len(local_relocations),
                                   len(data_relocations),
@@ -398,6 +408,9 @@ class Application:
         external_symbol_table = self.build_binary_symbol_table_for(self.external_symbol_table) 
         relocations = self.build_relocation_table(exported_relocations, external_relocations,
                                                 local_relocations, data_relocations, exported_symbol_table) 
+        
+        self.image += struct.pack("<HH", len(exported_symbol_table), len(external_symbol_table))
+
         for rel in relocations:
             self.image += struct.pack("<II", rel["index"], rel["offset"])
 

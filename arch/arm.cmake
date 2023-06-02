@@ -37,6 +37,7 @@ target_compile_options(
   yasld_executable_flags
   INTERFACE # strip debug symbols
             -fno-exceptions
+            -fvisibility=hidden
             $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>
             -mpic-register=r9
             -msingle-pic-base
