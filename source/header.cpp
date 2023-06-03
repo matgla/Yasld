@@ -79,10 +79,14 @@ void print(const Header &header)
   ptr += header.local_relocations_amount * sizeof(Relocation);
   ptr += header.data_relocations_amount * sizeof(Relocation);
   ptr += header.external_relocations_amount * sizeof(Relocation);
-  ptr -= sizeof(Relocation);
+  ptr -= 4;
 
   printf("Exported symbols:\n");
+  printf("offset: %x\n", reinterpret_cast<int>(reinterpret_cast<const uint8_t *>(ptr) -
+                                               reinterpret_cast<const uint8_t *>(&header)));
   const Symbol *symbol = reinterpret_cast<const Symbol *>(ptr);
+  printf("Sizeof symbol: %d\n", sizeof(Symbol));
+
   for (int i = 0; i < header.exported_symbols_amount; ++i)
   {
     printf("%s: %x\n", symbol->name().data(), symbol->offset());

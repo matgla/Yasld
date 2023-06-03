@@ -20,6 +20,9 @@
 
 #include "yasld/symbol.hpp"
 
+#include <cstdio>
+#include <cstring>
+
 namespace yasld
 {
 
@@ -35,12 +38,15 @@ uint32_t Symbol::offset() const
 
 std::string_view Symbol::name() const
 {
-  return name_;
+  const uint8_t *ptr = reinterpret_cast<const uint8_t *>(this + 1);
+  const char *str = reinterpret_cast<const char *>(ptr);
+  printf("Strlen: %d, %x %x %x %x %x\n", strlen(str), ptr[3], ptr[4], ptr[5], ptr[6], ptr[7]);
+  return std::string_view(str);
 }
 
 std::size_t Symbol::size() const
 {
-  return sizeof(Symbol) - sizeof(const char *) + name().size();
+  return sizeof(Symbol) + name().size();
 }
 
 const Symbol *Symbol::next() const

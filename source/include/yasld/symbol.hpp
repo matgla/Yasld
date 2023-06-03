@@ -47,7 +47,6 @@ private:
   uint8_t _r1;
   uint16_t _r2;
   uint32_t offset_;
-  const char *name_;
 };
 
 } // namespace yasld
