@@ -15,7 +15,6 @@
 # useful, but WITHOUT ANY WARRANTY; without even the implied
 # warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
 # PURPOSE. See the GNU General Public License for more details.
-#
 # You should have received a copy of the GNU General
 # Public License along with this program. If not, see
 # <https://www.gnu.org/licenses/>.
@@ -276,16 +275,19 @@ class Application:
     def build_symbol_table(self):
         self.exported_symbol_table = []
         self.external_symbol_table = []
-
+        self.exported_symbol_table_size = 0
+        self.external_symbol_table_size = 0
         for symbol, data in self.processed_symbols.items(): 
             visibility = data["localization"] 
             if visibility == "exported":
+                self.exported_symbol_table_size += 1
                 self.exported_symbol_table.append({
                     "section": self.get_symbol_section(data),
                     "value": data["value"],
                     "name": symbol
                 })             
             elif visibility == "external":
+                self.external_symbol_table_size += 1
                 self.external_symbol_table.append({
                     "section": self.get_symbol_section(data),
                     "value": data["value"],
@@ -408,8 +410,8 @@ class Application:
         external_symbol_table = self.build_binary_symbol_table_for(self.external_symbol_table) 
         relocations = self.build_relocation_table(exported_relocations, external_relocations,
                                                 local_relocations, data_relocations, exported_symbol_table) 
-        
-        self.image += struct.pack("<HH", len(exported_symbol_table), len(external_symbol_table))
+       
+        self.image += struct.pack("<HH", self.exported_symbol_table_size, self.external_symbol_table_size)
 
         for rel in relocations:
             self.image += struct.pack("<II", rel["index"], rel["offset"])
