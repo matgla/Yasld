@@ -320,8 +320,8 @@ class Application:
             value = symbol["value"]
             if symbol["section"] == SectionCode.Data:
                 value -= len(self.code)
-            
-            symbol_table += struct.pack("<BBH", symbol["section"].value, 0, 0)
+           
+            value = value << 1 | symbol["section"].value 
             symbol_table += struct.pack("<I", value)
             symbol_table += bytearray(symbol["name"] + "\0", "ascii") 
         
@@ -405,7 +405,7 @@ class Application:
                                   len(local_relocations),
                                   len(data_relocations),
                                   len(exported_relocations))
-   
+  
         exported_symbol_table = self.build_binary_symbol_table_for(self.exported_symbol_table)
         external_symbol_table = self.build_binary_symbol_table_for(self.external_symbol_table) 
         relocations = self.build_relocation_table(exported_relocations, external_relocations,
