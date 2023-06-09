@@ -53,6 +53,9 @@ include(virtualenv)
 create_virtualenv(yasld ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
                   ${CMAKE_CURRENT_BINARY_DIR}/venvs)
 
+enable_language(CXX ASM C)
+
+set(CMAKE_CXX_STANDARD 20)
 if(YASLD_ARCH STREQUAL "cortex-m0+")
   include(arch/arm.cmake)
 endif()

@@ -1,5 +1,5 @@
 /**
- * symbol.cpp
+ * symbol_table.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,39 +18,25 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include "yasld/symbol.hpp"
+#pragma once
 
-#include <cstdio>
-#include <cstring>
+#include <cstdint>
 
 namespace yasld
 {
 
-Section Symbol::section() const
-{
-  return section_;
-}
+class Symbol;
 
-uint32_t Symbol::offset() const
+class SymbolTable
 {
-  return offset_;
-}
+public:
+  SymbolTable(std::size_t number_of_symbols, const Symbol *symbol_table_root_);
 
-std::string_view Symbol::name() const
-{
-  const char *ptr = reinterpret_cast<const char *>(this + 1);
-  return std::string_view(ptr);
-}
+  [[nodiscard]] std::size_t size() const;
 
-std::size_t Symbol::size() const
-{
-  return sizeof(Symbol) + name().size();
-}
-
-const Symbol *Symbol::next() const
-{
-  const uint8_t *ptr = reinterpret_cast<const uint8_t *>(this);
-  return reinterpret_cast<const Symbol *>(ptr + size());
-}
+private:
+  std::size_t number_of_symbols_;
+  const Symbol *root_;
+};
 
 } // namespace yasld
