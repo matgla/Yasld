@@ -42,9 +42,6 @@ public:
   std::size_t size() const;
 
 private:
-  Section  section_;
-  uint8_t  _r1;
-  uint16_t _r2;
   uint32_t offset_;
 };
 

@@ -28,12 +28,12 @@ namespace yasld
 
 Section Symbol::section() const
 {
-  return section_;
+  return static_cast<Section>(offset_ & 0x1);
 }
 
 uint32_t Symbol::offset() const
 {
-  return offset_;
+  return offset_ >> 1;
 }
 
 std::string_view Symbol::name() const
@@ -44,7 +44,8 @@ std::string_view Symbol::name() const
 
 std::size_t Symbol::size() const
 {
-  return sizeof(Symbol) + name().size();
+  // +1 -> \0
+  return sizeof(Symbol) + name().size() + 1;
 }
 
 const Symbol *Symbol::next() const

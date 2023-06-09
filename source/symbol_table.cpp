@@ -25,7 +25,9 @@
 namespace yasld
 {
 
-SymbolTable::SymbolTable(std::size_t number_of_symbols, const Symbol *symbol_table_root_)
+SymbolTable::SymbolTable(
+  std::size_t   number_of_symbols,
+  const Symbol *symbol_table_root_)
   : number_of_symbols_(number_of_symbols)
   , root_(symbol_table_root_)
 {

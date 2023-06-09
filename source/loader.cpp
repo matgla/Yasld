@@ -26,6 +26,7 @@
 
 #include "yasld/align.hpp"
 #include "yasld/header.hpp"
+#include "yasld/logger.hpp"
 #include "yasld/relocation.hpp"
 #include "yasld/section.hpp"
 #include "yasld/symbol.hpp"
@@ -49,13 +50,13 @@ Loader::Loader(
 
 void Loader::load_module(const void *module_address)
 {
-  printf("Loading module at address: %p\n", module_address);
+  log("Loading module at address: %p\n", module_address);
 
   const Header *header = static_cast<const Header *>(module_address);
 
   if (std::string_view(header->cookie, 4) != "YAFF")
   {
-    printf("Not YASIFF file, aborting...\n");
+    log("Not YASIFF file, aborting...\n");
     return;
   }
 
@@ -81,8 +82,9 @@ void Loader::load_module(const void *module_address)
   const SymbolTable exported_symbol_table(
     header->exported_symbols_amount, symbol_table_root);
 
-  printf("Exported symbol table size: %d\n", exported_symbol_table.size());
+  log("Exported symbol table size: %d\n", exported_symbol_table.size());
 
+  printf("Exported symbol offset: 0x%x\n", exported_symbols_offset);
   const std::size_t external_symbols_offset =
     exported_symbols_offset + exported_symbol_table.size();
 
@@ -90,22 +92,22 @@ void Loader::load_module(const void *module_address)
     reinterpret_cast<const Symbol *>(address + external_symbols_offset);
   const SymbolTable external_symbols_table(
     header->external_symbols_amount, external_symbol_table_root);
-  printf("External symbol table size: %d\n", external_symbols_table.size());
+  log("External symbol table size: %d\n", external_symbols_table.size());
 
   // allocate LOT
   const std::size_t lot_size =
     header->external_relocations_amount + header->local_relocations_amount;
-  printf("Allocation of LOT with size: %d\n", lot_size * sizeof(std::size_t));
+  log("Allocation of LOT with size: %d\n", lot_size * sizeof(std::size_t));
 
   const auto code_offset = align<std::size_t, 16>(
     external_symbols_offset + external_symbols_table.size());
   const auto *code = reinterpret_cast<const std::byte *>(address + code_offset);
-  printf("Code is located at: 0x%x\n", code_offset);
+  log("Code is located at: 0x%x\n", code_offset);
 
   const auto  data_offset = code_offset + header->code_length;
   const auto *data = reinterpret_cast<const std::byte *>(address + data_offset);
 
-  printf(
+  log(
     "Copying data from %p to %p, size: %d\n",
     data,
     memory_for_app_.data(),
@@ -115,7 +117,7 @@ void Loader::load_module(const void *module_address)
   std::memset(
     memory_for_app_.data() + header->data_length, 0, header->bss_length);
   // Process external relocations
-  printf(
+  log(
     "Processing external relocations: %d\n",
     header->external_relocations_amount);
   for (int i = 0; i < header->external_relocations_amount; ++i)
@@ -123,8 +125,7 @@ void Loader::load_module(const void *module_address)
     // TODO(matgla): implement
   }
 
-  printf(
-    "Processing local relocations: %d\n", header->local_relocations_amount);
+  log("Processing local relocations: %d\n", header->local_relocations_amount);
 
   for (int i = 0; i < header->local_relocations_amount; ++i)
   {
@@ -137,7 +138,7 @@ void Loader::load_module(const void *module_address)
     {
       const std::size_t relocated =
         address + code_offset + relocation->symbol_offset();
-      printf("Local relocation lot: %d, addr: 0x%x\n", lot_index, relocated);
+      log("Local relocation lot: %d, addr: 0x%x\n", lot_index, relocated);
       memory_for_lot_[lot_index] = relocated;
     }
     else if (section == Section::data)
@@ -146,11 +147,11 @@ void Loader::load_module(const void *module_address)
         reinterpret_cast<std::size_t>(memory_for_app_.data()) +
         relocation->symbol_offset();
       memory_for_lot_[lot_index] = relocated;
-      printf("Local relocation lot: %d, addr: 0x%x\n", lot_index, relocated);
+      log("Local relocation lot: %d, addr: 0x%x\n", lot_index, relocated);
     }
   }
 
-  printf("Processing data relocations: %d\n", header->data_relocations_amount);
+  log("Processing data relocations: %d\n", header->data_relocations_amount);
   for (int i = 0; i < header->data_relocations_amount; ++i)
   {
     const Relocation *relocation = reinterpret_cast<const Relocation *>(
@@ -161,14 +162,18 @@ void Loader::load_module(const void *module_address)
     std::size_t relocated =
       reinterpret_cast<std::size_t>(memory_for_app_.data()) +
       relocation->symbol_offset();
-    printf("Data reloc, at %p to 0x%x\n", to_relocate, relocated);
+    log("Data reloc, at %p to 0x%x\n", to_relocate, relocated);
     *to_relocate = relocated;
   }
 
+  log(
+    "%s offset: 0x%x\n",
+    symbol_table_root->name().data(),
+    symbol_table_root->offset());
   const std::size_t main = address + code_offset + symbol_table_root->offset();
-  printf("Calling main at: 0x%x\n", main);
+  log("Calling main at: 0x%x\n", main);
   int   argc   = 1;
-  char *argv[] = { { "main" } };
+  char *argv[] = { { "appname" } };
   call_main(argc, argv, main, memory_for_lot_.data());
 }
 

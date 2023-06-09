@@ -23,13 +23,14 @@
 #include <cstdio>
 #include <string_view>
 
+#include "yasld/logger.hpp"
 #include "yasld/relocation.hpp"
 #include "yasld/symbol.hpp"
 
 namespace yasld
 {
 
-// TODO(matgla): add ifdef for printf usage
+// TODO(matgla): add ifdef for log usage
 
 std::string_view toString(const Header::Type type)
 {
@@ -57,34 +58,35 @@ std::string_view toString(const Header::Architecture architecture)
 
 void print(const Header &header)
 {
-  printf("Cookie: %.4s\n", header.cookie);
-  printf("Type: %s\n", toString(header.type).data());
-  printf("Architecture: %s\n", toString(header.arch).data());
-  printf("Yasiff version: %d\n", header.yasiff_version);
-  printf("Sections size:\n");
-  printf("  .text: %d B\n", header.code_length);
-  printf("  .data: %d B\n", header.data_length);
-  printf("  .bss:  %d B\n", header.bss_length);
-  printf("External libraries amount: %d\n", header.external_libraries_amount);
-  printf("Version: %d.%d\n", header.version_minor, header.version_minor);
-  printf("External relocations amount: %d\n", header.external_relocations_amount);
-  printf("Local relocations amount: %d\n", header.local_relocations_amount);
-  printf("Data relocations amount: %d\n", header.data_relocations_amount);
-  printf("Exported relocations amount: %d\n", header.exported_relocations_amount);
-  printf("Exported symbols amount: %d\n", header.exported_symbols_amount);
-  printf("External symbols amount: %d\n", header.external_symbols_amount);
-  const uint8_t *ptr = reinterpret_cast<const uint8_t *>(&header) + sizeof(Header);
+  log("Cookie: %.4s\n", header.cookie);
+  log("Type: %s\n", toString(header.type).data());
+  log("Architecture: %s\n", toString(header.arch).data());
+  log("Yasiff version: %d\n", header.yasiff_version);
+  log("Sections size:\n");
+  log("  .text: %d B\n", header.code_length);
+  log("  .data: %d B\n", header.data_length);
+  log("  .bss:  %d B\n", header.bss_length);
+  log("External libraries amount: %d\n", header.external_libraries_amount);
+  log("Version: %d.%d\n", header.version_minor, header.version_minor);
+  log("External relocations amount: %d\n", header.external_relocations_amount);
+  log("Local relocations amount: %d\n", header.local_relocations_amount);
+  log("Data relocations amount: %d\n", header.data_relocations_amount);
+  log("Exported relocations amount: %d\n", header.exported_relocations_amount);
+  log("Exported symbols amount: %d\n", header.exported_symbols_amount);
+  log("External symbols amount: %d\n", header.external_symbols_amount);
+  const uint8_t *ptr =
+    reinterpret_cast<const uint8_t *>(&header) + sizeof(Header);
 
   ptr += header.external_relocations_amount * sizeof(Relocation);
   ptr += header.local_relocations_amount * sizeof(Relocation);
   ptr += header.data_relocations_amount * sizeof(Relocation);
   ptr += header.external_relocations_amount * sizeof(Relocation);
 
-  printf("Exported symbols: %d\n", header.exported_symbols_amount);
+  log("Exported symbols: %d\n", header.exported_symbols_amount);
   const Symbol *symbol = reinterpret_cast<const Symbol *>(ptr);
   for (int i = 0; i < header.exported_symbols_amount; ++i)
   {
-    printf("%s: %x\n", symbol->name().data(), symbol->offset());
+    log("%s: %x\n", symbol->name().data(), symbol->offset());
     symbol = symbol->next();
   }
 }
