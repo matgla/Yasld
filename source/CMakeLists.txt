@@ -18,12 +18,25 @@
 
 add_library(yasld)
 
-set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
+set(include_dir
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
 
 target_sources(
   yasld
-  PUBLIC ${include_dir}/loader.hpp ${include_dir}/header.hpp
-         ${include_dir}/relocation.hpp ${include_dir}/symbol.hpp
-  PRIVATE loader.cpp header.cpp relocation.cpp symbol.cpp)
+  PUBLIC ${include_dir}/align.hpp
+         ${include_dir}/loader.hpp
+         ${include_dir}/header.hpp
+         ${include_dir}/relocation.hpp
+         ${include_dir}/symbol.hpp
+         ${include_dir}/symbol_table.hpp
+         ${include_dir}/logger.hpp
+  PRIVATE loader.cpp
+          header.cpp
+          relocation.cpp
+          symbol.cpp
+          symbol_table.cpp
+          arch/armv6-m/call.S)
 
-target_include_directories(yasld PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(
+  yasld
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

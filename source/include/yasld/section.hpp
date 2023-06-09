@@ -1,5 +1,5 @@
 /**
- * symbol.hpp
+ * section.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -21,31 +21,15 @@
 #pragma once
 
 #include <cstdint>
-#include <string_view>
 
-#include "yasld/section.hpp"
 namespace yasld
 {
 
-class __attribute__((packed)) Symbol
+enum class Section : uint8_t
 {
-public:
-  [[nodiscard]]
-  Section section() const;
-  [[nodiscard]]
-  uint32_t offset() const;
-  [[nodiscard]]
-  std::string_view name() const;
-  [[nodiscard]]
-  const Symbol *next() const;
-  [[nodiscard]]
-  std::size_t size() const;
-
-private:
-  Section  section_;
-  uint8_t  _r1;
-  uint16_t _r2;
-  uint32_t offset_;
+  code    = 0,
+  data    = 1,
+  unknown = 2
 };
 
 } // namespace yasld

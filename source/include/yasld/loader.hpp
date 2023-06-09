@@ -30,8 +30,10 @@ namespace yasld
 class Loader
 {
 public:
-  Loader(std::span<std::byte> memory_for_lot, std::span<std::byte> memory_for_app);
-  void load_module(const void *module_address);
+  Loader(
+    std::span<std::size_t> memory_for_lot,
+    std::span<std::byte>   memory_for_app);
+  void                   load_module(const void *module_address);
   //  Loader();
   //
   //  enum class Mode : uint8_t
@@ -43,8 +45,8 @@ public:
   //  // Todo: add way to load from not mapped memory, like mmc card
   //  const LoadedModule *load_module(const void *module_address);
 
-  std::span<std::byte> memory_for_lot_;
-  std::span<std::byte> memory_for_app_;
+  std::span<std::size_t> memory_for_lot_;
+  std::span<std::byte>   memory_for_app_;
 };
 
 } // namespace yasld
