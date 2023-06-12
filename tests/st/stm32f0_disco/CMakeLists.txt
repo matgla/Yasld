@@ -16,17 +16,16 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.24)
 
-message(STATUS "Yasld configuration started")
+project(
+  stm32f0_tests
+  LANGUAGES CXX C ASM)
 
-# NONE temporary
-project(yasld NONE)
+set(CMAKE_CXX_STANDARD
+    20)
 
-if(NOT DEFINED YASLD_ARCH)
-  set(YASLD_ARCH
-      "host")
-endif()
+message(STATUS "STM32F0 testing code configuration started")
 
 include(FetchContent)
 
@@ -49,45 +48,14 @@ setup_yaspem(
   PACKAGE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
 
-find_package(CMakeUtils REQUIRED)
-
 set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+    ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
-if(NOT PROJECT_IS_TOP_LEVEL)
-  set(CMAKE_MODULE_PATH
-      ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake
-      PARENT_SCOPE)
-endif()
+include(CreateLibOpenCM3Target)
+create_libopencm3_target(stm32/f0)
 
-include(virtualenv)
-create_virtualenv(yasld ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
-                  ${CMAKE_CURRENT_BINARY_DIR}/venvs)
-
-enable_language(CXX ASM C)
-
-add_library(yasld_flags INTERFACE)
-
-target_compile_options(
-  yasld_flags
-  INTERFACE $<$<COMPILE_LANGUAGE:CXX>:${YASLD_CXX_FLAGS}>
-            $<$<COMPILE_LANGUAGE:C>:${YASLD_C_FLAGS}>
-            $<$<COMPILE_LANGUAGE:ASM>:${YASLD_ASM_FLAGS}>)
-
-target_link_options(yasld_flags INTERFACE ${YASLD_LINKER_FLAGS})
-
-add_definitions(-DLOGGER_ENABLED=1)
-
-set(CMAKE_CXX_STANDARD
-    20)
-
-if(YASLD_ARCH STREQUAL "armv6-m")
-  include(arch/arm.cmake)
-endif()
+include(BuildFlags)
+add_subdirectory(../../.. ${CMAKE_CURRENT_BINARY_DIR}/yasld)
 
 add_subdirectory(source)
-
-if(NOT DEFINED YASLD_DISABLE_TESTS)
-  message(STATUS "Adding tests")
-  add_subdirectory(tests)
-endif()

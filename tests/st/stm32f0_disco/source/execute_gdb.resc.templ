@@ -1,5 +1,5 @@
 #
-# CMakeLists.txt
+# execute_gdb.resc
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
@@ -16,32 +16,12 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_library(yasld)
+$bin=@${stm32f0_host_binary}
 
-set(include_dir
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
+mach create
+machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl
+showAnalyzer sysbus.usart1 
 
-target_sources(
-  yasld
-  PUBLIC ${include_dir}/align.hpp
-         ${include_dir}/loader.hpp
-         ${include_dir}/header.hpp
-         ${include_dir}/relocation.hpp
-         ${include_dir}/symbol.hpp
-         ${include_dir}/symbol_table.hpp
-         ${include_dir}/logger.hpp
-  PRIVATE loader.cpp
-          header.cpp
-          relocation.cpp
-          symbol.cpp
-          symbol_table.cpp)
-
-add_subdirectory(arch)
-
-target_link_libraries(
-  yasld
-  PRIVATE yasld_arch yasld_flags)
-
-target_include_directories(
-  yasld
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+sysbus LoadBinary $bin 0x08000000 
+sysbus.cpu VectorTableOffset 0x08000000
+machine StartGdbServer 3333

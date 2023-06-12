@@ -1,0 +1,13 @@
+{
+  "dependencies": [
+    {
+      "link": "https://github.com/matgla/YasldToolchain.git",
+      "type": "git",
+      "version": "master",
+      "target": "YasldToolchain",
+      "options": {
+        "is_cmake_library": true
+      }
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 #
-# CMakeLists.txt
+# ConfigureWithToolchain.cmake
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
@@ -16,32 +16,20 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_library(yasld)
-
-set(include_dir
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
-
-target_sources(
-  yasld
-  PUBLIC ${include_dir}/align.hpp
-         ${include_dir}/loader.hpp
-         ${include_dir}/header.hpp
-         ${include_dir}/relocation.hpp
-         ${include_dir}/symbol.hpp
-         ${include_dir}/symbol_table.hpp
-         ${include_dir}/logger.hpp
-  PRIVATE loader.cpp
-          header.cpp
-          relocation.cpp
-          symbol.cpp
-          symbol_table.cpp)
-
-add_subdirectory(arch)
-
-target_link_libraries(
-  yasld
-  PRIVATE yasld_arch yasld_flags)
-
-target_include_directories(
-  yasld
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+function(
+  configure_with_toolchain
+  name
+  toolchain
+  args
+  depends)
+  include(ExternalProject)
+  ExternalProject_Add(
+    ${name}
+    CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+               -DCMAKE_TOOLCHAIN_FILE=${toolchain} ${args}
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/${name}
+    BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/${name}
+    BUILD_ALWAYS 1
+    DEPENDS ${depends}
+    INSTALL_COMMAND "")
+endfunction()

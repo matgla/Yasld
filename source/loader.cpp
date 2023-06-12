@@ -51,7 +51,6 @@ Loader::Loader(
 void Loader::load_module(const void *module_address)
 {
   log("Loading module at address: %p\n", module_address);
-
   const Header *header = static_cast<const Header *>(module_address);
 
   if (std::string_view(header->cookie, 4) != "YAFF")

@@ -16,32 +16,12 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_library(yasld)
-
-set(include_dir
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
+add_library(yasld_arch)
 
 target_sources(
-  yasld
-  PUBLIC ${include_dir}/align.hpp
-         ${include_dir}/loader.hpp
-         ${include_dir}/header.hpp
-         ${include_dir}/relocation.hpp
-         ${include_dir}/symbol.hpp
-         ${include_dir}/symbol_table.hpp
-         ${include_dir}/logger.hpp
-  PRIVATE loader.cpp
-          header.cpp
-          relocation.cpp
-          symbol.cpp
-          symbol_table.cpp)
-
-add_subdirectory(arch)
+  yasld_arch
+  PRIVATE call.c)
 
 target_link_libraries(
-  yasld
-  PRIVATE yasld_arch yasld_flags)
-
-target_include_directories(
-  yasld
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  yasld_arch
+  PRIVATE yasld_flags)

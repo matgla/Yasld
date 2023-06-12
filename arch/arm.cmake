@@ -23,10 +23,15 @@ add_library(yasld_executable_flags INTERFACE)
 add_link_options(-fvisibility=hidden)
 
 target_link_options(
-  yasld_executable_flags INTERFACE -Wl,--emit-relocs -Wl,--no-warn-rwx-segments
-  -fvisibility-inlines-hidden -fvisibility=hidden)
+  yasld_executable_flags
+  INTERFACE
+  -Wl,--emit-relocs
+  -Wl,--no-warn-rwx-segments
+  -fvisibility-inlines-hidden
+  -nostartfiles
+  -fvisibility=hidden)
 
-if(NOT ${YASLD_USE_CUSTOM_LINKER_SCRIPT})
+if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
   target_link_options(
     yasld_executable_flags INTERFACE
     -T${PROJECT_SOURCE_DIR}/arch/linker_scripts/arm/executable.ld)
@@ -37,17 +42,21 @@ target_compile_options(
   yasld_executable_flags
   INTERFACE # strip debug symbols
             -fno-exceptions
+            -fno-rtti
             -fvisibility=hidden
             $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>
             -mpic-register=r9
             -msingle-pic-base
             -mno-pic-data-is-text-relative
-            -fPIE)
+            -fPIC)
 
 add_library(yasld_dynamic_link_stdlib INTERFACE)
 
 # TODO: in fact we don't have newlib-libc compiled as shared library so let's
 # workaround linker errors with ignore
 target_link_options(
-  yasld_dynamic_link_stdlib INTERFACE
-  -Wl,--unresolved-symbols=ignore-in-object-files -nodefaultlibs -nostdlib)
+  yasld_dynamic_link_stdlib
+  INTERFACE
+  -Wl,--unresolved-symbols=ignore-in-object-files
+  -nodefaultlibs
+  -nostdlib)

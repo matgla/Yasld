@@ -318,6 +318,7 @@ class Application:
         symbol_table = bytearray() 
         for symbol in symbols:
             value = symbol["value"]
+            print("Symbol '", symbol["name"], "' has offset: ", hex(value))
             if symbol["section"] == SectionCode.Data:
                 value -= len(self.code)
            
@@ -360,6 +361,7 @@ class Application:
                 value -= len(self.code)
 
             if section == SectionCode.Unknown:
+                print("rel: ", rel)
                 raise RuntimeError("Unknown section code: " + str(section))
 
             index_with_section = rel["index"] << 1 | section.value

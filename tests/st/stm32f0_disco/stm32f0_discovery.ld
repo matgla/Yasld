@@ -1,5 +1,5 @@
 /**
- * executable.ld
+ * stm32f0-discovery.ld
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -20,53 +20,8 @@
 
 MEMORY
 {
-  image (xrw) : ORIGIN = 0x00000000, LENGTH = 0xFFFFFFFF
+  rom (rx) : ORIGIN = 0x08000000, LENGTH = 128K
+  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 16K 
 }
 
-ENTRY(main)
-
-SECTIONS 
-{
-  .text : 
-  {
-    . = ALIGN(16);
-    KEEP(*(.entry))
-    *(.text)
-    *(.text*)
-    *(.rel.text)
-    *(.rel.text*)
-    *(.glue_7) /* This is for armv-7, but it's not harmful for rest */
-    *(.glue_7t) /*  Same for that */
-    *(.eh_frame)
-    KEEP(*(.init))
-    KEEP(*(.fini))
-    *(.rodata)
-    *(.rodata*)
-    *(.ARM.extab*)
-    *(.ARM.exidx*)
-    . = ALIGN(16);
-  } > image 
-
-  .data : 
-  {
-    . = ALIGN(16);
-    *(.data)
-    *(.data*)
-    . = ALIGN(4);
-  } > image 
-
-  .bss : 
-  {
-    . = ALIGN(4);
-    *(.bss)
-    *(.bss*)
-    *(COMMON)
-    . = ALIGN(4);
-  } > image 
-
-  .got : 
-  {
-    *(.got*)
-  } > image 
-
-}
+INCLUDE ./cortex-m-generic.ld

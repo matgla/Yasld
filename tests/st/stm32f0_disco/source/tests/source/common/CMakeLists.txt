@@ -16,32 +16,19 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_library(yasld)
-
-set(include_dir
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
+add_library(stm32f0_common)
 
 target_sources(
-  yasld
-  PUBLIC ${include_dir}/align.hpp
-         ${include_dir}/loader.hpp
-         ${include_dir}/header.hpp
-         ${include_dir}/relocation.hpp
-         ${include_dir}/symbol.hpp
-         ${include_dir}/symbol_table.hpp
-         ${include_dir}/logger.hpp
-  PRIVATE loader.cpp
-          header.cpp
-          relocation.cpp
-          symbol.cpp
-          symbol_table.cpp)
+  stm32f0_common
+  PUBLIC stub.cpp)
 
-add_subdirectory(arch)
+target_compile_options(
+  stm32f0_common
+  PRIVATE -fPIC
+          -mpic-register=r9
+          -msingle-pic-base
+          -mno-pic-data-is-text-relative)
 
 target_link_libraries(
-  yasld
-  PRIVATE yasld_arch yasld_flags)
-
-target_include_directories(
-  yasld
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  stm32f0_common
+  PRIVATE build_flags stm32f0_with_pic)

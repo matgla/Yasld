@@ -1,5 +1,5 @@
 /**
- * executable.ld
+ * main.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,55 +18,24 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-MEMORY
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <errno.h>
+
+#include <libopencm3/stm32/usart.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
 {
-  image (xrw) : ORIGIN = 0x00000000, LENGTH = 0xFFFFFFFF
-}
+  putc('c', stdout);
+  const char *str = strerror(errno);
+  write(STDOUT_FILENO, str, strlen(str));
+  char buf[10];
+  itoa(errno, buf, 10);
+  write(STDOUT_FILENO, buf, strlen(buf));
 
-ENTRY(main)
-
-SECTIONS 
-{
-  .text : 
-  {
-    . = ALIGN(16);
-    KEEP(*(.entry))
-    *(.text)
-    *(.text*)
-    *(.rel.text)
-    *(.rel.text*)
-    *(.glue_7) /* This is for armv-7, but it's not harmful for rest */
-    *(.glue_7t) /*  Same for that */
-    *(.eh_frame)
-    KEEP(*(.init))
-    KEEP(*(.fini))
-    *(.rodata)
-    *(.rodata*)
-    *(.ARM.extab*)
-    *(.ARM.exidx*)
-    . = ALIGN(16);
-  } > image 
-
-  .data : 
-  {
-    . = ALIGN(16);
-    *(.data)
-    *(.data*)
-    . = ALIGN(4);
-  } > image 
-
-  .bss : 
-  {
-    . = ALIGN(4);
-    *(.bss)
-    *(.bss*)
-    *(COMMON)
-    . = ALIGN(4);
-  } > image 
-
-  .got : 
-  {
-    *(.got*)
-  } > image 
-
+  usart_send_blocking(USART1, 'w');
+  printf("Hello from module!");
+  return argc;
 }
