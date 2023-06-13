@@ -209,7 +209,6 @@ class Application:
             if relocation["info_type"] in skipped_relocations:
                 continue 
             elif relocation["info_type"] == "R_ARM_ABS32":
-
                 if relocation["symbol_name"] in self.processed_symbols:
                     visibility = self.processed_symbols[relocation["symbol_name"]]["localization"]
                     symbol = self.processed_symbols[relocation["symbol_name"]] 
@@ -218,6 +217,7 @@ class Application:
                         offset = int((relocation["offset"] - code_size)/4)
                         if (offset < 0):
                             raise RuntimeError("Offset negative for: " + str(relocation["symbol_name"]))
+                        print("Adding data relocation: ", relocation, " offset: ", offset, " visibility: ", visibility)
                         self.relocation_table.add_data_relocation(relocation, offset, visibility)
                 else:
                     raise RuntimeError("Symbol not found in symbol table: " + relocation["symbol_name"])
@@ -348,8 +348,8 @@ class Application:
             relocation_position += 1
 
         for rel in external_relocations:
-            # offset to external symbols table
             offset_to_symbol_table = len(exported_symbol_table) + (number_of_relocations - relocation_position) * size_of_relocation
+            # offset to external symbols table
             offset_to_symbol = offset_to_symbol_table + self.calculate_offset_to_external_symbol(rel["name"])
             relocation_table.append({"index": rel["index"], "offset": offset_to_symbol}) 
             relocation_position += 1
@@ -368,7 +368,12 @@ class Application:
             relocation_table.append({"index": index_with_section, "offset": value}) 
 
         for rel in data_relocations:
-            relocation_table.append({"index": rel["offset"], "offset": rel["symbol_value"]}) 
+            print("Adding data relocation with index, ", rel["index"], ", offset: ", rel["offset"])
+            offset = rel["offset"]
+            if offset > len(self.code):
+                offset -= len(self.code)
+
+            relocation_table.append({"index": rel["index"], "offset": offset}) 
         
         return relocation_table
 

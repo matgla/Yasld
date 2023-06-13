@@ -51,6 +51,9 @@ Loader::Loader(
 void Loader::load_module(const void *module_address)
 {
   log("Loading module at address: %p\n", module_address);
+  log("Memory for app: %p\n", memory_for_app_.data());
+  log("Memory for lot: %p\n", memory_for_lot_.data());
+
   const Header *header = static_cast<const Header *>(module_address);
 
   if (std::string_view(header->cookie, 4) != "YAFF")
@@ -107,7 +110,7 @@ void Loader::load_module(const void *module_address)
   const auto *data = reinterpret_cast<const std::byte *>(address + data_offset);
 
   log(
-    "Copying data from %p to %p, size: %d\n",
+    "Copying data from %p to %p, size: 0x%x\n",
     data,
     memory_for_app_.data(),
     header->data_length);
@@ -115,6 +118,9 @@ void Loader::load_module(const void *module_address)
   std::memcpy(memory_for_app_.data(), data, header->data_length);
   std::memset(
     memory_for_app_.data() + header->data_length, 0, header->bss_length);
+
+  log("Ram memory usage: 0x%x\n", header->data_length + header->bss_length);
+
   // Process external relocations
   log(
     "Processing external relocations: %d\n",
@@ -142,6 +148,7 @@ void Loader::load_module(const void *module_address)
     }
     else if (section == Section::data)
     {
+      log("Data relocation offset: 0x%x\n", relocation->symbol_offset());
       const std::size_t relocated =
         reinterpret_cast<std::size_t>(memory_for_app_.data()) +
         relocation->symbol_offset();
@@ -155,14 +162,42 @@ void Loader::load_module(const void *module_address)
   {
     const Relocation *relocation = reinterpret_cast<const Relocation *>(
       address + data_relocations_offset + i * sizeof(Relocation));
+    printf(
+      "Relocation index 0x%x, symbol offset 0x%x, memory address: %p\n",
+      relocation->index(),
+      relocation->symbol_offset(),
+      memory_for_app_.data());
+
     std::size_t *to_relocate =
       reinterpret_cast<std::size_t *>(memory_for_app_.data()) +
       relocation->index();
+
+    // if (relocation->index() < 3)
+    //   {
+    //     std::size_t relocated =
+    //       reinterpret_cast<std::size_t>(memory_for_app_.data()) +
+    //       relocation->symbol_offset();
+    //     printf(
+    //       "to relocate 0x%x, data offset: 0x%x\n",
+    //       (*to_relocate),
+    //       header->code_length);
+
+    //     log("Data reloc, at %p to 0x%x\n", to_relocate, relocated);
+    //     *to_relocate = relocated;
+    //   }
+    //   else
+    //   {
     std::size_t relocated =
       reinterpret_cast<std::size_t>(memory_for_app_.data()) +
-      relocation->symbol_offset();
+      (*to_relocate - header->code_length);
+    printf(
+      "to relocate 0x%x, data offset: 0x%x\n",
+      (*to_relocate),
+      header->code_length);
+
     log("Data reloc, at %p to 0x%x\n", to_relocate, relocated);
     *to_relocate = relocated;
+    // }
   }
 
   log(

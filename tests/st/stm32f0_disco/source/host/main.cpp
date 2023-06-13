@@ -52,9 +52,7 @@ void gpio_setup()
   gpio_set_af(GPIOA, GPIO_AF1, GPIO9);
 }
 
-std::array<uint8_t, 1024> module;
-
-int                       main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
   clock_setup();
   gpio_setup();
@@ -62,8 +60,8 @@ int                       main(int argc, char *argv[])
 
   printf("STM32F0 Host implementation started!\n");
 
-  std::array<std::byte, 8 * 1024> ram_app;
-  std::array<std::size_t, 128>    ram_lot;
+  std::array<std::byte, 4 * 1024> ram_app;
+  std::array<std::size_t, 256>    ram_lot;
 
   std::span<std::size_t>          lot(ram_lot);
   std::span<std::byte>            app(ram_app);

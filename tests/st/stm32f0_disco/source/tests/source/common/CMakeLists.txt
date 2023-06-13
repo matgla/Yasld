@@ -20,7 +20,8 @@ add_library(stm32f0_common)
 
 target_sources(
   stm32f0_common
-  PUBLIC stub.cpp)
+  PUBLIC runtime_init.hpp stub.cpp
+  PRIVATE runtime_init.cpp)
 
 target_compile_options(
   stm32f0_common
@@ -32,3 +33,7 @@ target_compile_options(
 target_link_libraries(
   stm32f0_common
   PRIVATE build_flags stm32f0_with_pic)
+
+target_include_directories(
+  stm32f0_common
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

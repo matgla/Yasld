@@ -64,13 +64,13 @@ class RelocationSet:
         })
     
     def add_data_relocation(self, relocation, offset, visibility):
-        print("Adding data relocation: ", offset, self.index) 
+        print("Adding data relocation: ", relocation, "!") 
         self.relocations.append({
             "name": relocation["symbol_name"],
             "offset": relocation["symbol_value"],
             "symbol_value": relocation["symbol_value"],
             "type": "data",
-            "index": int(offset + self.index)
+            "index": int(offset)
         }) 
 
     def get_relocations(self):
