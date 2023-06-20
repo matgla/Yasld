@@ -25,3 +25,10 @@ configure_with_toolchain(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../toolchains/arm-none-eabi-toolchain-with-pic.cmake
   -DHOST_BINARY=${STM32F0_HOST_BINARY}
   stm32f0_host)
+
+enable_testing()
+
+add_test(
+  NAME stm32f0_disco_tests
+  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/tests --target
+          test)

@@ -85,15 +85,8 @@ extern "C"
   static std::size_t current_heap_end = 0;
   void              *_sbrk(intptr_t incr)
   {
-    char buf[20];
-    snprintf(buf, 20, "In: %d\n", incr);
-    write(STDOUT_FILENO, buf, strlen(buf));
-
     if (current_heap_end + incr > heap.size())
     {
-      const char *str = "nullptr";
-      write(STDOUT_FILENO, str, strlen(str));
-
       return nullptr;
     }
 

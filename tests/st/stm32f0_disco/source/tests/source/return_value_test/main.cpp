@@ -31,16 +31,6 @@
 int main(int argc, char *argv[])
 {
   runtime_init();
-  int *a = (int *)malloc(sizeof(int));
-  *a     = 123;
-  putc('c', stdout);
-  const char *str = strerror(errno);
-  write(STDOUT_FILENO, str, strlen(str));
-  char buf[10];
-  itoa(errno, buf, 10);
-  write(STDOUT_FILENO, buf, strlen(buf));
-
-  usart_send_blocking(USART1, 'w');
   printf("Hello from module!\n");
   return argc;
 }

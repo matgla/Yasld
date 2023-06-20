@@ -54,3 +54,5 @@ add_custom_command(
   COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:stm32f0_host>
           ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_host.bin
   COMMAND truncate --size=64K ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_host.bin)
+
+add_custom_target(test)

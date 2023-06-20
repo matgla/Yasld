@@ -88,6 +88,7 @@ endif()
 add_subdirectory(source)
 
 if(NOT DEFINED YASLD_DISABLE_TESTS)
+  enable_testing()
   message(STATUS "Adding tests")
   add_subdirectory(tests)
 endif()

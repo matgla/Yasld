@@ -21,7 +21,6 @@
 #include "runtime_init.hpp"
 
 #include <cstring>
-#include <unistd.h>
 
 extern "C"
 {
@@ -30,14 +29,10 @@ extern "C"
 
 void runtime_init()
 {
-  const char *str = "runtime init called\n";
-  write(STDOUT_FILENO, str, strlen(str));
   extern void (*__preinit_array_start)(void);
   extern void (*__preinit_array_end)(void);
   for (void (**p)(void) = &__preinit_array_start; p < &__preinit_array_end; ++p)
   {
-    const char *s = "preinit called\n";
-    write(STDOUT_FILENO, s, strlen(s));
     (*p)();
   }
 
@@ -45,11 +40,6 @@ void runtime_init()
   extern void (*__init_array_end)(void);
   for (void (**p)(void) = &__init_array_start; p < &__init_array_end; ++p)
   {
-    const char *s = "init called\n";
-    write(STDOUT_FILENO, s, strlen(s));
     (*p)();
   }
-
-  const char *str2 = "runtime init finished\n";
-  write(STDOUT_FILENO, str2, strlen(str2));
 }
