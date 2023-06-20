@@ -60,3 +60,7 @@ create_libopencm3_target(stm32/f0)
 add_subdirectory(../../../../.. ${CMAKE_CURRENT_BINARY_DIR}/yasld)
 
 add_subdirectory(source)
+
+add_custom_target(
+  test
+  COMMAND renode-test)

@@ -57,7 +57,6 @@ int main(int argc, char *argv[])
   clock_setup();
   gpio_setup();
   usart_setup();
-
   printf("STM32F0 Host implementation started!\n");
 
   std::array<std::byte, 4 * 1024> ram_app;
@@ -66,9 +65,7 @@ int main(int argc, char *argv[])
   std::span<std::size_t>          lot(ram_lot);
   std::span<std::byte>            app(ram_app);
 
-  printf("Loader creation\n");
-  yasld::Loader loader(lot, app);
-  printf("New module\n\n\n\n\n\n");
+  yasld::Loader                   loader(lot, app);
   loader.load_module(reinterpret_cast<const void *>(0x08010000));
 
   while (true)

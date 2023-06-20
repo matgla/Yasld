@@ -20,8 +20,18 @@ set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(ConfigureWithToolchain)
+
 configure_with_toolchain(
   stm32f0_disco
   ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake
   ""
   "")
+
+file(GLOB_RECURSE test_files ${CMAKE_CURRENT_BINARY_DIR}/**/*.robot)
+
+message(STATUS "Test files: ${test_files}")
+
+add_custom_target(
+  st
+  COMMAND renode-test ${test_files}
+  DEPENDS stm32f0_disco)
