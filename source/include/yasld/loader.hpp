@@ -24,8 +24,12 @@
 #include <cstdint>
 #include <span>
 
+#include "yasld/executable.hpp"
+
 namespace yasld
 {
+
+class Header;
 
 class Loader
 {
@@ -33,17 +37,12 @@ public:
   Loader(
     std::span<std::size_t> memory_for_lot,
     std::span<std::byte>   memory_for_app);
-  void                   load_module(const void *module_address);
-  //  Loader();
-  //
-  //  enum class Mode : uint8_t
-  //  {
-  //    CopyData,
-  //    CopyTextAndData
-  //  };
-  //
-  //  // Todo: add way to load from not mapped memory, like mmc card
-  //  const LoadedModule *load_module(const void *module_address);
+
+  void       load_module(const void *module_address);
+  Executable load_executable(const void *module_address);
+
+private:
+  const Header          *process_header(const void *module_address) const;
 
   std::span<std::size_t> memory_for_lot_;
   std::span<std::byte>   memory_for_app_;

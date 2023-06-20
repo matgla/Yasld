@@ -183,7 +183,6 @@ class Application:
                 continue 
             elif relocation["info_type"] == "R_ARM_GOT_BREL":
                 visibility = self.processed_symbols[relocation["symbol_name"]]["localization"]
-                print(relocation["symbol_name"], visibility)
                 if visibility == "internal":
                     self.relocation_table.add_local_relocation(relocation)
                 else:
@@ -213,11 +212,9 @@ class Application:
                     visibility = self.processed_symbols[relocation["symbol_name"]]["localization"]
                     symbol = self.processed_symbols[relocation["symbol_name"]] 
                     if symbol["type"] == "STT_OBJECT" or symbol["type"] == "STT_FUNC":
-                        print(hex(relocation["offset"]))
                         offset = int((relocation["offset"] - code_size)/4)
                         if (offset < 0):
                             raise RuntimeError("Offset negative for: " + str(relocation["symbol_name"]))
-                        print("Adding data relocation: ", relocation, " offset: ", offset, " visibility: ", visibility)
                         self.relocation_table.add_data_relocation(relocation, offset, visibility)
                 else:
                     raise RuntimeError("Symbol not found in symbol table: " + relocation["symbol_name"])
@@ -318,7 +315,6 @@ class Application:
         symbol_table = bytearray() 
         for symbol in symbols:
             value = symbol["value"]
-            print("Symbol '", symbol["name"], "' has offset: ", hex(value))
             if symbol["section"] == SectionCode.Data:
                 value -= len(self.code)
            
@@ -361,14 +357,12 @@ class Application:
                 value -= len(self.code)
 
             if section == SectionCode.Unknown:
-                print("rel: ", rel)
                 raise RuntimeError("Unknown section code: " + str(section))
 
             index_with_section = rel["index"] << 1 | section.value
             relocation_table.append({"index": index_with_section, "offset": value}) 
 
         for rel in data_relocations:
-            print("Adding data relocation with index, ", rel["index"], ", offset: ", rel["offset"])
             offset = rel["offset"]
             if offset > len(self.code):
                 offset -= len(self.code)

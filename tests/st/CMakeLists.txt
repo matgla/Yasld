@@ -27,11 +27,19 @@ configure_with_toolchain(
   ""
   "")
 
-file(GLOB_RECURSE test_files ${CMAKE_CURRENT_BINARY_DIR}/**/*.robot)
+file(GLOB_RECURSE test_files
+     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_disco/**/*_test.robot)
 
-message(STATUS "Test files: ${test_files}")
+foreach(
+  file
+  ${test_files})
+  # message(FATAL_ERROR "Hello file: ${file}")
+  get_filename_component(test_name ${file} NAME_WE)
+  add_test(
+    NAME ${test_name}
+    COMMAND renode-test ${file})
 
-add_custom_target(
-  st
-  COMMAND renode-test ${test_files}
-  DEPENDS stm32f0_disco)
+  set_tests_properties(
+    ${test_name}
+    PROPERTIES FIXTURES_SETUP stm32f0_disco)
+endforeach()

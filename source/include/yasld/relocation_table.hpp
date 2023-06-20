@@ -1,5 +1,5 @@
 /**
- * relocation.hpp
+ * relocation_table.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -20,28 +20,11 @@
 
 #pragma once
 
-#include <cstdint>
-
 namespace yasld
 {
 
-class Symbol;
-
-class __attribute__((packed)) Relocation
+class RelocationTable
 {
-public:
-  [[nodiscard]] uint32_t       index() const;
-  [[nodiscard]] const Symbol  &symbol() const;
-  [[nodiscard]] uint32_t       symbol_offset() const;
-  constexpr static std::size_t size()
-  {
-    return sizeof(Relocation);
-  }
-  [[nodiscard]] const Relocation &next() const;
-
-private:
-  uint32_t index_;
-  uint32_t symbol_offset_;
 };
 
 } // namespace yasld

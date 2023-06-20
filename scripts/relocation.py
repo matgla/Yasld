@@ -64,7 +64,6 @@ class RelocationSet:
         })
     
     def add_data_relocation(self, relocation, offset, visibility):
-        print("Adding data relocation: ", relocation, "!") 
         self.relocations.append({
             "name": relocation["symbol_name"],
             "offset": relocation["symbol_value"],

@@ -54,12 +54,10 @@ void Loader::load_module(const void *module_address)
   log("Memory for app: %p\n", memory_for_app_.data());
   log("Memory for lot: %p\n", memory_for_lot_.data());
 
-  const Header *header = static_cast<const Header *>(module_address);
-
-  if (std::string_view(header->cookie, 4) != "YAFF")
+  const Header *header = process_header(module_address);
+  if (!header)
   {
-    log("Not YASIFF file, aborting...\n");
-    return;
+    return nullptr;
   }
 
   std::uintptr_t    address = reinterpret_cast<std::uintptr_t>(module_address);
@@ -209,6 +207,18 @@ void Loader::load_module(const void *module_address)
   int   argc   = 1;
   char *argv[] = { { "appname" } };
   call_main(argc, argv, main, memory_for_lot_.data());
+}
+
+const Header *Loader::process_header(const void *module_address) const
+{
+  const Header *header = static_cast<const Header *>(module_address);
+
+  if (std::string_view(header->cookie, 4) != "YAFF")
+  {
+    log("Not YASIFF file, aborting...\n");
+    return nullptr;
+  }
+  return header;
 }
 
 } // namespace yasld

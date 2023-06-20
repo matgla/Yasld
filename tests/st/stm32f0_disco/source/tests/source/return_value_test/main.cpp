@@ -24,6 +24,7 @@
 #include <errno.h>
 
 #include <libopencm3/stm32/usart.h>
+
 #include <unistd.h>
 
 #include "runtime_init.hpp"

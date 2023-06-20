@@ -25,5 +25,6 @@ add_test_executable(stm32f0_return_value_test ${sources})
 
 set(renode_test_binary
     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test_with_host.bin)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/return_value_test.robot
-               ${CMAKE_CURRENT_BINARY_DIR}/return_value_test.robot @ONLY)
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/stm32f0_return_value_test.robot
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test.robot @ONLY)

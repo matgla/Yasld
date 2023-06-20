@@ -1,5 +1,5 @@
 /**
- * relocation.hpp
+ * executable.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,30 +18,22 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include <cstdint>
+#include "yasld/executable.hpp"
 
 namespace yasld
 {
 
-class Symbol;
-
-class __attribute__((packed)) Relocation
+Executable::Executable(const std::size_t start_address)
+  : start_address_(start_address)
 {
-public:
-  [[nodiscard]] uint32_t       index() const;
-  [[nodiscard]] const Symbol  &symbol() const;
-  [[nodiscard]] uint32_t       symbol_offset() const;
-  constexpr static std::size_t size()
-  {
-    return sizeof(Relocation);
-  }
-  [[nodiscard]] const Relocation &next() const;
+}
 
-private:
-  uint32_t index_;
-  uint32_t symbol_offset_;
-};
+int Executable::execute(int argc, char *argv[]) const
+{
+}
+
+int Executable::execute(int argc, char *argv[]) const
+{
+}
 
 } // namespace yasld

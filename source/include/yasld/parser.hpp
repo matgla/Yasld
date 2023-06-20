@@ -20,13 +20,44 @@
 
 #pragma once
 
+#include <cstdint>
+#include <span>
+
+#include "yasld/header.hpp"
+#include "yasld/relocation_table.hpp"
+#include "yasld/symbol_table.hpp"
+
 namespace yasld
 {
 
 class Parser
 {
 public:
-  Parser();
+  Parser(const Header *header);
+
+  SymbolTable              get_exported_symbols() const;
+  SymbolTable              get_external_symbols() const;
+
+  RelocationTable          get_exported_relocations() const;
+  RelocationTable          get_local_relocations() const;
+  RelocationTable          get_data_relocations() const;
+  RelocationTable          get_external_relocations() const;
+
+  std::span<const uint8_t> get_data() const;
+  std::span<const uint8_t> get_text() const;
+
+private:
+  const Header        *header_;
+
+  const std::uintptr_t address_;
+  const std::uintptr_t exported_relocations_address_;
+  const std::uintptr_t external_relocations_address_;
+  const std::uintptr_t local_relocations_address_;
+  const std::uintptr_t data_relocations_address_;
+  const std::uintptr_t exported_symbols_address_;
+  const std::uintptr_t external_symbols_address_;
+  const std::uintptr_t text_address_;
+  const std::uintptr_t data_address_;
 };
 
 } // namespace yasld

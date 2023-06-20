@@ -1,5 +1,5 @@
 /**
- * relocation.hpp
+ * module.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -20,28 +20,21 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstdlib>
 
 namespace yasld
 {
 
-class Symbol;
-
-class __attribute__((packed)) Relocation
+class Executable
 {
 public:
-  [[nodiscard]] uint32_t       index() const;
-  [[nodiscard]] const Symbol  &symbol() const;
-  [[nodiscard]] uint32_t       symbol_offset() const;
-  constexpr static std::size_t size()
-  {
-    return sizeof(Relocation);
-  }
-  [[nodiscard]] const Relocation &next() const;
+  Executable(const std::size_t start_address);
+
+  int execute(int argc, char *argv[]) const;
+  int execute(int argc, const char *argv[]) const;
 
 private:
-  uint32_t index_;
-  uint32_t symbol_offset_;
+  std::size_t start_address_;
 };
 
 } // namespace yasld

@@ -1,7 +1,10 @@
 *** Settings ***
+Resource            ${RENODEKEYWORDS}
+
 Suite Setup         Setup
 Suite Teardown      Teardown
-Test Setup          Reset Emulation
+Test Teardown       Test Teardown
+Test Timeout        10 seconds
 
 
 *** Variables ***
@@ -13,7 +16,6 @@ Test returing value from module on Cortex-M0
     Start Test
 
     Wait For Line On Uart    Hello from module!    timeout=1
-    Start Emulation
 
 
 *** Keywords ***
@@ -24,5 +26,7 @@ Start Test
     Execute Command    sysbus LoadBinary @${TEST_FILE} 0x08000000
 
     Execute Command    sysbus.cpu VectorTableOffset 0x08000000
-    Execute Command    ShowAnalyzer sysbus.usart1
+
     Create Terminal Tester    sysbus.usart1
+
+    Start Emulation
