@@ -64,6 +64,11 @@ include(virtualenv)
 create_virtualenv(yasld ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
                   ${CMAKE_CURRENT_BINARY_DIR}/venvs)
 
+create_virtualenv(scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/requirements.txt
+                  ${CMAKE_CURRENT_BINARY_DIR}/venvs)
+
+
+
 enable_language(CXX ASM C)
 
 add_library(yasld_flags INTERFACE)

@@ -33,7 +33,7 @@ function(convert_elf_to_yasiff target)
     COMMAND cmake -E copy $<TARGET_FILE:${target}> $<TARGET_FILE:${target}>.bak
     COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}>
     COMMAND
-      ${SCRIPTS_DIR}/mkimage.py --input=$<TARGET_FILE:${target}>
+      ${scripts_python_executable} ${SCRIPTS_DIR}/mkimage.py --input=$<TARGET_FILE:${target}>
       --output=${target} -v DEPENDS ${target} ${SCRIPTS_DIR}/scripts/mkimage.py
     VERBATIM)
 
