@@ -25,11 +25,9 @@
 namespace yasld
 {
 
-SymbolTable::SymbolTable(
-  std::size_t   number_of_symbols,
-  const Symbol *symbol_table_root_)
+SymbolTable::SymbolTable(std::uintptr_t address, std::size_t number_of_symbols)
   : number_of_symbols_(number_of_symbols)
-  , root_(symbol_table_root_)
+  , root_(reinterpret_cast<const Symbol *>(address))
 {
 }
 
@@ -43,6 +41,11 @@ std::size_t SymbolTable::size() const
     symbol = symbol->next();
   }
   return size;
+}
+
+std::uintptr_t SymbolTable::address() const
+{
+  return reinterpret_cast<std::uintptr_t>(root_);
 }
 
 } // namespace yasld

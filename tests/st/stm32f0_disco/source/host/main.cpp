@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
   clock_setup();
   gpio_setup();
   usart_setup();
-  printf("STM32F0 Host implementation started!\n");
+  printf("[host] STM32F0 started!\n");
 
   std::array<std::byte, 4 * 1024> ram_app;
   std::array<std::size_t, 256>    ram_lot;
@@ -66,8 +66,12 @@ int main(int argc, char *argv[])
   std::span<std::byte>            app(ram_app);
 
   yasld::Loader                   loader(lot, app);
-  loader.load_module(reinterpret_cast<const void *>(0x08010000));
-
+  const auto                      exec =
+    loader.load_executable(reinterpret_cast<const void *>(0x08010000));
+  if (!exec)
+  {
+    printf("[host] Executable loading failure\n");
+  }
   while (true)
   {
   }

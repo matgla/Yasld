@@ -30,12 +30,13 @@ class Symbol;
 class SymbolTable
 {
 public:
-  SymbolTable(std::size_t number_of_symbols, const Symbol *symbol_table_root_);
+  SymbolTable(std::uintptr_t address, std::size_t number_of_symbols);
 
-  [[nodiscard]] std::size_t size() const;
+  [[nodiscard]] std::uintptr_t address() const;
+  [[nodiscard]] std::size_t    size() const;
 
 private:
-  std::size_t number_of_symbols_;
+  std::size_t   number_of_symbols_;
   const Symbol *root_;
 };
 

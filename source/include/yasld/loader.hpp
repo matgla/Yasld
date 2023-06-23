@@ -22,6 +22,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 
 #include "yasld/executable.hpp"
@@ -38,8 +39,7 @@ public:
     std::span<std::size_t> memory_for_lot,
     std::span<std::byte>   memory_for_app);
 
-  void       load_module(const void *module_address);
-  Executable load_executable(const void *module_address);
+  std::optional<Executable> load_executable(const void *module_address);
 
 private:
   const Header          *process_header(const void *module_address) const;

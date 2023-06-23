@@ -33,8 +33,10 @@ file(GLOB_RECURSE test_files
 foreach(
   file
   ${test_files})
-  # message(FATAL_ERROR "Hello file: ${file}")
+  
+  message(STATUS "Hello file: ${file}")
   get_filename_component(test_name ${file} NAME_WE)
+  
   add_test(
     NAME ${test_name}
     COMMAND renode-test ${file})

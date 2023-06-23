@@ -1,5 +1,5 @@
 /**
- * relocation_table.hpp
+ * relocation_table.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,26 +18,27 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include <cstdint>
+#include "yasld/relocation_table.hpp"
 
 namespace yasld
 {
 
-class Relocation;
-
-class RelocationTable
+RelocationTable::RelocationTable(
+  std::uintptr_t address,
+  std::size_t    number_of_relocations)
+  : root_(reinterpret_cast<const Relocation *>(address))
+  , number_of_relocations_(number_of_relocations_)
 {
-public:
-  RelocationTable(std::uintptr_t address, std::size_t number_of_relocations);
+}
 
-  [[nodiscard]] std::size_t    size() const;
-  [[nodiscard]] std::uintptr_t address() const;
+std::size_t RelocationTable::size() const
+{
+  return number_of_relocations_;
+}
 
-private:
-  std::size_t       number_of_relocations_;
-  const Relocation *root_;
-};
+std::uintptr_t RelocationTable::address() const
+{
+  return reinterpret_cast<std::uintptr_t>(root_);
+}
 
 } // namespace yasld

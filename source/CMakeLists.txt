@@ -30,11 +30,15 @@ target_sources(
          ${include_dir}/symbol.hpp
          ${include_dir}/symbol_table.hpp
          ${include_dir}/logger.hpp
+         ${include_dir}/parser.hpp
+         ${include_dir}/relocation_table.hpp
   PRIVATE loader.cpp
           header.cpp
           relocation.cpp
           symbol.cpp
-          symbol_table.cpp)
+          symbol_table.cpp
+          parser.cpp
+          relocation_table.cpp)
 
 add_subdirectory(arch)
 
