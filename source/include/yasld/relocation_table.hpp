@@ -21,6 +21,7 @@
 #pragma once
 
 #include <cstdint>
+#include <span>
 
 namespace yasld
 {
@@ -35,9 +36,12 @@ public:
   [[nodiscard]] std::size_t    size() const;
   [[nodiscard]] std::uintptr_t address() const;
 
+  using ConstSpan = std::span<const Relocation>;
+
+  const ConstSpan &span() const;
+
 private:
-  std::size_t       number_of_relocations_;
-  const Relocation *root_;
+  ConstSpan relocations_;
 };
 
 } // namespace yasld

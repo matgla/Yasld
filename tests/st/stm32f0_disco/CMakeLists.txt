@@ -59,7 +59,3 @@ include(BuildFlags)
 add_subdirectory(../../.. ${CMAKE_CURRENT_BINARY_DIR}/yasld)
 
 add_subdirectory(source)
-
-add_custom_target(
-  test_a
-  COMMAND echo "tests executed")

@@ -21,6 +21,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <span>
 
 namespace yasld
 {
@@ -28,13 +29,13 @@ namespace yasld
 class Executable
 {
 public:
-  Executable(const std::size_t start_address);
+  Executable(const std::size_t start_address, std::span<std::size_t> lot);
 
   int execute(int argc, char *argv[]) const;
-  int execute(int argc, const char *argv[]) const;
 
 private:
-  std::size_t start_address_;
+  std::size_t       start_address_;
+  std::span<size_t> lot_;
 };
 
 } // namespace yasld

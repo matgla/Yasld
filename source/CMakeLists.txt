@@ -18,8 +18,7 @@
 
 add_library(yasld)
 
-set(include_dir
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
+set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
 
 target_sources(
   yasld
@@ -32,20 +31,25 @@ target_sources(
          ${include_dir}/logger.hpp
          ${include_dir}/parser.hpp
          ${include_dir}/relocation_table.hpp
+         ${include_dir}/symbol_iterator.hpp
+         ${include_dir}/executable.hpp
   PRIVATE loader.cpp
+          executable.cpp
           header.cpp
           relocation.cpp
           symbol.cpp
           symbol_table.cpp
           parser.cpp
-          relocation_table.cpp)
+          relocation_table.cpp
+          symbol_iterator.cpp)
 
 add_subdirectory(arch)
 
+find_package(eul REQUIRED)
+
 target_link_libraries(
   yasld
+  PUBLIC eul::functional
   PRIVATE yasld_arch yasld_flags)
 
-target_include_directories(
-  yasld
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_include_directories(yasld PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

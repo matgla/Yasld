@@ -36,8 +36,8 @@ uint32_t Relocation::symbol_offset() const
 
 const Symbol &Relocation::symbol() const
 {
-  const uint8_t *ptr = reinterpret_cast<const uint8_t *>(this);
-  ptr += symbol_offset_;
+  const uint8_t *ptr  = reinterpret_cast<const uint8_t *>(this);
+  ptr                += symbol_offset_;
   return reinterpret_cast<const Symbol &>(*ptr);
 }
 

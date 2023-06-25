@@ -16,32 +16,23 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(ConfigureWithToolchain)
 
+if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml)
+  file(TOUCH ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml)
+endif()
+
 configure_with_toolchain(
+  NAME
   stm32f0_disco
-  ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake
-  ""
-  "")
+  ARGS
+  -DST_TESTS_FILE=${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
+  TOOLCHAIN
+  ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake)
 
-file(GLOB_RECURSE test_files
-     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_disco/**/*_test.robot)
-
-foreach(
-  file
-  ${test_files})
-  
-  message(STATUS "Hello file: ${file}")
-  get_filename_component(test_name ${file} NAME_WE)
-  
-  add_test(
-    NAME ${test_name}
-    COMMAND renode-test ${file})
-
-  set_tests_properties(
-    ${test_name}
-    PROPERTIES FIXTURES_SETUP stm32f0_disco)
-endforeach()
+add_custom_target(
+  run_st
+  COMMAND renode-test -t ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
+  VERBATIM)

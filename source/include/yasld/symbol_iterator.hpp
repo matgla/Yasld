@@ -1,5 +1,5 @@
 /**
- * relocation_table.cpp
+ * symbol_iterator.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,34 +18,36 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include "yasld/relocation_table.hpp"
+#pragma once
 
-#include "yasld/relocation.hpp"
+#include <iterator>
 
 namespace yasld
 {
 
-RelocationTable::RelocationTable(
-  std::uintptr_t address,
-  std::size_t    number_of_relocations)
-  : relocations_{ reinterpret_cast<const Relocation *>(address),
-                  number_of_relocations }
-{
-}
+class Symbol;
 
-std::size_t RelocationTable::size() const
+class SymbolIterator
 {
-  return relocations_.size();
-}
+public:
+  SymbolIterator(const Symbol *symbol);
+  using iterator_category = std::forward_iterator_tag;
+  using difference_type   = std::ptrdiff_t;
+  using value_type        = Symbol;
+  using pointer           = const Symbol *;
+  using reference         = const Symbol &;
 
-std::uintptr_t RelocationTable::address() const
-{
-  return reinterpret_cast<std::uintptr_t>(relocations_.data());
-}
+  reference       operator*() const;
+  pointer         operator->();
 
-const RelocationTable::ConstSpan &RelocationTable::span() const
-{
-  return relocations_;
-}
+  SymbolIterator &operator++();
+  SymbolIterator  operator++(int);
+
+  bool            operator==(const SymbolIterator &b) const;
+  bool            operator!=(const SymbolIterator &b) const;
+
+private:
+  const Symbol *symbol_;
+};
 
 } // namespace yasld

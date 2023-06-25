@@ -35,16 +35,16 @@ class Parser
 public:
   Parser(const Header *header);
 
-  const SymbolTable        get_exported_symbols() const;
-  const SymbolTable        get_external_symbols() const;
+  const SymbolTable          get_exported_symbols() const;
+  const SymbolTable          get_external_symbols() const;
 
-  const RelocationTable    get_exported_relocations() const;
-  const RelocationTable    get_local_relocations() const;
-  const RelocationTable    get_data_relocations() const;
-  const RelocationTable    get_external_relocations() const;
+  const RelocationTable      get_exported_relocations() const;
+  const RelocationTable      get_local_relocations() const;
+  const RelocationTable      get_data_relocations() const;
+  const RelocationTable      get_external_relocations() const;
 
-  std::span<const uint8_t> get_data() const;
-  std::span<const uint8_t> get_text() const;
+  std::span<const std::byte> get_data() const;
+  std::span<const std::byte> get_text() const;
 
 private:
   const Header         *header_;

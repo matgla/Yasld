@@ -22,6 +22,8 @@
 
 #include <cstdint>
 
+#include "yasld/symbol_iterator.hpp"
+
 namespace yasld
 {
 
@@ -30,10 +32,14 @@ class Symbol;
 class SymbolTable
 {
 public:
+  SymbolTable();
   SymbolTable(std::uintptr_t address, std::size_t number_of_symbols);
 
   [[nodiscard]] std::uintptr_t address() const;
   [[nodiscard]] std::size_t    size() const;
+
+  SymbolIterator               begin() const;
+  SymbolIterator               end() const;
 
 private:
   std::size_t   number_of_symbols_;

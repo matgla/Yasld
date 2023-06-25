@@ -20,20 +20,25 @@
 
 #include "yasld/executable.hpp"
 
+extern "C"
+{
+  int call_main(int argc, char *argv[], std::size_t address, void *lot);
+}
+
 namespace yasld
 {
 
-Executable::Executable(const std::size_t start_address)
+Executable::Executable(
+  const std::size_t      start_address,
+  std::span<std::size_t> lot)
   : start_address_(start_address)
+  , lot_(lot)
 {
 }
 
 int Executable::execute(int argc, char *argv[]) const
 {
-}
-
-int Executable::execute(int argc, char *argv[]) const
-{
+  return call_main(argc, argv, start_address_, lot_.data());
 }
 
 } // namespace yasld

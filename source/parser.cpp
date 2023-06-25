@@ -8,10 +8,10 @@
  * as published by the Free Software Foundation, either version
  * 3 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be
- * useful, but WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
- * PURPOSE. See the GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
  *
  * You should have received a copy of the GNU General
  * Public License along with this program. If not, see
@@ -21,6 +21,8 @@
 #include "yasld/parser.hpp"
 
 #include "yasld/align.hpp"
+
+#include <cstdio>
 
 namespace yasld
 {
@@ -35,7 +37,7 @@ Parser::Parser(const Header *header)
   , local_relocations_{ external_relocations_.address() +
                           external_relocations_.size(),
                         header->local_relocations_amount }
-  , data_relocations_{ local_relocations_.address() + data_relocations_.size(),
+  , data_relocations_{ local_relocations_.address() + local_relocations_.size(),
                        header->data_relocations_amount }
   , exported_symbols_{ data_relocations_.address() + data_relocations_.size(),
                        header->exported_symbols_amount }
@@ -77,16 +79,16 @@ const RelocationTable Parser::get_external_relocations() const
   return external_relocations_;
 }
 
-std::span<const uint8_t> Parser::get_text() const
+std::span<const std::byte> Parser::get_text() const
 {
-  return std::span<const uint8_t>(
-    reinterpret_cast<const uint8_t *>(text_address_), header_->code_length);
+  return std::span<const std::byte>(
+    reinterpret_cast<const std::byte *>(text_address_), header_->code_length);
 }
 
-std::span<const uint8_t> Parser::get_data() const
+std::span<const std::byte> Parser::get_data() const
 {
-  return std::span<const uint8_t>(
-    reinterpret_cast<const uint8_t *>(data_address_), header_->data_length);
+  return std::span<const std::byte>(
+    reinterpret_cast<const std::byte *>(data_address_), header_->data_length);
 }
 
 } // namespace yasld

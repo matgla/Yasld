@@ -1,5 +1,5 @@
 /**
- * relocation_table.cpp
+ * symbol_iterator.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,34 +18,49 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include "yasld/relocation_table.hpp"
+#include "yasld/symbol_iterator.hpp"
 
-#include "yasld/relocation.hpp"
+#include "yasld/symbol.hpp"
 
 namespace yasld
 {
 
-RelocationTable::RelocationTable(
-  std::uintptr_t address,
-  std::size_t    number_of_relocations)
-  : relocations_{ reinterpret_cast<const Relocation *>(address),
-                  number_of_relocations }
+SymbolIterator::SymbolIterator(const Symbol *symbol)
+  : symbol_(symbol)
 {
 }
 
-std::size_t RelocationTable::size() const
+SymbolIterator::reference SymbolIterator::operator*() const
 {
-  return relocations_.size();
+  return *symbol_;
 }
 
-std::uintptr_t RelocationTable::address() const
+SymbolIterator::pointer SymbolIterator::operator->()
 {
-  return reinterpret_cast<std::uintptr_t>(relocations_.data());
+  return symbol_;
 }
 
-const RelocationTable::ConstSpan &RelocationTable::span() const
+SymbolIterator &SymbolIterator::operator++()
 {
-  return relocations_;
+  symbol_ = symbol_->next();
+  return *this;
+}
+
+SymbolIterator SymbolIterator::operator++(int)
+{
+  SymbolIterator copy = *this;
+  symbol_             = symbol_->next();
+  return copy;
+}
+
+bool SymbolIterator::operator==(const SymbolIterator &b) const
+{
+  return symbol_ == b.symbol_;
+}
+
+bool SymbolIterator::operator!=(const SymbolIterator &b) const
+{
+  return symbol_ != b.symbol_;
 }
 
 } // namespace yasld

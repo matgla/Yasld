@@ -59,15 +59,18 @@ int main(int argc, char *argv[])
   usart_setup();
   printf("[host] STM32F0 started!\n");
 
-  std::array<std::byte, 4 * 1024> ram_app;
-  std::array<std::size_t, 256>    ram_lot;
-
-  std::span<std::size_t>          lot(ram_lot);
-  std::span<std::byte>            app(ram_app);
-
-  yasld::Loader                   loader(lot, app);
-  const auto                      exec =
-    loader.load_executable(reinterpret_cast<const void *>(0x08010000));
+  yasld::Loader loader(
+    [](std::size_t size)
+    {
+      return std::span<std::byte>(static_cast<std::byte *>(malloc(size)), size);
+    },
+    [](std::span<std::byte> data)
+    {
+      free(data.data());
+    });
+  const auto exec = loader.load_executable(
+    reinterpret_cast<const void *>(0x08010000),
+    yasld::Loader::Mode::copy_only_data);
   if (!exec)
   {
     printf("[host] Executable loading failure\n");
