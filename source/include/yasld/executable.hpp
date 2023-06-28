@@ -29,12 +29,18 @@ namespace yasld
 class Executable
 {
 public:
-  Executable(const std::size_t start_address, std::span<std::size_t> lot);
+  Executable(
+    const std::size_t      start_address,
+    const std::size_t      text_address,
+    std::span<std::size_t> lot);
 
-  int execute(int argc, char *argv[]) const;
+  int         execute(int argc, char *argv[]) const;
+
+  std::size_t text_address() const;
 
 private:
   std::size_t       start_address_;
+  std::size_t       text_address_;
   std::span<size_t> lot_;
 };
 

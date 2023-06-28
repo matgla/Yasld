@@ -30,9 +30,3 @@ configure_with_toolchain(
   -DST_TESTS_FILE=${ST_TESTS_FILE}
   DEPENDS
   stm32f0_host)
-
-enable_testing()
-
-add_test(NAME stm32f0_disco_tests
-         COMMAND ${CMAKE_COMMAND} --build ${CMAKE_CURRENT_BINARY_DIR}/tests
-                 --target test)

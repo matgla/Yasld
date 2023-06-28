@@ -73,15 +73,7 @@ std::optional<Executable> Loader::load_executable(
   {
     text_ = parser.get_text();
   }
-  //
-  //   log(
-  //     "%s offset: 0x%x\n",
-  //     symbol_table_root->name().data(),
-  //     symbol_table_root->offset());
-  //   const std::size_t main = address + code_offset +
-  //   symbol_table_root->offset(); log("Calling main at: 0x%x\n", main); int
-  //   argc   = 1; char *argv[] = { { "appname" } }; call_main(argc, argv, main,
-  //   memory_for_lot_.data());
+
   const auto result = process_data(*header, parser);
   process_external_relocations(parser);
   process_local_relocations(parser);
@@ -91,7 +83,9 @@ std::optional<Executable> Loader::load_executable(
   const std::size_t main_address = find_symbol("main");
   if (main_address != 0)
   {
-    return Executable{ main_address, lot_ };
+    return Executable{ main_address,
+                       reinterpret_cast<std::size_t>(text_.data()),
+                       lot_ };
   }
   return std::nullopt;
 }
@@ -149,8 +143,8 @@ void Loader::process_data_relocations(const Parser &parser)
     std::size_t *to_relocate =
       reinterpret_cast<std::size_t *>(data_.data()) + rel.index();
 
-    std::size_t relocated =
-      reinterpret_cast<std::size_t>(data_.data()) + rel.symbol_offset();
+    std::size_t relocated = reinterpret_cast<std::size_t>(data_.data()) +
+                            (*to_relocate - text_.size());
     log(
       "to relocate %p, data offset: 0x%x\n", to_relocate, rel.symbol_offset());
     *to_relocate = relocated;
@@ -188,8 +182,10 @@ bool Loader::process_data(const Header &header, const Parser &parser)
 
 std::size_t Loader::find_symbol(std::string_view name) const
 {
+  log("Searching symbol: %s\n", name.data());
   for (const auto &symbol : exported_symbols_)
   {
+    log("Name: %s\n", symbol.name().data());
     if (symbol.name() == name)
     {
       const std::size_t start_address =

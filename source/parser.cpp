@@ -22,14 +22,12 @@
 
 #include "yasld/align.hpp"
 
-#include <cstdio>
-
 namespace yasld
 {
 Parser::Parser(const Header *header)
   : header_{ header }
   , exported_relocations_{ reinterpret_cast<std::uintptr_t>(header) +
-                             sizeof(header),
+                             sizeof(*header),
                            header->exported_relocations_amount }
   , external_relocations_{ exported_relocations_.address() +
                              exported_relocations_.size(),

@@ -34,5 +34,6 @@ configure_with_toolchain(
 
 add_custom_target(
   run_st
-  COMMAND renode-test -t ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
+  COMMAND renode-test --debug-on-error -t
+          ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
   VERBATIM)

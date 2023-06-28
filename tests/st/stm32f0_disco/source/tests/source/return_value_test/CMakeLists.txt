@@ -29,8 +29,6 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/stm32f0_return_value_test.robot
   ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test.robot @ONLY)
 
-file(APPEND ${ST_TESTS_FILE}
-     "- ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test.robot")
+include(RegisterTest)
 
-# add_test( NAME stm32f0_return_value_test COMMAND renode-test
-# ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test.robot)
+register_st(${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test.robot)

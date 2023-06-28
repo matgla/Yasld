@@ -20,6 +20,8 @@
 
 #include "yasld/executable.hpp"
 
+#include "yasld/logger.hpp"
+
 extern "C"
 {
   int call_main(int argc, char *argv[], std::size_t address, void *lot);
@@ -30,15 +32,23 @@ namespace yasld
 
 Executable::Executable(
   const std::size_t      start_address,
+  const std::size_t      text_address,
   std::span<std::size_t> lot)
   : start_address_(start_address)
+  , text_address_(text_address)
   , lot_(lot)
 {
 }
 
 int Executable::execute(int argc, char *argv[]) const
 {
+  log("Executing module\n");
   return call_main(argc, argv, start_address_, lot_.data());
+}
+
+std::size_t Executable::text_address() const
+{
+  return text_address_;
 }
 
 } // namespace yasld

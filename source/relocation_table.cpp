@@ -35,7 +35,7 @@ RelocationTable::RelocationTable(
 
 std::size_t RelocationTable::size() const
 {
-  return relocations_.size();
+  return relocations_.size() * sizeof(Relocation);
 }
 
 std::uintptr_t RelocationTable::address() const

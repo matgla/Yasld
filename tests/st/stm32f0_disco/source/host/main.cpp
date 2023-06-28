@@ -75,6 +75,13 @@ int main(int argc, char *argv[])
   {
     printf("[host] Executable loading failure\n");
   }
+  else
+  {
+    printf("[host] Text is loaded: 0x%x\n", exec->text_address());
+    char  arg[20] = { "executable" };
+    char *args[1] = { arg };
+    exec->execute(1, args);
+  }
   while (true)
   {
   }
