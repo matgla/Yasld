@@ -68,6 +68,7 @@ int main(int argc, char *argv[])
     {
       free(data.data());
     });
+
   const auto exec = loader.load_executable(
     reinterpret_cast<const void *>(0x08010000),
     yasld::Loader::Mode::copy_only_data);

@@ -67,7 +67,8 @@ std::optional<Executable> Loader::load_executable(
   log("Allocation of LOT with size: %ld\n", lot_size);
 
   lot_ = std::span<std::size_t>(
-    reinterpret_cast<std::size_t *>(allocator_(lot_size).data()), lot_size);
+    reinterpret_cast<std::size_t *>(allocator_(lot_size_bytes).data()),
+    lot_size);
 
   if (mode == Mode::copy_only_data)
   {
@@ -135,18 +136,18 @@ void Loader::process_data_relocations(const Parser &parser)
   log("Processing data relocations: %d\n", span.size());
   for (const auto &rel : span)
   {
-    log(
-      "Data relocation, index 0x%x, offset: 0x%x, memory: %p\n",
-      rel.index(),
-      rel.symbol_offset(),
-      data_.data());
+    log("Data relocation, index 0x%x, memory: %p\n", rel.index(), data_.data());
     std::size_t *to_relocate =
       reinterpret_cast<std::size_t *>(data_.data()) + rel.index();
 
     std::size_t relocated = reinterpret_cast<std::size_t>(data_.data()) +
-                            (*to_relocate - text_.size());
+                            (*to_relocate - text_.size_bytes());
     log(
-      "to relocate %p, data offset: 0x%x\n", to_relocate, rel.symbol_offset());
+      "to relocate %p, data offset: 0x%x, relocated: 0x%x\n",
+      (*to_relocate),
+      (*to_relocate - text_.size_bytes()),
+      relocated);
+
     *to_relocate = relocated;
   }
 }
@@ -154,7 +155,7 @@ void Loader::process_data_relocations(const Parser &parser)
 bool Loader::process_data(const Header &header, const Parser &parser)
 {
   const auto data = parser.get_data();
-  data_           = allocator_(data.size());
+  data_           = allocator_(header.data_length + header.bss_length);
   if (data_.empty())
   {
     log("Data memory allocation failure\n");
@@ -165,17 +166,26 @@ bool Loader::process_data(const Header &header, const Parser &parser)
     "Copying data from %p to %p, size: 0x%x\n",
     data.data(),
     data_.data(),
-    data.size());
-  std::copy(data.begin(), data.end(), data_.begin());
+    data.size_bytes());
 
-  bss_ = allocator_(header.bss_length);
+  std::memcpy(data_.data(), data.data(), data.size_bytes());
+
+  log("Copy data, some values: ");
+  for (int i = 0; i < 16; ++i)
+  {
+    log("%x, ", data_[i]);
+  }
+  log("\n");
+  // std::copy(data.begin(), data.end(), data_.begin());
+
+  bss_ = data_.subspan(header.data_length, header.bss_length);
 
   if (bss_.empty())
   {
     log("BSS memory allocation failure\n");
     return false;
   }
-  log("BSS initialization on %p, size: 0x%x\n", bss_.data(), bss_.size());
+  log("BSS initialization on %p, size: 0x%x\n", bss_.data(), bss_.size_bytes());
   std::fill(bss_.begin(), bss_.end(), std::byte(0));
   return true;
 }
