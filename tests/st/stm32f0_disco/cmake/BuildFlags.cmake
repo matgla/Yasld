@@ -25,8 +25,7 @@ if(NOT TARGET build_flags)
       -mthumb
       -mfloat-abi=soft
       --specs=nano.specs
-      -ffunction-sections
-      -fdata-sections
+      -O0
       CACHE INTERNAL "")
 
   set(YASLD_C_FLAGS
@@ -42,6 +41,7 @@ if(NOT TARGET build_flags)
       -nostartfiles
       -mthumb
       --specs=nano.specs
+      -Wl,--undefined,_printf_float
       CACHE INTERNAL "")
 
   set(YASLD_ARCH
@@ -49,12 +49,11 @@ if(NOT TARGET build_flags)
       CACHE INTERNAL "")
   set(YASLD_DISABLE_TESTS
       true
-      CACHE INTERNAL "")
+      CACHE INTERNAL "
+      ")
   add_library(build_flags INTERFACE)
 
-  target_compile_options(
-    build_flags
-    INTERFACE ${YASLD_CXX_FLAGS})
+  target_compile_options(build_flags INTERFACE ${YASLD_CXX_FLAGS})
 
   target_link_options(build_flags INTERFACE ${YASLD_LINKER_FLAGS})
 endif()

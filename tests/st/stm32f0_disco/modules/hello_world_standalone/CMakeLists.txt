@@ -16,19 +16,25 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-include(AddTestExecutable)
+add_executable(stm32f0_hello_world_standalone)
 
-set(sources main.cpp)
+target_sources(stm32f0_hello_world_standalone PRIVATE main.cpp)
 
-add_test_executable(stm32f0_return_value_test ${sources})
+target_link_libraries(
+  stm32f0_hello_world_standalone
+  PRIVATE stm32f0_common
+          stm32f0_with_pic
+          yasld_executable_flags
+          build_flags)
 
-set(renode_test_binary
-    ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test_with_host.bin)
+include(ConvertElfToYasiff)
 
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/stm32f0_return_value_test.robot
-  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test.robot @ONLY)
-
-include(RegisterTest)
-
-register_st(${CMAKE_CURRENT_BINARY_DIR}/stm32f0_return_value_test.robot)
+convert_elf_to_yasiff(stm32f0_hello_world_standalone)
+add_custom_command(
+  TARGET stm32f0_hello_world_standalone
+  POST_BUILD
+  COMMAND
+    cmake -E copy stm32f0_hello_world_standalone.yaff
+    ${STM32F0_TEST_MODULES_DIR}/stm32f0_hello_world_standalone.yaff DEPENDS
+    modules
+  VERBATIM)

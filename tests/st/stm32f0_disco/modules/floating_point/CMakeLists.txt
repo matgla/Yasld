@@ -16,5 +16,25 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(common)
-add_subdirectory(return_value_test)
+add_executable(stm32f0_floating_point)
+
+target_sources(stm32f0_floating_point PRIVATE main.cpp)
+
+target_link_libraries(
+  stm32f0_floating_point
+  PRIVATE stm32f0_common
+          stm32f0_with_pic
+          yasld_executable_flags
+          build_flags)
+
+include(ConvertElfToYasiff)
+
+convert_elf_to_yasiff(stm32f0_floating_point)
+
+add_custom_command(
+  TARGET stm32f0_floating_point
+  POST_BUILD
+  COMMAND ${CMAKE_SIZE} $<TARGET_FILE:stm32f0_floating_point>
+  COMMAND cmake -E copy stm32f0_floating_point.yaff
+          ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff
+  VERBATIM)

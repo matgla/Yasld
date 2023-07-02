@@ -19,13 +19,14 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(
-  stm32f0_return_value_test
-  LANGUAGES CXX)
+  stm32f0_tests_modules
+  C
+  CXX
+  ASM)
 
-set(CMAKE_CXX_STANDARD
-    20)
+set(CMAKE_CXX_STANDARD 20)
 
-message(STATUS "STM32F0 tests configuration started")
+message(STATUS "STM32F0 Test Modules")
 
 include(FetchContent)
 
@@ -35,8 +36,8 @@ FetchContent_Declare(
   GIT_TAG v1.2)
 
 FetchContent_MakeAvailable(yaspem)
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
 
 include(yaspem)
 
@@ -46,21 +47,18 @@ setup_yaspem(
   OUTPUT_DIRECTORY
   ${CMAKE_CURRENT_BINARY_DIR}/packages/
   PACKAGE_FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
+  ${CMAKE_CURRENT_SOURCE_DIR}/../packages.json)
 
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/../../cmake
+                      ${PROJECT_SOURCE_DIR}/../cmake)
 
-include(../../cmake/BuildFlags.cmake)
+include(BuildFlags)
+
+add_subdirectory(../../../.. ${CMAKE_CURRENT_BINARY_DIR}/yasld)
 
 include(CreateLibOpenCM3Target)
 create_libopencm3_target(stm32/f0)
 
-add_subdirectory(../../../../.. ${CMAKE_CURRENT_BINARY_DIR}/yasld)
-
-add_subdirectory(source)
-
-add_custom_target(
-  test
-  COMMAND renode-test)
+add_subdirectory(common)
+add_subdirectory(hello_world_standalone)
+add_subdirectory(floating_point)

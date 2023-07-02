@@ -1,5 +1,5 @@
 /**
- * hello.cpp
+ * main.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -29,6 +29,7 @@
 #include <yasld/loader.hpp>
 
 void clock_setup()
+
 {
   rcc_periph_clock_enable(RCC_GPIOC);
   rcc_periph_clock_enable(RCC_GPIOA);
@@ -62,7 +63,14 @@ int main(int argc, char *argv[])
   yasld::Loader loader(
     [](std::size_t size)
     {
-      return std::span<std::byte>(static_cast<std::byte *>(malloc(size)), size);
+      void *memory = malloc(size);
+      printf("Memory allocation of: %d\n", size);
+      if (memory == nullptr)
+      {
+        printf("[host] memory allocation failure\n");
+        return std::span<std::byte>{};
+      }
+      return std::span<std::byte>(static_cast<std::byte *>(memory), size);
     },
     [](std::span<std::byte> data)
     {
@@ -79,6 +87,7 @@ int main(int argc, char *argv[])
   else
   {
     printf("[host] Text is loaded: 0x%x\n", exec->text_address());
+    printf("[host] Float test on host: %f\n", 1.2456f);
     char  arg[20] = { "executable" };
     char *args[1] = { arg };
     exec->execute(1, args);

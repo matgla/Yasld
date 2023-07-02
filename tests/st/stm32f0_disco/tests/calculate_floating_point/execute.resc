@@ -1,5 +1,5 @@
 #
-# CMakeLists.txt
+# execute_with_gdb.resc
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
@@ -16,17 +16,12 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(host)
+$bin=@${renode_test_binary}
 
-include(ConfigureWithToolchain)
+mach create
+machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl
+showAnalyzer sysbus.usart1 
 
-configure_with_toolchain(
-  NAME
-  tests
-  TOOLCHAIN
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../toolchains/arm-none-eabi-toolchain-with-pic.cmake
-  ARGS
-  -DHOST_BINARY=${STM32F0_HOST_BINARY}
-  -DST_TESTS_FILE=${ST_TESTS_FILE}
-  DEPENDS
-  stm32f0_host)
+sysbus LoadBinary $bin 0x08000000 
+sysbus.cpu VectorTableOffset 0x08000000
+start

@@ -1,7 +1,5 @@
 #
-# CMakeLists.txt
-#
-# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# CMakeLists.txt Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -18,12 +16,9 @@
 
 cmake_minimum_required(VERSION 3.24)
 
-project(
-  stm32f0_tests
-  LANGUAGES CXX C ASM)
+project(stm32f0_tests LANGUAGES CXX C ASM)
 
-set(CMAKE_CXX_STANDARD
-    20)
+set(CMAKE_CXX_STANDARD 20)
 
 message(STATUS "STM32F0 testing code configuration started")
 
@@ -35,8 +30,7 @@ FetchContent_Declare(
   GIT_TAG v1.2)
 
 FetchContent_MakeAvailable(yaspem)
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
 
 include(yaspem)
 
@@ -48,14 +42,23 @@ setup_yaspem(
   PACKAGE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
 
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../cmake
+                      ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
+include(ConfigureWithToolchain)
+include(BuildFlags)
+
+set(STM32F0_TEST_MODULES_DIR ${PROJECT_BINARY_DIR}/modules)
+configure_with_toolchain(
+  NAME
+  modules
+  TOOLCHAIN
+  ${CMAKE_CURRENT_SOURCE_DIR}/../toolchains/arm-none-eabi-toolchain-with-pic.cmake
+  ARGS
+  -DSTM32F0_TEST_MODULES_DIR=${STM32F0_TEST_MODULES_DIR})
 
 include(CreateLibOpenCM3Target)
 create_libopencm3_target(stm32/f0)
 
-include(BuildFlags)
 add_subdirectory(../../.. ${CMAKE_CURRENT_BINARY_DIR}/yasld)
-
-add_subdirectory(source)
+add_subdirectory(tests)

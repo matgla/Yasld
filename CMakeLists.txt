@@ -24,8 +24,7 @@ message(STATUS "Yasld configuration started")
 project(yasld NONE)
 
 if(NOT DEFINED YASLD_ARCH)
-  set(YASLD_ARCH
-      "host")
+  set(YASLD_ARCH "host")
 endif()
 
 include(FetchContent)
@@ -36,8 +35,7 @@ FetchContent_Declare(
   GIT_TAG v1.2)
 
 FetchContent_MakeAvailable(yaspem)
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
 
 include(yaspem)
 
@@ -51,8 +49,7 @@ setup_yaspem(
 
 find_package(CMakeUtils REQUIRED)
 
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake)
 
 if(NOT PROJECT_IS_TOP_LEVEL)
   set(CMAKE_MODULE_PATH
@@ -66,8 +63,6 @@ create_virtualenv(yasld ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
 
 create_virtualenv(scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/requirements.txt
                   ${CMAKE_CURRENT_BINARY_DIR}/venvs)
-
-
 
 enable_language(CXX ASM C)
 
@@ -83,8 +78,7 @@ target_link_options(yasld_flags INTERFACE ${YASLD_LINKER_FLAGS})
 
 add_definitions(-DLOGGER_ENABLED=1)
 
-set(CMAKE_CXX_STANDARD
-    20)
+set(CMAKE_CXX_STANDARD 20)
 
 if(YASLD_ARCH STREQUAL "armv6-m")
   include(arch/arm.cmake)

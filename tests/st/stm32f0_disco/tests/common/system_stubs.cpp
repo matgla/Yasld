@@ -22,6 +22,7 @@
 
 #include <array>
 #include <cstdint>
+#include <cstdio>
 
 #include <libopencm3/stm32/usart.h>
 

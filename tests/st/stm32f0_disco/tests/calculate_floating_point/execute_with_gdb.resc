@@ -1,5 +1,5 @@
 #
-# execute_gdb.resc
+# execute_with_gdb.resc
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
@@ -16,7 +16,7 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-$bin=@${stm32f0_host_binary}
+$bin=@${renode_test_binary}
 
 mach create
 machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl

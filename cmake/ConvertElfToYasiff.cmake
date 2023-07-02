@@ -16,10 +16,9 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-set(CURRENT_FILE_DIR
-    ${CMAKE_CURRENT_LIST_DIR})
-set(SCRIPTS_DIR
-    ${CURRENT_FILE_DIR}/../scripts)
+set(CURRENT_FILE_DIR ${CMAKE_CURRENT_LIST_DIR})
+set(SCRIPTS_DIR ${CURRENT_FILE_DIR}/../scripts)
+
 function(convert_elf_to_yasiff target)
   message(STATUS "Adding conversion step for target: ${target}")
   # set_target_properties(${target} PROPERTIES LINK_FLAGS_RELEASE -s)
@@ -34,8 +33,8 @@ function(convert_elf_to_yasiff target)
     COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}>
     COMMAND
       ${scripts_python_executable} ${SCRIPTS_DIR}/mkimage.py
-      --input=$<TARGET_FILE:${target}> --output=${target} -q DEPENDS ${target}
-      ${SCRIPTS_DIR}/scripts/mkimage.py
+      --input=$<TARGET_FILE:${target}> --output=${target}.yaff -q DEPENDS
+      ${target} ${SCRIPTS_DIR}/scripts/mkimage.py
     VERBATIM)
 
 endfunction()

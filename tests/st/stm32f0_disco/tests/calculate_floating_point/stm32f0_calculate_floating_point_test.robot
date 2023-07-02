@@ -12,19 +12,17 @@ ${TEST_FILE}    @renode_test_binary@
 
 
 *** Test Cases ***
-Test returing value from module on Cortex-M0
-    Start Test
+Print hello world to USART from standalone executable
+    Prepare Machine
 
     Wait For Line On Uart    Hello from module!    timeout=1
 
 
 *** Keywords ***
-Start Test
+Prepare Machine
     Execute Command    mach create
     Execute Command    machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl
-
     Execute Command    sysbus LoadBinary @${TEST_FILE} 0x08000000
-
     Execute Command    sysbus.cpu VectorTableOffset 0x08000000
 
     Create Terminal Tester    sysbus.usart1

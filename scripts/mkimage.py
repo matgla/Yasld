@@ -210,12 +210,23 @@ class Application:
             elif relocation["info_type"] == "R_ARM_ABS32":
                 if relocation["symbol_name"] in self.processed_symbols:
                     visibility = self.processed_symbols[relocation["symbol_name"]]["localization"]
-                    symbol = self.processed_symbols[relocation["symbol_name"]] 
-                    if symbol["type"] == "STT_OBJECT" or symbol["type"] == "STT_FUNC":
-                        offset = int((relocation["offset"] - code_size)/4)
-                        if (offset < 0):
-                            raise RuntimeError("Offset negative for: " + str(relocation["symbol_name"]))
-                        self.relocation_table.add_data_relocation(relocation, offset, visibility)
+                      
+                    index = int(relocation["offset"] - code_size)
+                    print("Index is: ", index, ", text size: ", hex(code_size), "real offset: ", hex(relocation["offset"]))
+                    if (index < 0):
+                      raise RuntimeError("Index negative for: " + str(relocation["symbol_name"]))
+                    if relocation["symbol_value"] <= code_size:
+                      # Relocation to code section 
+                      print("code rel[offset]: ", hex(relocation["offset"]), ", text: ", hex(code_size), ", name: ", relocation["symbol_name"])
+                      original_offset = struct.unpack_from("<I", self.data, index)[0]
+                      print("Original offset: ", hex(original_offset))
+                      offset = original_offset << 1 
+                    else:
+                      print("data rel[offset]: ", hex(relocation["offset"]), ", text: ", hex(code_size), ", name: ", relocation["symbol_name"])
+                      original_offset = struct.unpack_from("<I", self.data, index)[0]
+                      print("Original offset: ", hex(original_offset))
+                      offset = ((original_offset - code_size) << 1) | 1
+                    self.relocation_table.add_data_relocation(relocation, index, offset, visibility)
                 else:
                     raise RuntimeError("Symbol not found in symbol table: " + relocation["symbol_name"])
             else:
@@ -357,15 +368,13 @@ class Application:
                 value -= len(self.code)
 
             if section == SectionCode.Unknown:
-                raise RuntimeError("Unknown section code: " + str(section))
+              raise RuntimeError("Unknown section code: " + str(section) + ", for symbol: " + rel["name"])
 
             index_with_section = rel["index"] << 1 | section.value
             relocation_table.append({"index": index_with_section, "offset": value}) 
 
         for rel in data_relocations:
             offset = rel["offset"]
-            if offset > len(self.code):
-                offset -= len(self.code)
 
             relocation_table.append({"index": rel["index"], "offset": offset}) 
         

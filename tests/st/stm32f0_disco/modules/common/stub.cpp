@@ -23,10 +23,11 @@
 #include <array>
 #include <cstdint>
 #include <cstdio>
+#include <cstring>
 
 #include <libopencm3/stm32/usart.h>
 
-static std::array<uint8_t, 1024 * 2> heap;
+static std::array<uint8_t, 1024 * 3> heap;
 
 extern "C"
 {
@@ -74,7 +75,6 @@ extern "C"
 
   ssize_t _write(int fd, const char *buf, size_t count)
   {
-    usart_send_blocking(USART1, 'd');
     for (size_t i = 0; i < count; ++i)
     {
       usart_send_blocking(USART1, buf[i]);
@@ -85,28 +85,13 @@ extern "C"
   static std::size_t current_heap_end = 0;
   void              *_sbrk(intptr_t incr)
   {
-    usart_send_blocking(USART1, 'r');
-
     if (current_heap_end + incr > heap.size())
     {
-      usart_send_blocking(USART1, 'n');
       return nullptr;
     }
 
     std::size_t prev  = current_heap_end;
     current_heap_end += incr;
     return &heap[prev];
-  }
-
-  int _printf_float(
-    struct _reent      *data,
-    struct _prt_data_t *pdata,
-    FILE               *fp,
-    int (*pfunc)(struct _reent *, FILE *, const char *, size_t len),
-    va_list *ap)
-  {
-    usart_send_blocking(USART1, 'p');
-    usart_send_blocking(USART1, '\n');
-    return 0;
   }
 }

@@ -1,5 +1,5 @@
 #
-# execute.resc
+# CMakeLists.txt
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
@@ -16,13 +16,6 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-$bin=@${stm32f0_host_binary}
-
-mach create
-machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl
-showAnalyzer sysbus.usart1 
-
-sysbus LoadBinary $bin 0x08000000 
-sysbus.cpu VectorTableOffset 0x08000000
-start
-
+add_subdirectory(common)
+add_subdirectory(print_hello_world)
+add_subdirectory(calculate_floating_point)
