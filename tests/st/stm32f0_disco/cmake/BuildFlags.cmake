@@ -24,6 +24,7 @@ if(NOT TARGET build_flags)
       -nostartfiles
       -mthumb
       -mfloat-abi=soft
+      -fstrict-aliasing
       --specs=nano.specs
       -O0
       CACHE INTERNAL "")
@@ -32,7 +33,10 @@ if(NOT TARGET build_flags)
       ${YASLD_ASM_FLAGS}
       CACHE INTERNAL "")
   set(YASLD_CXX_FLAGS
-      ${YASLD_C_FLAGS} -fno-exceptions -fno-rtti
+      ${YASLD_C_FLAGS}
+      -fno-exceptions
+      -fno-rtti
+      -std=c++20
       CACHE INTERNAL "")
   set(YASLD_LINKER_FLAGS
       -g

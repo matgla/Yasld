@@ -18,7 +18,6 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include <cmath>
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -70,13 +69,12 @@ int main(int argc, char *argv[])
   runtime_init();
   printf("[TEST] STM32F0 Floating Point Test\n");
 
-  float  a = 1.5f;
-  float  b = 2.7f;
-  double s = sum(5, 1, 2, 3, 4, 5);
-  printf("%d\n", s);
+  double a = 1.5f;
+  double b = 2.7f;
+  double s = sum(2, a, b);
+  printf("%f\n", s);
 
   char buf[10];
-  itoa(1234, buf, 10);
   printf("Print dec: %d\n", 1234);
   printf("%f\n", 1.27f);
   snprintf(buf, 10, "YY: %f", 2.45f);

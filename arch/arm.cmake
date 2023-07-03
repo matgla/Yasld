@@ -29,6 +29,9 @@ target_link_options(
   -Wl,--no-warn-rwx-segments
   -fvisibility-inlines-hidden
   -nostartfiles
+  -fno-inline
+  -fomit-frame-pointer
+  -fno-section-anchors
   -fvisibility=hidden)
 
 if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
@@ -43,12 +46,15 @@ target_compile_options(
   INTERFACE # strip debug symbols
             -fno-exceptions
             -fno-rtti
+            -fomit-frame-pointer
+            -fno-inline
+            -fno-section-anchors
             -fvisibility=hidden
             $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden>
             -mpic-register=r9
             -msingle-pic-base
             -mno-pic-data-is-text-relative
-            -fPIC)
+            -fPIE)
 
 add_library(yasld_dynamic_link_stdlib INTERFACE)
 

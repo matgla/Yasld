@@ -24,8 +24,6 @@ project(
   CXX
   ASM)
 
-set(CMAKE_CXX_STANDARD 20)
-
 message(STATUS "STM32F0 Test Modules")
 
 include(FetchContent)

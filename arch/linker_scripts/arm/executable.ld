@@ -29,7 +29,7 @@ SECTIONS
 {
   .text : 
   {
-    . = ALIGN(16);
+    . = ALIGN(4);
     KEEP(*(.entry))
     *(.text)
     *(.text*)
@@ -60,13 +60,11 @@ SECTIONS
     KEEP(*(.fini_array))
     PROVIDE_HIDDEN(__fini_array_end = .);
     . = ALIGN(4); 
-
-    . = ALIGN(16);
   } > image 
 
   .data : 
   {
-    . = ALIGN(16);
+    . = ALIGN(4);
     *(.data)
     *(.data*)
     . = ALIGN(4);

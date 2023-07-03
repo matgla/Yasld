@@ -22,10 +22,10 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/usart.h>
 
+#include <cstdarg>
 #include <cstdio>
 #include <span>
 #include <string_view>
-
 #include <yasld/loader.hpp>
 
 void clock_setup()
@@ -53,6 +53,20 @@ void gpio_setup()
   gpio_set_af(GPIOA, GPIO_AF1, GPIO9);
 }
 
+double sum(int count, ...)
+{
+  double  sum = 0;
+  va_list args;
+  va_start(args, count);
+  for (int i = 0; i < count; ++i)
+  {
+    double num  = va_arg(args, double);
+    sum        += num;
+  }
+  va_end(args);
+  return sum;
+}
+
 int main(int argc, char *argv[])
 {
   clock_setup();
@@ -64,7 +78,7 @@ int main(int argc, char *argv[])
     [](std::size_t size)
     {
       void *memory = malloc(size);
-      printf("Memory allocation of: %d\n", size);
+      printf("Memory allocation of: %d, address: %p\n", size, memory);
       if (memory == nullptr)
       {
         printf("[host] memory allocation failure\n");
@@ -88,8 +102,14 @@ int main(int argc, char *argv[])
   {
     printf("[host] Text is loaded: 0x%x\n", exec->text_address());
     printf("[host] Float test on host: %f\n", 1.2456f);
-    char  arg[20] = { "executable" };
-    char *args[1] = { arg };
+    char   arg[20] = { "executable" };
+    char  *args[1] = { arg };
+
+    double a       = 1.5f;
+    double b       = 2.7f;
+    double s       = sum(2, a, b);
+    printf("sum is %f, %f + %f\n", s, a, b);
+
     exec->execute(1, args);
   }
   while (true)
