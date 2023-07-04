@@ -212,19 +212,19 @@ class Application:
                     visibility = self.processed_symbols[relocation["symbol_name"]]["localization"]
                       
                     index = int(relocation["offset"] - code_size)
-                    print("Index is: ", index, ", text size: ", hex(code_size), "real offset: ", hex(relocation["offset"]))
+                    #print("Index is: ", index, ", text size: ", hex(code_size), "real offset: ", hex(relocation["offset"]))
                     if (index < 0):
                       raise RuntimeError("Index negative for: " + str(relocation["symbol_name"]))
                     if relocation["symbol_value"] <= code_size:
                       # Relocation to code section 
-                      print("code rel[offset]: ", hex(relocation["offset"]), ", text: ", hex(code_size), ", name: ", relocation["symbol_name"])
+                      #print("code rel[offset]: ", hex(relocation["offset"]), ", text: ", hex(code_size), ", name: ", relocation["symbol_name"])
                       original_offset = struct.unpack_from("<I", self.data, index)[0]
-                      print("Original offset: ", hex(original_offset))
+                      #print("Original offset: ", hex(original_offset))
                       offset = original_offset << 1 
                     else:
-                      print("data rel[offset]: ", hex(relocation["offset"]), ", text: ", hex(code_size), ", name: ", relocation["symbol_name"])
+                      #print("data rel[offset]: ", hex(relocation["offset"]), ", text: ", hex(code_size), ", name: ", relocation["symbol_name"])
                       original_offset = struct.unpack_from("<I", self.data, index)[0]
-                      print("Original offset: ", hex(original_offset))
+                      #print("Original offset: ", hex(original_offset))
                       offset = ((original_offset - code_size) << 1) | 1
                     self.relocation_table.add_data_relocation(relocation, index, offset, visibility)
                 else:

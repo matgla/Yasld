@@ -34,9 +34,9 @@
 call_main:
   push {r4, lr}
   mov r4, r9
-  push {r4, r1}
+  push {r4, r5} 
   mov r9, r3
   blx r2
-  pop {r4, r1}
+  pop {r4, r5}
   mov r9, r4
   pop {r4, pc}

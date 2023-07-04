@@ -26,7 +26,7 @@ if(NOT TARGET build_flags)
       -mfloat-abi=soft
       -fstrict-aliasing
       --specs=nano.specs
-      -O0
+      -O2
       CACHE INTERNAL "")
 
   set(YASLD_C_FLAGS
