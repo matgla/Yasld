@@ -196,7 +196,6 @@ bool Loader::process_data(const Header &header, const Parser &parser)
     log("%x, ", data_[i]);
   }
   log("\n");
-  // std::copy(data.begin(), data.end(), data_.begin());
 
   bss_ = data_.subspan(header.data_length, header.bss_length);
 

@@ -45,44 +45,19 @@ double sum(int count, ...)
   return sum;
 }
 
-int sumi(int count, ...)
-{
-  int     sum = 0;
-  va_list args;
-  va_start(args, count);
-  for (int i = 0; i < count; ++i)
-  {
-    int num  = va_arg(args, int);
-    sum     += num;
-  }
-  va_end(args);
-  return sum;
-}
-
-double summ(float a, float b)
-{
-  return a + b;
-}
-
 int main(int argc, char *argv[])
 {
   runtime_init();
-  printf("[TEST] STM32F0 Floating Point Test\n");
 
+  printf("[TEST] STM32F0 Floating Point Test\n");
+  printf("[TEST] Print test: %f\n", 1.27f);
   double a = 1.5f;
   double b = 2.7f;
   double s = sum(2, a, b);
-  printf("%f\n", s);
+  printf("[TEST] Sum of %.2f and %.2f is %.2f\n", a, b, s);
+  printf("[TEST] Floating point division: %.2f\n", b / a);
 
-  char buf[10];
-  printf("Print dec: %d\n", 1234);
-  printf("%f\n", 1.27f);
-  snprintf(buf, 10, "YY: %f", 2.45f);
-  printf("Printf spr: %s\n", buf);
-  printf("Floating print test: %d, %s, %f\n", 1234, buf, 1.3456);
-  float output = 3.0f / 2.0f;
-  printf("Floating point division: %f\n", output);
-  printf("Errno: %s\n", strerror(errno));
-  printf("What after\n");
+  printf("[TEST] Errno is: %s\n", strerror(errno));
+  printf("[TEST] End\n");
   return argc;
 }
