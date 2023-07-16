@@ -34,7 +34,6 @@ function(
 endfunction()
 
 macro(configure_with_toolchain)
-
   set(prefix CFG)
   set(optionArgs "")
   set(singleValueArgs TOOLCHAIN NAME)

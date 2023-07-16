@@ -33,8 +33,8 @@ function(convert_elf_to_yasiff target)
     COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}>
     COMMAND
       ${scripts_python_executable} ${SCRIPTS_DIR}/mkimage.py
-      --input=$<TARGET_FILE:${target}> --output=${target}.yaff -q DEPENDS
-      ${target} ${SCRIPTS_DIR}/scripts/mkimage.py
+      --input=$<TARGET_FILE:${target}> --output=${target}.yaff DEPENDS ${target}
+      ${SCRIPTS_DIR}/scripts/mkimage.py
     VERBATIM)
 
 endfunction()

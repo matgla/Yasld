@@ -18,7 +18,6 @@
 
 if(NOT TARGET build_flags)
   set(YASLD_ASM_FLAGS
-      -g
       -mcpu=cortex-m0
       -fno-common
       -nostartfiles
@@ -39,7 +38,6 @@ if(NOT TARGET build_flags)
       -std=c++20
       CACHE INTERNAL "")
   set(YASLD_LINKER_FLAGS
-      -g
       -mcpu=cortex-m0
       -fno-common
       -nostartfiles

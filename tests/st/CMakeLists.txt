@@ -29,6 +29,7 @@ configure_with_toolchain(
   stm32f0_disco
   ARGS
   -DST_TESTS_FILE=${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
+  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
   TOOLCHAIN
   ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake)
 

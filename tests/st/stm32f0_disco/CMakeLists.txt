@@ -55,7 +55,8 @@ configure_with_toolchain(
   TOOLCHAIN
   ${CMAKE_CURRENT_SOURCE_DIR}/../toolchains/arm-none-eabi-toolchain-with-pic.cmake
   ARGS
-  -DSTM32F0_TEST_MODULES_DIR=${STM32F0_TEST_MODULES_DIR})
+  -DSTM32F0_TEST_MODULES_DIR=${STM32F0_TEST_MODULES_DIR}
+  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE})
 
 include(CreateLibOpenCM3Target)
 create_libopencm3_target(stm32/f0)
