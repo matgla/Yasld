@@ -50,8 +50,10 @@ add_custom_command(
     ${CMAKE_OBJCOPY} -O binary
     $<TARGET_FILE:stm32f0_calculate_floating_point_host>
     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point_host.bin
-  COMMAND truncate --size=64K
-          ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point_host.bin)
+  COMMAND
+    truncate --size=64K
+    ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point_host.bin
+    DEPENDS modules)
 
 add_custom_target(
   stm32f0_calculate_floating_point_image ALL

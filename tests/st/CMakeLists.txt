@@ -37,4 +37,5 @@ add_custom_target(
   run_st
   COMMAND renode-test --debug-on-error -t
           ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
+  DEPENDS stm32f0_disco
   VERBATIM)

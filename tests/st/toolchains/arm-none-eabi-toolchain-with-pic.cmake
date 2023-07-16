@@ -20,8 +20,11 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-set(ARM_GCC_PATH_WITH_PIC /opt/arm-none-eabi-with-pic/bin)
-
+if(NOT DEFINED ENV{YASLD_TOOLCHAIN_PATH})
+  set(ARM_GCC_PATH_WITH_PIC /opt/arm-none-eabi-with-pic/bin)
+else()
+  set(ARM_GCC_PATH_WITH_PIC $ENV{YASLD_TOOLCHAIN_PATH}/bin)
+endif()
 set(CMAKE_ASM_COMPILER ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-gcc)
 set(CMAKE_C_COMPILER ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-gcc)
 set(CMAKE_CXX_COMPILER ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-g++)
