@@ -42,6 +42,10 @@ set_property(
   PROPERTY CMAKE_CONFIGURE_DEPENDS
            ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff)
 
+set_source_files_properties(
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff PROPERTIES GENERATED
+                                                                     TRUE)
+
 add_custom_command(
   TARGET stm32f0_calculate_floating_point_host
   POST_BUILD
@@ -54,6 +58,8 @@ add_custom_command(
     truncate --size=64K
     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point_host.bin
     DEPENDS modules)
+
+add_dependencies(stm32f0_calculate_floating_point_host modules)
 
 add_custom_target(
   stm32f0_calculate_floating_point_image ALL

@@ -21,10 +21,7 @@ set(SCRIPTS_DIR ${CURRENT_FILE_DIR}/../scripts)
 
 function(convert_elf_to_yasiff target)
   message(STATUS "Adding conversion step for target: ${target}")
-  # set_target_properties(${target} PROPERTIES LINK_FLAGS_RELEASE -s)
 
-  # Strip debug symbols
-  #
   add_custom_command(
     TARGET ${target}
     POST_BUILD

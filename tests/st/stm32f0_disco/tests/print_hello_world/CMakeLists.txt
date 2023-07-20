@@ -44,7 +44,14 @@ add_custom_command(
   COMMAND
     cat ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_print_hello_world_host.bin
     ${STM32F0_TEST_MODULES_DIR}/stm32f0_hello_world_standalone.yaff >
-    ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_print_hello_world.bin DEPENDS modules)
+    ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_print_hello_world.bin DEPENDS modules
+    ${STM32F0_TEST_MODULES_DIR}/stm32f0_hello_world_standalone.yaff)
+
+add_dependencies(stm32f0_print_hello_world_host modules)
+
+set_source_files_properties(
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_hello_world_standalone.yaff
+  PROPERTIES GENERATED TRUE)
 
 set(renode_test_binary
     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_print_hello_world.bin)

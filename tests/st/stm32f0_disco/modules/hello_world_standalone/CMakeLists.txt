@@ -30,6 +30,7 @@ target_link_libraries(
 include(ConvertElfToYasiff)
 
 convert_elf_to_yasiff(stm32f0_hello_world_standalone)
+
 add_custom_command(
   TARGET stm32f0_hello_world_standalone
   POST_BUILD
