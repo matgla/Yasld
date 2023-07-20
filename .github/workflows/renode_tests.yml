@@ -1,4 +1,4 @@
-name: YasLD - Renode Emulation Tests
+name: Yasld - Renode Emulation Tests
 
 on: 
   push:
