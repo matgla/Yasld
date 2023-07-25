@@ -341,19 +341,20 @@ class Application:
         size_of_relocation = 4 + 4
         relocation_table = []
        
-        number_of_relocations = len(exported_relocations) \
-            + len(external_relocations) + len(local_relocations) \
+        number_of_relocations = len(external_relocations) + len(local_relocations) \
             + len(data_relocations)
-
-        for rel in exported_relocations:
-            # offset from current relocation to start of symbol table
-            offset_to_symbol_table = (number_of_relocations - relocation_position) * size_of_relocation 
-  
-            # calculate offset to symbol
-            offset_to_symbol = offset_to_symbol_table + self.calculate_offset_to_exported_symbol(rel["name"])
-            relocation_table.append({"index": rel["index"], "offset": offset_to_symbol}) 
-            relocation_position += 1
-
+        
+        if len(exported_relocations) > 0:
+          raise RuntimeError("Add support for exported relocations")
+#         for rel in exported_relocations:
+#             # offset from current relocation to start of symbol table
+#             offset_to_symbol_table = (number_of_relocations - relocation_position) * size_of_relocation 
+#   
+#             # calculate offset to symbol
+#             offset_to_symbol = offset_to_symbol_table + self.calculate_offset_to_exported_symbol(rel["name"])
+#             relocation_table.append({"index": rel["index"], "offset": offset_to_symbol}) 
+#             relocation_position += 1
+# 
         for rel in external_relocations:
             offset_to_symbol_table = len(exported_symbol_table) + (number_of_relocations - relocation_position) * size_of_relocation
             # offset to external symbols table
@@ -411,10 +412,10 @@ class Application:
         self.print_relocations(local_relocations, exported_relocations, 
                                external_relocations, data_relocations)
 
-        self.image += struct.pack("<HHHH", len(external_relocations),
+        self.image += struct.pack("<HHH", len(external_relocations),
                                   len(local_relocations),
-                                  len(data_relocations),
-                                  len(exported_relocations))
+                                  len(data_relocations))
+                                  #len(exported_relocations))
   
         exported_symbol_table = self.build_binary_symbol_table_for(self.exported_symbol_table)
         external_symbol_table = self.build_binary_symbol_table_for(self.external_symbol_table) 

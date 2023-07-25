@@ -55,7 +55,6 @@ public:
   uint16_t     external_relocations_amount;
   uint16_t     local_relocations_amount;
   uint16_t     data_relocations_amount;
-  uint16_t     exported_relocations_amount;
   uint16_t     exported_symbols_amount;
   uint16_t     external_symbols_amount;
 };

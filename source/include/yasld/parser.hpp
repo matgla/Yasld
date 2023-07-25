@@ -38,7 +38,6 @@ public:
   const SymbolTable          get_exported_symbols() const;
   const SymbolTable          get_external_symbols() const;
 
-  const RelocationTable      get_exported_relocations() const;
   const RelocationTable      get_local_relocations() const;
   const RelocationTable      get_data_relocations() const;
   const RelocationTable      get_external_relocations() const;
@@ -49,7 +48,6 @@ public:
 private:
   const Header         *header_;
 
-  const RelocationTable exported_relocations_;
   const RelocationTable external_relocations_;
   const RelocationTable local_relocations_;
   const RelocationTable data_relocations_;

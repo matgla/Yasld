@@ -66,6 +66,8 @@ create_virtualenv(scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/requirements.txt
 
 enable_language(CXX ASM C)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 add_library(yasld_flags INTERFACE)
 
 target_compile_options(
@@ -89,5 +91,14 @@ add_subdirectory(source)
 if(NOT DEFINED YASLD_DISABLE_TESTS)
   enable_testing()
   message(STATUS "Adding tests")
+
+  setup_yaspem(
+    YASPEM_SOURCE
+    ${yaspem_SOURCE_DIR}
+    OUTPUT_DIRECTORY
+    ${CMAKE_CURRENT_BINARY_DIR}/packages/
+    PACKAGE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/tests/ut/packages.json)
+
   add_subdirectory(tests)
 endif()

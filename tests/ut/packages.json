@@ -1,0 +1,13 @@
+{
+  "dependencies": [
+    {
+      "name": "googletest",
+      "link": "https://github.com/google/googletest.git",
+      "type": "git",
+      "version": "v1.12.0",
+      "directory": "googletest",
+      "target": "googletest",
+      "options": ""
+    }
+  ]
+}

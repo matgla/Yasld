@@ -24,6 +24,12 @@
 namespace yasld
 {
 
+Relocation::Relocation(uint32_t index, uint32_t symbol_offset)
+  : index_(index)
+  , symbol_offset_(symbol_offset)
+{
+}
+
 uint32_t Relocation::index() const
 {
   return index_;
@@ -37,6 +43,7 @@ uint32_t Relocation::symbol_offset() const
 const Symbol &Relocation::symbol() const
 {
   const uint8_t *ptr  = reinterpret_cast<const uint8_t *>(this);
+
   ptr                += symbol_offset_;
   return reinterpret_cast<const Symbol &>(*ptr);
 }
@@ -44,6 +51,11 @@ const Symbol &Relocation::symbol() const
 const Relocation &Relocation::next() const
 {
   return *(this + 1);
+}
+
+bool Relocation::operator==(const Relocation &other) const
+{
+  return index_ == other.index_ && symbol_offset_ == other.symbol_offset_;
 }
 
 } // namespace yasld

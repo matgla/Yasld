@@ -39,3 +39,6 @@ add_custom_target(
           ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
   DEPENDS stm32f0_disco
   VERBATIM)
+
+add_test(NAME YasldSystemTests COMMAND ${CMAKE_COMMAND} --build
+                                       ${CMAKE_BINARY_DIR} -- run_st)

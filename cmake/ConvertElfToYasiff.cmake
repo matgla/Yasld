@@ -32,6 +32,11 @@ function(convert_elf_to_yasiff target)
       ${scripts_python_executable} ${SCRIPTS_DIR}/mkimage.py
       --input=$<TARGET_FILE:${target}> --output=${target}.yaff DEPENDS ${target}
       ${SCRIPTS_DIR}/scripts/mkimage.py
-    VERBATIM)
+    VERBATIM DEPENDS ${SCRIPTS_DIR}/scripts/mkimage.py)
+
+  set_property(
+    DIRECTORY
+    APPEND
+    PROPERTY CMAKE_CONFIGURE_DEPENDS ${SCRIPTS_DIR}/scripts/mkimage.py)
 
 endfunction()
