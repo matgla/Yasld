@@ -28,17 +28,31 @@ namespace yasld
 
 class Relocation;
 
+template <typename T>
 class RelocationTable
 {
 public:
-  RelocationTable(std::uintptr_t address, std::size_t number_of_relocations);
+  RelocationTable(std::uintptr_t address, std::size_t number_of_relocations)
+    : relocations_{ reinterpret_cast<const T *>(address),
+                    number_of_relocations }
+  {
+  }
 
-  [[nodiscard]] std::size_t    size() const;
-  [[nodiscard]] std::uintptr_t address() const;
+  [[nodiscard]] std::size_t size() const
+  {
+    return relocations_.size() * sizeof(T);
+  }
+  [[nodiscard]] std::uintptr_t address() const
+  {
+    return reinterpret_cast<std::uintptr_t>(relocations_.data());
+  }
 
-  using ConstSpan = std::span<const Relocation>;
+  using ConstSpan = std::span<const T>;
 
-  const ConstSpan &span() const;
+  const ConstSpan &span() const
+  {
+    return relocations_;
+  }
 
 private:
   ConstSpan relocations_;

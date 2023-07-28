@@ -23,6 +23,8 @@
 #include <cstdio>
 #include <cstring>
 
+#include "yasld/align.hpp"
+
 namespace yasld
 {
 
@@ -44,14 +46,15 @@ std::string_view Symbol::name() const
 
 std::size_t Symbol::size() const
 {
-  // +1 -> \0
+  // symbol offset + name with \0
   return sizeof(Symbol) + name().size() + 1;
 }
 
-const Symbol *Symbol::next() const
+const Symbol *Symbol::next(std::size_t alignment) const
 {
   const uint8_t *ptr = reinterpret_cast<const uint8_t *>(this);
-  return reinterpret_cast<const Symbol *>(ptr + size());
+  return reinterpret_cast<const Symbol *>(
+    ptr + align<std::size_t>(size(), alignment));
 }
 
 } // namespace yasld

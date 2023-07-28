@@ -49,7 +49,8 @@ public:
   uint32_t     data_length;
   uint32_t     bss_length;
   uint16_t     external_libraries_amount;
-  uint16_t     _reserved;
+  uint8_t      alignment;
+  uint8_t      _reserved;
   uint16_t     version_major;
   uint16_t     version_minor;
   uint16_t     external_relocations_amount;

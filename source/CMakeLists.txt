@@ -40,7 +40,6 @@ target_sources(
           symbol.cpp
           symbol_table.cpp
           parser.cpp
-          relocation_table.cpp
           symbol_iterator.cpp)
 
 add_subdirectory(arch)

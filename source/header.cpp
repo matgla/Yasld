@@ -88,7 +88,7 @@ void print(const Header &header)
   for (int i = 0; i < header.exported_symbols_amount; ++i)
   {
     log("%s: %x\n", symbol->name().data(), symbol->offset());
-    symbol = symbol->next();
+    symbol = symbol->next(header.alignment);
   }
 }
 

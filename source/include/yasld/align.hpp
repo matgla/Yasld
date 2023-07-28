@@ -35,4 +35,14 @@ T align(const T address)
   return address;
 }
 
+template <typename T>
+T align(const T address, std::size_t alignment)
+{
+  if (address % alignment != 0)
+  {
+    return address + (alignment - address % alignment);
+  }
+  return address;
+}
+
 } // namespace yasld

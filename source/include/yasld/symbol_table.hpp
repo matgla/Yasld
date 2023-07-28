@@ -33,7 +33,10 @@ class SymbolTable
 {
 public:
   SymbolTable();
-  SymbolTable(std::uintptr_t address, std::size_t number_of_symbols);
+  SymbolTable(
+    std::uintptr_t address,
+    std::size_t    number_of_symbols,
+    uint8_t        aligment);
 
   [[nodiscard]] std::uintptr_t address() const;
   [[nodiscard]] std::size_t    size() const;
@@ -44,6 +47,7 @@ public:
 private:
   std::size_t   number_of_symbols_;
   const Symbol *root_;
+  uint8_t       alignment_;
 };
 
 } // namespace yasld

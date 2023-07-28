@@ -22,6 +22,7 @@
 
 #include <cstdio>
 #include <cstring>
+#include <inttypes.h>
 #include <string_view>
 
 #include "yasld/align.hpp"
@@ -119,14 +120,16 @@ void Loader::process_local_relocations(const Parser &parser)
   log("Processing local relocations: %d\n", span.size());
   for (const auto &rel : span)
   {
-    const uint32_t    lot_index = rel.index() >> 1;
-    const auto        section   = static_cast<Section>(rel.index() & 0x01);
     const std::size_t relocated_start_address =
-      section == Section::code ? reinterpret_cast<std::size_t>(text_.data())
-                               : reinterpret_cast<std::size_t>(data_.data());
-    const std::size_t relocated = relocated_start_address + rel.symbol_offset();
-    log("Local relocation, lot: %d, new address: 0x%x\n", lot_index, relocated);
-    lot_[lot_index] = relocated;
+      rel.section() == Section::code
+        ? reinterpret_cast<std::size_t>(text_.data())
+        : reinterpret_cast<std::size_t>(data_.data());
+    const std::size_t relocated = relocated_start_address + rel.offset();
+    log(
+      "Local relocation, lot: %d, new address: 0x" PRIxPTR "\n",
+      rel.lot_index(),
+      relocated);
+    lot_[rel.lot_index()] = relocated;
   }
 }
 
@@ -136,14 +139,8 @@ void Loader::process_data_relocations(const Parser &parser)
   log("Processing data relocations: %d\n", span.size());
   for (const auto &rel : span)
   {
-    log(
-      "Data relocation, index 0x%x, memory: %p, offset: 0x%x, c/d %d\n",
-      rel.index(),
-      data_.data(),
-      rel.symbol_offset() >> 1,
-      rel.symbol_offset() & 1);
     std::size_t relocate =
-      reinterpret_cast<std::size_t>(data_.data()) + rel.index();
+      reinterpret_cast<std::size_t>(data_.data()) + rel.to_offset();
     std::size_t *to_relocate = reinterpret_cast<std::size_t *>(relocate);
 
     std::size_t  relocated   = reinterpret_cast<std::size_t>(data_.data()) +
@@ -154,21 +151,12 @@ void Loader::process_data_relocations(const Parser &parser)
       (*to_relocate - text_.size_bytes()),
       relocated);
 
-    Section     section       = static_cast<Section>(rel.symbol_offset() & 0x1);
-
-    std::size_t start_address = section == Section::data
+    std::size_t start_address = rel.section() == Section::data
                                   ? reinterpret_cast<std::size_t>(data_.data())
                                   : reinterpret_cast<std::size_t>(text_.data());
 
-    std::size_t should_be     = start_address + (rel.symbol_offset() >> 1);
-    log(
-      "Is 0x%x, start: 0x%x, should be: 0x%x, offset: 0x%x\n",
-      relocated,
-      start_address,
-      should_be,
-      rel.symbol_offset() >> 1);
-
-    *to_relocate = should_be;
+    std::size_t should_be     = start_address + rel.from_offset();
+    *to_relocate              = should_be;
   }
 }
 

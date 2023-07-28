@@ -27,7 +27,9 @@ namespace yasld
 Parser::Parser(const Header *header)
   : header_{ header }
   , external_relocations_{ reinterpret_cast<std::uintptr_t>(header) +
-                             sizeof(*header),
+                             align<std::size_t>(
+                               sizeof(*header),
+                               header->alignment),
                            header->external_relocations_amount }
   , local_relocations_{ external_relocations_.address() +
                           external_relocations_.size(),
@@ -35,9 +37,11 @@ Parser::Parser(const Header *header)
   , data_relocations_{ local_relocations_.address() + local_relocations_.size(),
                        header->data_relocations_amount }
   , exported_symbols_{ data_relocations_.address() + data_relocations_.size(),
-                       header->exported_symbols_amount }
+                       header->exported_symbols_amount,
+                       header->alignment }
   , external_symbols_{ exported_symbols_.address() + exported_symbols_.size(),
-                       header->external_symbols_amount }
+                       header->external_symbols_amount,
+                       header->alignment }
   , text_address_{ align<std::uintptr_t, 16>(
       external_symbols_.address() + external_symbols_.size()) }
   , data_address_{ text_address_ + header->code_length }
@@ -59,17 +63,17 @@ const SymbolTable Parser::get_external_symbols() const
 //   return exported_relocations_;
 // }
 
-const RelocationTable Parser::get_local_relocations() const
+const RelocationTable<LocalRelocation> Parser::get_local_relocations() const
 {
   return local_relocations_;
 }
 
-const RelocationTable Parser::get_data_relocations() const
+const RelocationTable<DataRelocation> Parser::get_data_relocations() const
 {
   return data_relocations_;
 }
 
-const RelocationTable Parser::get_external_relocations() const
+const RelocationTable<Relocation> Parser::get_external_relocations() const
 {
   return external_relocations_;
 }

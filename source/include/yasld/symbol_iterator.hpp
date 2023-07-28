@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include <cstdint>
 #include <iterator>
 
 namespace yasld
@@ -30,7 +31,7 @@ class Symbol;
 class SymbolIterator
 {
 public:
-  SymbolIterator(const Symbol *symbol);
+  SymbolIterator(const Symbol *symbol, uint8_t alignment);
   using iterator_category = std::forward_iterator_tag;
   using difference_type   = std::ptrdiff_t;
   using value_type        = Symbol;
@@ -47,6 +48,7 @@ public:
   bool            operator!=(const SymbolIterator &b) const;
 
 private:
+  const uint8_t alignment_;
   const Symbol *symbol_;
 };
 

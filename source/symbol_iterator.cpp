@@ -25,8 +25,9 @@
 namespace yasld
 {
 
-SymbolIterator::SymbolIterator(const Symbol *symbol)
+SymbolIterator::SymbolIterator(const Symbol *symbol, uint8_t alignment)
   : symbol_(symbol)
+  , alignment_(alignment)
 {
 }
 
@@ -42,14 +43,14 @@ SymbolIterator::pointer SymbolIterator::operator->()
 
 SymbolIterator &SymbolIterator::operator++()
 {
-  symbol_ = symbol_->next();
+  symbol_ = symbol_->next(alignment_);
   return *this;
 }
 
 SymbolIterator SymbolIterator::operator++(int)
 {
   SymbolIterator copy = *this;
-  symbol_             = symbol_->next();
+  symbol_             = symbol_->next(alignment_);
   return copy;
 }
 

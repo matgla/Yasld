@@ -30,16 +30,13 @@ namespace yasld
 class __attribute__((packed)) Symbol
 {
 public:
-  [[nodiscard]]
-  Section section() const;
-  [[nodiscard]]
-  uint32_t offset() const;
-  [[nodiscard]]
-  std::string_view name() const;
-  [[nodiscard]]
-  const Symbol *next() const;
-  [[nodiscard]]
-  std::size_t size() const;
+  Symbol(const Symbol &symbol) = delete;
+
+  [[nodiscard]] Section          section() const;
+  [[nodiscard]] uint32_t         offset() const;
+  [[nodiscard]] std::string_view name() const;
+  [[nodiscard]] const Symbol    *next(std::size_t alignment) const;
+  [[nodiscard]] std::size_t      size() const;
 
 private:
   uint32_t offset_;
