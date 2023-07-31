@@ -36,7 +36,7 @@ SymbolIterator::reference SymbolIterator::operator*() const
   return *symbol_;
 }
 
-SymbolIterator::pointer SymbolIterator::operator->()
+SymbolIterator::pointer SymbolIterator::operator->() const
 {
   return symbol_;
 }

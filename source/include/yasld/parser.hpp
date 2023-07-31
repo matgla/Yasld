@@ -23,7 +23,9 @@
 #include <cstdint>
 #include <span>
 
+#include "yasld/data_relocation.hpp"
 #include "yasld/header.hpp"
+#include "yasld/local_relocation.hpp"
 #include "yasld/relocation.hpp"
 #include "yasld/relocation_table.hpp"
 #include "yasld/symbol_table.hpp"

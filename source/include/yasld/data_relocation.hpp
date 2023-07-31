@@ -1,5 +1,5 @@
 /**
- * symbol.hpp
+ * data_relocation.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -21,25 +21,30 @@
 #pragma once
 
 #include <cstdint>
-#include <string_view>
 
 #include "yasld/section.hpp"
+
 namespace yasld
 {
 
-class __attribute__((packed)) Symbol
+class __attribute__((packed)) DataRelocation
 {
 public:
-  Symbol(const Symbol &symbol) = delete;
+  DataRelocation(uint32_t to, uint32_t from);
+  [[nodiscard]] uint32_t       to_offset() const;
+  [[nodiscard]] uint32_t       from_offset() const;
+  [[nodiscard]] Section        section() const;
+  constexpr static std::size_t size()
+  {
+    return sizeof(DataRelocation);
+  }
 
-  [[nodiscard]] Section          section() const;
-  [[nodiscard]] uint32_t         offset() const;
-  [[nodiscard]] std::string_view name() const;
-  [[nodiscard]] const Symbol    *next(std::size_t alignment) const;
-  [[nodiscard]] std::size_t      size(std::size_t alignment) const;
+  [[nodiscard]] const DataRelocation &next() const;
+  [[nodiscard]] bool operator==(const DataRelocation &other) const;
 
 private:
-  uint32_t offset_;
+  uint32_t to_offset_;
+  uint32_t from_offset_;
 };
 
 } // namespace yasld

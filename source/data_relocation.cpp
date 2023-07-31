@@ -1,5 +1,5 @@
 /**
- * symbol.hpp
+ * data_relocation.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,28 +18,40 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "yasld/data_relocation.hpp"
 
-#include <cstdint>
-#include <string_view>
-
-#include "yasld/section.hpp"
 namespace yasld
 {
 
-class __attribute__((packed)) Symbol
+DataRelocation::DataRelocation(uint32_t to, uint32_t from)
+  : to_offset_(to)
+  , from_offset_(from)
 {
-public:
-  Symbol(const Symbol &symbol) = delete;
+}
 
-  [[nodiscard]] Section          section() const;
-  [[nodiscard]] uint32_t         offset() const;
-  [[nodiscard]] std::string_view name() const;
-  [[nodiscard]] const Symbol    *next(std::size_t alignment) const;
-  [[nodiscard]] std::size_t      size(std::size_t alignment) const;
+uint32_t DataRelocation::to_offset() const
+{
+  return to_offset_;
+}
 
-private:
-  uint32_t offset_;
-};
+uint32_t DataRelocation::from_offset() const
+{
+  return from_offset_ >> 1;
+}
+
+Section DataRelocation::section() const
+{
+  return static_cast<Section>(from_offset_ & 1);
+}
+
+const DataRelocation &DataRelocation::next() const
+{
+  return *(this + 1);
+}
+
+bool DataRelocation::operator==(const DataRelocation &other) const
+{
+  return from_offset_ == other.from_offset_ && to_offset_ == other.to_offset_;
+}
 
 } // namespace yasld

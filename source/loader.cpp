@@ -59,13 +59,14 @@ std::optional<Executable> Loader::load_executable(
     return std::nullopt;
   }
 
+  log("Alignment is: %d\n", header->alignment);
   const Parser      parser(header);
 
   // allocate LOT
   const std::size_t lot_size =
     (header->external_relocations_amount + header->local_relocations_amount);
   const std::size_t lot_size_bytes = lot_size * sizeof(void *);
-  log("Allocation of LOT with size: %ld\n", lot_size);
+  log("Allocation of LOT with size: %ldB\n", lot_size_bytes);
 
   lot_ = std::span<std::size_t>(
     reinterpret_cast<std::size_t *>(allocator_(lot_size_bytes).data()),
@@ -107,7 +108,7 @@ const Header *Loader::process_header(const void *module_address) const
 void Loader::process_external_relocations(const Parser &parser)
 {
   const auto span = parser.get_external_relocations().span();
-  log("Processing external relocations: %d\n", span.size());
+  log("Processing external relocations: %zd\n", span.size());
   for (const auto &rel : span)
   {
     // TODO(matgla): implement
@@ -117,7 +118,7 @@ void Loader::process_external_relocations(const Parser &parser)
 void Loader::process_local_relocations(const Parser &parser)
 {
   const auto span = parser.get_local_relocations().span();
-  log("Processing local relocations: %d\n", span.size());
+  log("Processing local relocations: %zd\n", span.size());
   for (const auto &rel : span)
   {
     const std::size_t relocated_start_address =
@@ -126,9 +127,10 @@ void Loader::process_local_relocations(const Parser &parser)
         : reinterpret_cast<std::size_t>(data_.data());
     const std::size_t relocated = relocated_start_address + rel.offset();
     log(
-      "Local relocation, lot: %d, new address: 0x" PRIxPTR "\n",
+      "[relocation] | local | lot: %4d | new address: 0x%-16zx | %s |\n",
       rel.lot_index(),
-      relocated);
+      relocated,
+      to_string(rel.section()).data());
     lot_[rel.lot_index()] = relocated;
   }
 }
@@ -136,7 +138,7 @@ void Loader::process_local_relocations(const Parser &parser)
 void Loader::process_data_relocations(const Parser &parser)
 {
   const auto span = parser.get_data_relocations().span();
-  log("Processing data relocations: %d\n", span.size());
+  log("Processing data relocations: %zd\n", span.size());
   for (const auto &rel : span)
   {
     std::size_t relocate =
@@ -171,19 +173,12 @@ bool Loader::process_data(const Header &header, const Parser &parser)
   }
 
   log(
-    "Copying data from %p to %p, size: 0x%x\n",
+    "Copying data from %p to %p, size: 0x%zx\n",
     data.data(),
     data_.data(),
     data.size_bytes());
 
   std::memcpy(data_.data(), data.data(), data.size_bytes());
-
-  log("Copy data, some values: ");
-  for (int i = 0; i < 16; ++i)
-  {
-    log("%x, ", data_[i]);
-  }
-  log("\n");
 
   bss_ = data_.subspan(header.data_length, header.bss_length);
 

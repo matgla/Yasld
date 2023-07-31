@@ -21,6 +21,7 @@
 #pragma once
 
 #include <cstdint>
+#include <string_view>
 
 namespace yasld
 {
@@ -31,5 +32,7 @@ enum class Section : uint8_t
   data    = 1,
   unknown = 2
 };
+
+std::string_view to_string(Section s);
 
 } // namespace yasld

@@ -1,5 +1,5 @@
 /**
- * symbol.hpp
+ * section.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,28 +18,23 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include <cstdint>
-#include <string_view>
-
 #include "yasld/section.hpp"
+
 namespace yasld
 {
 
-class __attribute__((packed)) Symbol
+std::string_view to_string(Section s)
 {
-public:
-  Symbol(const Symbol &symbol) = delete;
-
-  [[nodiscard]] Section          section() const;
-  [[nodiscard]] uint32_t         offset() const;
-  [[nodiscard]] std::string_view name() const;
-  [[nodiscard]] const Symbol    *next(std::size_t alignment) const;
-  [[nodiscard]] std::size_t      size(std::size_t alignment) const;
-
-private:
-  uint32_t offset_;
-};
+  switch (s)
+  {
+  case Section::code:
+    return "code";
+  case Section::data:
+    return "data";
+  case Section::unknown:
+    return "unkn";
+  }
+  return "unkn";
+}
 
 } // namespace yasld

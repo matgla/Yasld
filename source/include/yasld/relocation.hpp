@@ -29,26 +29,6 @@ namespace yasld
 
 class Symbol;
 
-class __attribute__((packed)) LocalRelocation
-{
-public:
-  LocalRelocation(uint32_t index, uint32_t offset);
-  [[nodiscard]] uint32_t       lot_index() const;
-
-  constexpr static std::size_t size()
-  {
-    return sizeof(LocalRelocation);
-  }
-  [[nodiscard]] const LocalRelocation &next() const;
-  [[nodiscard]] bool     operator==(const LocalRelocation &other) const;
-  [[nodiscard]] Section  section() const;
-  [[nodiscard]] uint32_t offset() const;
-
-private:
-  uint32_t index_;
-  uint32_t target_offset_;
-};
-
 class __attribute__((packed)) Relocation
 {
 public:
@@ -67,26 +47,6 @@ public:
 private:
   uint32_t index_;
   uint32_t symbol_offset_;
-};
-
-class __attribute__((packed)) DataRelocation
-{
-public:
-  DataRelocation(uint32_t to, uint32_t from);
-  [[nodiscard]] uint32_t       to_offset() const;
-  [[nodiscard]] uint32_t       from_offset() const;
-  [[nodiscard]] Section        section() const;
-  constexpr static std::size_t size()
-  {
-    return sizeof(DataRelocation);
-  }
-
-  [[nodiscard]] const DataRelocation &next() const;
-  [[nodiscard]] bool operator==(const DataRelocation &other) const;
-
-private:
-  uint32_t to_offset_;
-  uint32_t from_offset_;
 };
 
 } // namespace yasld

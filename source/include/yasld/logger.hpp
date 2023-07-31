@@ -22,7 +22,7 @@
 
 #if (LOGGER_ENABLED == 1)
 #include <cstdio>
-#define log printf
+#define log(...) printf("[YASLD] " __VA_ARGS__);
 #else
 #define log(...)
 #endif

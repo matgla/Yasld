@@ -39,7 +39,7 @@ public:
   using reference         = const Symbol &;
 
   reference       operator*() const;
-  pointer         operator->();
+  pointer         operator->() const;
 
   SymbolIterator &operator++();
   SymbolIterator  operator++(int);

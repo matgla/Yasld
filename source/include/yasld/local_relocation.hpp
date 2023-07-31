@@ -1,5 +1,5 @@
 /**
- * symbol.hpp
+ * local_relocation.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -21,25 +21,30 @@
 #pragma once
 
 #include <cstdint>
-#include <string_view>
 
 #include "yasld/section.hpp"
+
 namespace yasld
 {
 
-class __attribute__((packed)) Symbol
+class __attribute__((packed)) LocalRelocation
 {
 public:
-  Symbol(const Symbol &symbol) = delete;
+  LocalRelocation(uint32_t index, uint32_t offset);
+  [[nodiscard]] uint32_t       lot_index() const;
 
-  [[nodiscard]] Section          section() const;
-  [[nodiscard]] uint32_t         offset() const;
-  [[nodiscard]] std::string_view name() const;
-  [[nodiscard]] const Symbol    *next(std::size_t alignment) const;
-  [[nodiscard]] std::size_t      size(std::size_t alignment) const;
+  constexpr static std::size_t size()
+  {
+    return sizeof(LocalRelocation);
+  }
+  [[nodiscard]] const LocalRelocation &next() const;
+  [[nodiscard]] bool     operator==(const LocalRelocation &other) const;
+  [[nodiscard]] Section  section() const;
+  [[nodiscard]] uint32_t offset() const;
 
 private:
-  uint32_t offset_;
+  uint32_t index_;
+  uint32_t target_offset_;
 };
 
 } // namespace yasld

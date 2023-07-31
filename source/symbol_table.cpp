@@ -48,8 +48,8 @@ std::size_t SymbolTable::size() const
   const Symbol *symbol = root_;
   for (int i = 0; i < number_of_symbols_; ++i)
   {
-    size   = symbol->size();
-    symbol = symbol->next(alignment_);
+    size   += symbol->size(alignment_);
+    symbol  = symbol->next(alignment_);
   }
   return size;
 }

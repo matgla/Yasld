@@ -58,11 +58,6 @@ const SymbolTable Parser::get_external_symbols() const
   return external_symbols_;
 }
 
-// const RelocationTable Parser::get_exported_relocations() const
-// {
-//   return exported_relocations_;
-// }
-
 const RelocationTable<LocalRelocation> Parser::get_local_relocations() const
 {
   return local_relocations_;

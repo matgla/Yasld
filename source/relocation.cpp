@@ -21,36 +21,8 @@
 #include "yasld/relocation.hpp"
 #include "yasld/symbol.hpp"
 
-#include <cstdio>
-
 namespace yasld
 {
-
-LocalRelocation::LocalRelocation(uint32_t index, uint32_t offset)
-  : index_(index)
-  , target_offset_(offset)
-{
-}
-
-uint32_t LocalRelocation::lot_index() const
-{
-  return index_ >> 1;
-}
-
-const LocalRelocation &LocalRelocation::next() const
-{
-  return *(this + 1);
-}
-
-Section LocalRelocation::section() const
-{
-  return static_cast<Section>(index_ & 0x1);
-}
-
-uint32_t LocalRelocation::offset() const
-{
-  return target_offset_;
-}
 
 Relocation::Relocation(uint32_t index, uint32_t symbol_offset)
   : index_(index)
@@ -83,37 +55,6 @@ const Relocation &Relocation::next() const
 bool Relocation::operator==(const Relocation &other) const
 {
   return index_ == other.index_ && symbol_offset_ == other.symbol_offset_;
-}
-
-DataRelocation::DataRelocation(uint32_t to, uint32_t from)
-  : to_offset_(to)
-  , from_offset_(from)
-{
-}
-
-uint32_t DataRelocation::to_offset() const
-{
-  return to_offset_;
-}
-
-uint32_t DataRelocation::from_offset() const
-{
-  return from_offset_ >> 1;
-}
-
-Section DataRelocation::section() const
-{
-  return static_cast<Section>(from_offset_ & 1);
-}
-
-const DataRelocation &DataRelocation::next() const
-{
-  return *(this + 1);
-}
-
-bool DataRelocation::operator==(const DataRelocation &other) const
-{
-  return from_offset_ == other.from_offset_ && to_offset_ == other.to_offset_;
 }
 
 } // namespace yasld

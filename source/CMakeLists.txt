@@ -23,7 +23,9 @@ set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
 target_sources(
   yasld
   PUBLIC ${include_dir}/align.hpp
+         ${include_dir}/data_relocation.hpp
          ${include_dir}/loader.hpp
+         ${include_dir}/local_relocation.hpp
          ${include_dir}/header.hpp
          ${include_dir}/relocation.hpp
          ${include_dir}/symbol.hpp
@@ -33,13 +35,16 @@ target_sources(
          ${include_dir}/relocation_table.hpp
          ${include_dir}/symbol_iterator.hpp
          ${include_dir}/executable.hpp
-  PRIVATE loader.cpp
+  PRIVATE data_relocation.cpp
+          loader.cpp
           executable.cpp
+          local_relocation.cpp
           header.cpp
           relocation.cpp
           symbol.cpp
           symbol_table.cpp
           parser.cpp
+          section.cpp
           symbol_iterator.cpp)
 
 add_subdirectory(arch)

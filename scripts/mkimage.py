@@ -331,7 +331,7 @@ class Application:
            
             value = value << 1 | symbol["section"].value 
             symbol_table += struct.pack("<I", value)
-            symbol_table += bytearray(symbol["name"] + "\0", "ascii") 
+            symbol_table += Application.align_bytes(bytearray(symbol["name"] + "\0", "ascii"), 4) 
         
         return Application.align_bytes(symbol_table, 4) 
 
@@ -398,7 +398,7 @@ class Application:
        
         # This is necessary to select from which libraries select external symbols
         # In first iteration we can provide first known
-        self.image += struct.pack("<HH", 0, 0) # no dependencies export supported right now  
+        self.image += struct.pack("<HBB", 0, 4, 0) # no dependencies export supported right now, alignment 4
         # Followed by dependencies, but none for now, encoded in ASCII name + 4B version 
         # And at the end aligned to 4 
 
@@ -416,13 +416,15 @@ class Application:
                                   len(local_relocations),
                                   len(data_relocations))
                                   #len(exported_relocations))
-  
+ 
         exported_symbol_table = self.build_binary_symbol_table_for(self.exported_symbol_table)
         external_symbol_table = self.build_binary_symbol_table_for(self.external_symbol_table) 
         relocations = self.build_relocation_table(exported_relocations, external_relocations,
                                                 local_relocations, data_relocations, exported_symbol_table) 
        
         self.image += struct.pack("<HH", self.exported_symbol_table_size, self.external_symbol_table_size)
+
+        self.image += struct.pack("<H", 0); # alignment
 
         for rel in relocations:
             self.image += struct.pack("<II", rel["index"], rel["offset"])

@@ -1,5 +1,5 @@
 /**
- * symbol.hpp
+ * align_tests.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,28 +18,27 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <gtest/gtest.h>
 
-#include <cstdint>
-#include <string_view>
+#include "yasld/align.hpp"
 
-#include "yasld/section.hpp"
 namespace yasld
 {
 
-class __attribute__((packed)) Symbol
+TEST(AlignShould, CorrectlyAlignAddress)
 {
-public:
-  Symbol(const Symbol &symbol) = delete;
+  EXPECT_EQ(align(0, 3), 0);
+  EXPECT_EQ(align(15, 16), 16);
+  EXPECT_EQ(align(1, 4), 4);
+  EXPECT_EQ(align(4, 4), 4);
+}
 
-  [[nodiscard]] Section          section() const;
-  [[nodiscard]] uint32_t         offset() const;
-  [[nodiscard]] std::string_view name() const;
-  [[nodiscard]] const Symbol    *next(std::size_t alignment) const;
-  [[nodiscard]] std::size_t      size(std::size_t alignment) const;
-
-private:
-  uint32_t offset_;
-};
+TEST(AlignTemplateShould, CorrectlyAlignAddress)
+{
+  EXPECT_EQ((align<int, 3>(0)), 0);
+  EXPECT_EQ((align<int, 16>(15)), 16);
+  EXPECT_EQ((align<int, 4>(1)), 4);
+  EXPECT_EQ((align<int, 4>(4)), 4);
+}
 
 } // namespace yasld

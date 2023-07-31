@@ -1,5 +1,5 @@
 /**
- * symbol.hpp
+ * local_relocation.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,28 +18,35 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "yasld/local_relocation.hpp"
 
-#include <cstdint>
-#include <string_view>
-
-#include "yasld/section.hpp"
 namespace yasld
 {
 
-class __attribute__((packed)) Symbol
+LocalRelocation::LocalRelocation(uint32_t index, uint32_t offset)
+  : index_(index)
+  , target_offset_(offset)
 {
-public:
-  Symbol(const Symbol &symbol) = delete;
+}
 
-  [[nodiscard]] Section          section() const;
-  [[nodiscard]] uint32_t         offset() const;
-  [[nodiscard]] std::string_view name() const;
-  [[nodiscard]] const Symbol    *next(std::size_t alignment) const;
-  [[nodiscard]] std::size_t      size(std::size_t alignment) const;
+uint32_t LocalRelocation::lot_index() const
+{
+  return index_ >> 1;
+}
 
-private:
-  uint32_t offset_;
-};
+const LocalRelocation &LocalRelocation::next() const
+{
+  return *(this + 1);
+}
+
+Section LocalRelocation::section() const
+{
+  return static_cast<Section>(index_ & 0x1);
+}
+
+uint32_t LocalRelocation::offset() const
+{
+  return target_offset_;
+}
 
 } // namespace yasld

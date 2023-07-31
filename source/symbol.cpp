@@ -44,17 +44,16 @@ std::string_view Symbol::name() const
   return std::string_view(ptr);
 }
 
-std::size_t Symbol::size() const
+std::size_t Symbol::size(std::size_t alignment) const
 {
   // symbol offset + name with \0
-  return sizeof(Symbol) + name().size() + 1;
+  return align<std::size_t>(sizeof(Symbol) + name().size() + 1, alignment);
 }
 
 const Symbol *Symbol::next(std::size_t alignment) const
 {
   const uint8_t *ptr = reinterpret_cast<const uint8_t *>(this);
-  return reinterpret_cast<const Symbol *>(
-    ptr + align<std::size_t>(size(), alignment));
+  return reinterpret_cast<const Symbol *>(ptr + size(alignment));
 }
 
 } // namespace yasld
