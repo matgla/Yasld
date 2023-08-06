@@ -30,10 +30,10 @@ target_compile_options(
           -msingle-pic-base
           -mno-pic-data-is-text-relative)
 
+find_package(printf REQUIRED)
 target_link_libraries(
   stm32f0_common
+  PUBLIC printf
   PRIVATE build_flags stm32f0_with_pic)
 
-target_include_directories(
-  stm32f0_common
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(stm32f0_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -23,10 +23,11 @@
 #include <libopencm3/stm32/usart.h>
 
 #include <cstdarg>
-#include <cstdio>
 #include <span>
 #include <string_view>
 #include <yasld/loader.hpp>
+
+#include <printf.h>
 
 void clock_setup()
 

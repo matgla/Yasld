@@ -56,7 +56,7 @@ public:
     const void *module_address,
     const Mode  mode);
 
-  std::size_t find_symbol(std::string_view name) const;
+  std::optional<std::size_t> find_symbol(std::string_view name) const;
 
 private:
   const Header *process_header(const void *module_address) const;

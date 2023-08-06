@@ -20,7 +20,6 @@
 
 #include "yasld/symbol.hpp"
 
-#include <cstdio>
 #include <cstring>
 
 #include "yasld/align.hpp"

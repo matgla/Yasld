@@ -20,4 +20,7 @@ add_library(stm32f0_host_common)
 
 target_sources(stm32f0_host_common PUBLIC system_stubs.cpp)
 
-target_link_libraries(stm32f0_host_common PRIVATE build_flags stm32f0)
+target_link_libraries(
+  stm32f0_host_common
+  PUBLIC printf
+  PRIVATE build_flags stm32f0)

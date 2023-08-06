@@ -21,15 +21,18 @@
 #include "yasld/parser.hpp"
 
 #include "yasld/align.hpp"
+#include "yasld/logger.hpp"
+
+#include <printf.h>
 
 namespace yasld
 {
 Parser::Parser(const Header *header)
   : header_{ header }
-  , external_relocations_{ reinterpret_cast<std::uintptr_t>(header) +
-                             align<std::size_t>(
-                               sizeof(*header),
-                               header->alignment),
+  , external_relocations_{ align<std::uintptr_t>(
+                             reinterpret_cast<std::uintptr_t>(header) +
+                               sizeof(yasld::Header),
+                             header->alignment),
                            header->external_relocations_amount }
   , local_relocations_{ external_relocations_.address() +
                           external_relocations_.size(),
@@ -46,6 +49,34 @@ Parser::Parser(const Header *header)
       external_symbols_.address() + external_symbols_.size()) }
   , data_address_{ text_address_ + header->code_length }
 {
+  log(
+    "External relocations: 0x%-16zx -> 0x%-8zx B\n",
+    external_relocations_.address(),
+    external_relocations_.size());
+  log(
+    "Local relocations   : 0x%-16zx -> 0x%-8zx B\n",
+    local_relocations_.address(),
+    local_relocations_.size());
+  log(
+    "Data relocations    : 0x%-16zx -> 0x%-8zx B\n",
+    data_relocations_.address(),
+    data_relocations_.size());
+  log(
+    "Exported symbols    : 0x%-16zx -> 0x%-8zx B\n",
+    exported_symbols_.address(),
+    exported_symbols_.size());
+  log(
+    "External symbols    : 0x%-16zx -> 0x%-8zx B\n",
+    external_symbols_.address(),
+    external_symbols_.size());
+  log(
+    "Text section        : 0x%-16zx -> 0x%-8x B\n",
+    text_address_,
+    header->code_length);
+  log(
+    "Data section        : 0x%-16zx -> 0x%-8x B\n",
+    data_address_,
+    header->data_length);
 }
 
 const SymbolTable Parser::get_exported_symbols() const

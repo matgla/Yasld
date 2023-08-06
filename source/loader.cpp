@@ -20,9 +20,9 @@
 
 #include "yasld/loader.hpp"
 
-#include <cstdio>
 #include <cstring>
 #include <inttypes.h>
+#include <printf.h>
 #include <string_view>
 
 #include "yasld/align.hpp"
@@ -75,6 +75,11 @@ std::optional<Executable> Loader::load_executable(
   if (mode == Mode::copy_only_data)
   {
     text_ = parser.get_text();
+    log("Text is located at: %p\n", text_.data());
+  }
+  else
+  {
+    // TODO: add support
   }
 
   const auto result = process_data(*header, parser);
@@ -82,11 +87,11 @@ std::optional<Executable> Loader::load_executable(
   process_local_relocations(parser);
   process_data_relocations(parser);
 
-  exported_symbols_              = parser.get_exported_symbols();
-  const std::size_t main_address = find_symbol("main");
-  if (main_address != 0)
+  exported_symbols_                             = parser.get_exported_symbols();
+  const std::optional<std::size_t> main_address = find_symbol("main");
+  if (main_address)
   {
-    return Executable{ main_address,
+    return Executable{ *main_address,
                        reinterpret_cast<std::size_t>(text_.data()),
                        lot_ };
   }
@@ -108,7 +113,7 @@ const Header *Loader::process_header(const void *module_address) const
 void Loader::process_external_relocations(const Parser &parser)
 {
   const auto span = parser.get_external_relocations().span();
-  log("Processing external relocations: %zd\n", span.size());
+  log("Processing external relocations: %d\n", span.size());
   for (const auto &rel : span)
   {
     // TODO(matgla): implement
@@ -118,7 +123,7 @@ void Loader::process_external_relocations(const Parser &parser)
 void Loader::process_local_relocations(const Parser &parser)
 {
   const auto span = parser.get_local_relocations().span();
-  log("Processing local relocations: %zd\n", span.size());
+  log("Processing local relocations: %u\n", (uint32_t)span.size());
   for (const auto &rel : span)
   {
     const std::size_t relocated_start_address =
@@ -127,9 +132,11 @@ void Loader::process_local_relocations(const Parser &parser)
         : reinterpret_cast<std::size_t>(data_.data());
     const std::size_t relocated = relocated_start_address + rel.offset();
     log(
-      "[relocation] | local | lot: %4d | new address: 0x%-16zx | %s |\n",
+      "| local | lot: %d | base:0x%x | offset: 0x%x | %s "
+      "|\n",
       rel.lot_index(),
-      relocated,
+      relocated_start_address,
+      rel.offset(),
       to_string(rel.section()).data());
     lot_[rel.lot_index()] = relocated;
   }
@@ -138,27 +145,28 @@ void Loader::process_local_relocations(const Parser &parser)
 void Loader::process_data_relocations(const Parser &parser)
 {
   const auto span = parser.get_data_relocations().span();
-  log("Processing data relocations: %zd\n", span.size());
+  log("Processing data relocations: %zu\n", span.size());
   for (const auto &rel : span)
   {
-    std::size_t relocate =
+    std::size_t to_change_address =
       reinterpret_cast<std::size_t>(data_.data()) + rel.to_offset();
-    std::size_t *to_relocate = reinterpret_cast<std::size_t *>(relocate);
+    std::size_t *to_change = reinterpret_cast<std::size_t *>(to_change_address);
 
-    std::size_t  relocated   = reinterpret_cast<std::size_t>(data_.data()) +
-                            (*to_relocate - text_.size_bytes());
+    std::size_t  from_section_start =
+      rel.section() == Section::data
+         ? reinterpret_cast<std::size_t>(data_.data())
+         : reinterpret_cast<std::size_t>(text_.data());
+
+    std::size_t from_address = from_section_start + rel.from_offset();
     log(
-      "to relocate %p, data offset: 0x%x, relocated: 0x%x\n",
-      (*to_relocate),
-      (*to_relocate - text_.size_bytes()),
-      relocated);
-
-    std::size_t start_address = rel.section() == Section::data
-                                  ? reinterpret_cast<std::size_t>(data_.data())
-                                  : reinterpret_cast<std::size_t>(text_.data());
-
-    std::size_t should_be     = start_address + rel.from_offset();
-    *to_relocate              = should_be;
+      "| data | change: 0x%zx | to: 0x%zx | "
+      "old: 0x%zx | %s "
+      "|\n",
+      to_change_address,
+      from_address,
+      *to_change,
+      to_string(rel.section()).data());
+    *to_change = from_address;
   }
 }
 
@@ -173,7 +181,7 @@ bool Loader::process_data(const Header &header, const Parser &parser)
   }
 
   log(
-    "Copying data from %p to %p, size: 0x%zx\n",
+    "Copying data from %p to %p, size: 0x%x\n",
     data.data(),
     data_.data(),
     data.size_bytes());
@@ -192,7 +200,7 @@ bool Loader::process_data(const Header &header, const Parser &parser)
   return true;
 }
 
-std::size_t Loader::find_symbol(std::string_view name) const
+std::optional<std::size_t> Loader::find_symbol(std::string_view name) const
 {
   log("Searching symbol: %s\n", name.data());
   for (const auto &symbol : exported_symbols_)
@@ -205,13 +213,13 @@ std::size_t Loader::find_symbol(std::string_view name) const
           ? reinterpret_cast<std::size_t>(text_.data())
           : reinterpret_cast<std::size_t>(data_.data());
       log(
-        "Found symbol '%s' at 0x%x\n",
+        "Found symbol '%s' at 0x%zx\n",
         name.data(),
         start_address + symbol.offset());
       return start_address + symbol.offset();
     }
   }
-  return 0;
+  return {};
 }
 
 } // namespace yasld

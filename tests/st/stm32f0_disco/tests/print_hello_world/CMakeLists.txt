@@ -22,9 +22,10 @@ target_sources(stm32f0_print_hello_world_host PRIVATE main.cpp)
 target_link_libraries(
   stm32f0_print_hello_world_host
   PRIVATE stm32f0
-          build_flags
+          build_flags_host
           yasld
-          stm32f0_host_common)
+          stm32f0_host_common
+          printf)
 
 target_link_options(
   stm32f0_print_hello_world_host

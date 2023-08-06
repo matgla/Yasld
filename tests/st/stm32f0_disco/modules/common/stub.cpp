@@ -22,10 +22,11 @@
 
 #include <array>
 #include <cstdint>
-#include <cstdio>
 #include <cstring>
 
 #include <libopencm3/stm32/usart.h>
+
+#include <printf.h>
 
 static std::array<uint8_t, 1024 * 3> heap;
 
@@ -93,5 +94,10 @@ extern "C"
     std::size_t prev  = current_heap_end;
     current_heap_end += incr;
     return &heap[prev];
+  }
+
+  void _putchar(char c)
+  {
+    _write(STDOUT_FILENO, &c, 1);
   }
 }

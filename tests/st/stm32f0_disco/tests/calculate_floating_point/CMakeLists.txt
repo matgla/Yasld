@@ -22,7 +22,7 @@ target_sources(stm32f0_calculate_floating_point_host PRIVATE main.cpp)
 target_link_libraries(
   stm32f0_calculate_floating_point_host
   PRIVATE stm32f0
-          build_flags
+          build_flags_host
           yasld
           stm32f0_host_common)
 

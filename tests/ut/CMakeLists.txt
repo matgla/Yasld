@@ -19,8 +19,12 @@
 find_package(googletest REQUIRED)
 
 add_executable(yasld_ut)
-target_sources(yasld_ut PRIVATE align_tests.cpp parser_tests.cpp
-                                loader_tests.cpp)
+target_sources(
+  yasld_ut
+  PRIVATE putchar.cpp
+          align_tests.cpp
+          parser_tests.cpp
+          loader_tests.cpp)
 target_link_libraries(yasld_ut PUBLIC GTest::gtest_main GTest::gmock yasld)
 
 add_test(NAME YasldUnitTests COMMAND yasld_ut)

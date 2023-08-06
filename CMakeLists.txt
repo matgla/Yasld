@@ -81,6 +81,7 @@ target_link_options(yasld_flags INTERFACE ${YASLD_LINKER_FLAGS})
 add_definitions(-DLOGGER_ENABLED=1)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_C_STANDARD 23)
 
 if(YASLD_ARCH STREQUAL "armv6-m")
   include(arch/arm.cmake)

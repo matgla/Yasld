@@ -20,7 +20,6 @@
 
 #include "yasld/header.hpp"
 
-#include <cstdio>
 #include <string_view>
 
 #include "yasld/logger.hpp"

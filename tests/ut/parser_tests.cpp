@@ -31,7 +31,7 @@
 #include "yasld/relocation.hpp"
 #include "yasld/symbol.hpp"
 
-const std::vector<uint8_t> example_header = {
+alignas(16) const std::vector<uint8_t> example_header = {
   0x59, 0x41, 0x46, 0x46, // YAFF
   0x01, 0x00, 0x01, 0x01, // executable, armv6-m, YASIFF version 1
   0x04, 0x00, 0x00, 0x00, // code length = 4B
@@ -131,8 +131,10 @@ TEST_F(ParserShould, ParseExternalRelocationTable)
 
   EXPECT_EQ(
     external_rels.address(),
-    reinterpret_cast<std::uintptr_t>(example_header.data()) +
-      align(sizeof(yasld::Header), header_->alignment));
+    align(
+      reinterpret_cast<std::uintptr_t>(example_header.data()) +
+        sizeof(yasld::Header),
+      header_->alignment));
 
   EXPECT_EQ(external_rels.size(), 3 * sizeof(yasld::Relocation));
 

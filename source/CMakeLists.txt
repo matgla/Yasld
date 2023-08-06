@@ -51,9 +51,10 @@ add_subdirectory(arch)
 
 find_package(eul REQUIRED)
 
+find_package(printf REQUIRED)
 target_link_libraries(
   yasld
   PUBLIC eul::functional
-  PRIVATE yasld_arch yasld_flags)
+  PRIVATE yasld_arch yasld_flags printf)
 
 target_include_directories(yasld PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

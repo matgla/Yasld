@@ -1,5 +1,5 @@
 /**
- * logger.hpp
+ * putchar.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,11 +18,14 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#if (LOGGER_ENABLED == 1)
 #include <printf.h>
-#define log(...) printf("[YASLD] " __VA_ARGS__);
-#else
-#define log(...)
-#endif
+
+#include <iostream>
+
+extern "C"
+{
+  void _putchar(char c)
+  {
+    std::cout << c;
+  }
+}
