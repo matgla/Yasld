@@ -63,7 +63,6 @@ if(NOT TARGET build_flags)
       "${CMAKE_C_FLAGS} ${CMAKE_ASM_FLAGS} -fno-exceptions -fno-rtti -std=c++20"
   )
 
-  find_package(printf REQUIRED)
   add_library(build_flags INTERFACE)
   target_compile_options(build_flags INTERFACE ${YASLD_CXX_FLAGS})
   target_link_options(

@@ -37,26 +37,28 @@ class SectionCode(Enum):
     Data = 1 
     Unknown = 2
 
+def parse_args():
+    parser = argparse.ArgumentParser(description = 
+                                    """
+                                    MkImage converts ELF file to YASIFF.
+                                    It generates relocatable executable or shared library for Cortex-M MCUs.
+                                    """)
+
+    parser.add_argument("-i", "--input", dest="input", action="store", help="Path to ELF file", required=True)
+    parser.add_argument("-o", "--output", dest="output", action="store", help="Path to output file", required=True)
+    parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Enable verbose output")
+    parser.add_argument("-q", "--quiet", dest="quiet", action="store_true", help="Disable output")
+    parser.add_argument("-d", "--dry", dest="dryrun", action="store_true", help="Dry run")
+    args, rest = parser.parse_known_args()
+    return args
+
+
+
 class Application:
-    def __init__(self):
-        self.args = Application.parse_args()
+    def __init__(self, args):
+        self.args = args 
         self.logger = Logger(self.args.verbose, self.args.quiet)
         self.image = None 
-
-    @staticmethod
-    def parse_args():
-        parser = argparse.ArgumentParser(description = 
-                                        """
-                                        MkImage converts ELF file to YASIFF.
-                                        It generates relocatable executable or shared library for Cortex-M MCUs.
-                                        """)
-
-        parser.add_argument("-i", "--input", dest="input", action="store", help="Path to ELF file", required=True)
-        parser.add_argument("-o", "--output", dest="output", action="store", help="Path to output file", required=True)
-        parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Enable verbose output")
-        parser.add_argument("-q", "--quiet", dest="quiet", action="store_true", help="Disable output")
-        args, rest = parser.parse_known_args()
-        return args
 
     def print_header(self):
         self.logger.log(Fore.YELLOW + 
@@ -129,7 +131,8 @@ class Application:
                         self.processed_symbols[name]["localization"] = "exported"
                 else:
                     self.processed_symbols[name]["localization"] = "internal"
-    
+            
+
     def dump_processed_symbols(self):
         self.logger.verbose("Symbol table")
         if self.args.verbose: 
@@ -212,21 +215,16 @@ class Application:
                     visibility = self.processed_symbols[relocation["symbol_name"]]["localization"]
                       
                     index = int(relocation["offset"] - code_size)
-                    #print("Index is: ", index, ", text size: ", hex(code_size), "real offset: ", hex(relocation["offset"]))
                     if (index < 0):
                       raise RuntimeError("Index negative for: " + str(relocation["symbol_name"]))
                     if relocation["symbol_value"] <= code_size:
                       # Relocation to code section 
-                      #print("code rel[offset]: ", hex(relocation["offset"]), ", text: ", hex(code_size), ", name: ", relocation["symbol_name"])
                       original_offset = struct.unpack_from("<I", self.data, index)[0]
-                      #print("Original offset: ", hex(original_offset))
                       offset = original_offset << 1 
                     else:
-                      #print("data rel[offset]: ", hex(relocation["offset"]), ", text: ", hex(code_size), ", name: ", relocation["symbol_name"])
                       original_offset = struct.unpack_from("<I", self.data, index)[0]
-                      #print("Original offset: ", hex(original_offset))
                       offset = ((original_offset - code_size) << 1) | 1
-                    self.relocation_table.add_data_relocation(relocation, index, offset, visibility)
+                    self.relocation_table.add_data_relocation(relocation, index, offset)
                 else:
                     raise RuntimeError("Symbol not found in symbol table: " + relocation["symbol_name"])
             else:
@@ -424,7 +422,7 @@ class Application:
        
         self.image += struct.pack("<HH", self.exported_symbol_table_size, self.external_symbol_table_size)
 
-        self.image += struct.pack("<H", 0); # alignment
+        self.image += struct.pack("<H", 0) # alignment 
 
         for rel in relocations:
             self.image += struct.pack("<II", rel["index"], rel["offset"])
@@ -437,18 +435,23 @@ class Application:
         self.image += self.code 
         self.image += self.data 
 
-        self.logger.info("Writing to: " + self.args.output)
-        with open(self.args.output, "wb") as file:
-            file.write(self.image)
+        if not self.args.dryrun:
+          self.logger.info("Writing to: " + self.args.output)
+          with open(self.args.output, "wb") as file:
+              file.write(self.image)
+
+    def fill_code_and_data_arrays(self):
+        self.code = bytearray(self.text_section["data"])
+        self.data = bytearray(self.data_section["data"])
+        self.bss = bytearray(self.bss_section["data"])
+ 
 
     def execute(self):
         self.fetch_sections()
         self.process_symbols()
         self.dump_processed_symbols()
         self.process_relocations()
-        self.code = bytearray(self.text_section["data"])
-        self.data = bytearray(self.data_section["data"])
-        self.bss = bytearray(self.bss_section["data"])
+        self.fill_code_and_data_arrays()
         self.process_data_relocations(len(self.code))
         self.dump_processed_relocations() 
         self.fix_offsets_in_code()
@@ -457,7 +460,8 @@ class Application:
 
 def main():
     init()
-    app = Application() 
+    args = parse_args()
+    app = Application(args) 
     app.print_header()
     app.execute()
 

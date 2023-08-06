@@ -55,6 +55,7 @@ class RelocationSet:
         for r in self.relocations:
             if r["name"] == relocation["symbol_name"]:
               return
+
         self.relocations.append({
             "name": relocation["symbol_name"],
             "offset": relocation["offset"],
@@ -63,7 +64,7 @@ class RelocationSet:
             "type": visibility 
         })
     
-    def add_data_relocation(self, relocation, index, offset, visibility):
+    def add_data_relocation(self, relocation, index, offset):
         self.relocations.append({
             "name": relocation["symbol_name"],
             "offset": offset,
