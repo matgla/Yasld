@@ -49,10 +49,8 @@ def parse_args():
     parser.add_argument("-v", "--verbose", dest="verbose", action="store_true", help="Enable verbose output")
     parser.add_argument("-q", "--quiet", dest="quiet", action="store_true", help="Disable output")
     parser.add_argument("-d", "--dry", dest="dryrun", action="store_true", help="Dry run")
-    args, rest = parser.parse_known_args()
+    args, _ = parser.parse_known_args()
     return args
-
-
 
 class Application:
     def __init__(self, args):

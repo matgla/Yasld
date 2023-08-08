@@ -16,11 +16,10 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.20)
 
 message(STATUS "Yasld configuration started")
 
-# NONE temporary
 project(yasld NONE)
 
 if(NOT DEFINED YASLD_ARCH)
@@ -61,7 +60,7 @@ include(virtualenv)
 create_virtualenv(yasld ${CMAKE_CURRENT_SOURCE_DIR}/requirements.txt
                   ${CMAKE_CURRENT_BINARY_DIR}/venvs)
 
-create_virtualenv(scripts ${CMAKE_CURRENT_SOURCE_DIR}/scripts/requirements.txt
+create_virtualenv(mkimage ${CMAKE_CURRENT_SOURCE_DIR}/mkimage/requirements.txt
                   ${CMAKE_CURRENT_BINARY_DIR}/venvs)
 
 enable_language(CXX ASM C)

@@ -18,8 +18,6 @@
 
 add_library(yasld_executable_flags INTERFACE)
 
-# TODO: check if linker script may be overriden by client code
-
 add_link_options(-fvisibility=hidden)
 
 target_link_options(
@@ -38,13 +36,11 @@ if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
   target_link_options(
     yasld_executable_flags INTERFACE
     -T${PROJECT_SOURCE_DIR}/arch/linker_scripts/arm/executable.ld)
-
 endif()
-# exceptions are not supported right now
+
 target_compile_options(
   yasld_executable_flags
-  INTERFACE # strip debug symbols
-            -fno-exceptions
+  INTERFACE -fno-exceptions
             -fno-rtti
             -fomit-frame-pointer
             -fno-inline
@@ -54,7 +50,7 @@ target_compile_options(
             -mpic-register=r9
             -msingle-pic-base
             -mno-pic-data-is-text-relative
-            -fPIE)
+            -fPIC)
 
 add_library(yasld_dynamic_link_stdlib INTERFACE)
 

@@ -32,20 +32,6 @@ target_link_options(
   -T
   ${PROJECT_SOURCE_DIR}/stm32f0_discovery.ld)
 
-set_source_files_properties(
-  ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff PROPERTIES GENERATED
-                                                                     TRUE)
-
-set_property(
-  DIRECTORY
-  APPEND
-  PROPERTY CMAKE_CONFIGURE_DEPENDS
-           ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff)
-
-set_source_files_properties(
-  ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff PROPERTIES GENERATED
-                                                                     TRUE)
-
 add_custom_command(
   TARGET stm32f0_calculate_floating_point_host
   POST_BUILD
@@ -65,9 +51,11 @@ add_custom_target(
   stm32f0_calculate_floating_point_image ALL
   COMMAND
     cat ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point_host.bin
-    ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff >
+    $<TARGET_FILE:stm32f0_floating_point.yaff> >
     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point.bin
-  DEPENDS modules ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff
+  DEPENDS modules
+          stm32f0_floating_point.yaff
+          ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff
           stm32f0_calculate_floating_point_host)
 
 set(renode_test_binary

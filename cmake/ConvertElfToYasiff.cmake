@@ -17,26 +17,28 @@
 #
 
 set(CURRENT_FILE_DIR ${CMAKE_CURRENT_LIST_DIR})
-set(SCRIPTS_DIR ${CURRENT_FILE_DIR}/../scripts)
+set(MKIMAGE_DIR ${CURRENT_FILE_DIR}/../mkimage)
 
 function(convert_elf_to_yasiff target)
-  message(STATUS "Adding conversion step for target: ${target}")
+  get_filename_component(MKIMAGE_DIR ${MKIMAGE_DIR} ABSOLUTE)
 
-  add_custom_command(
-    TARGET ${target}
-    POST_BUILD
-    COMMAND ${CMAKE_OBJCOPY} --localize-hidden $<TARGET_FILE:${target}>
-    COMMAND cmake -E copy $<TARGET_FILE:${target}> $<TARGET_FILE:${target}>.bak
-    COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}>
+  add_custom_target(
+    ${target}.yaff
+    COMMAND ${CMAKE_OBJCOPY} --localize-hidden
+            $<TARGET_FILE:${target}> # mark hidden symbols as locals to reduce
+                                     # symbol table
     COMMAND
-      ${scripts_python_executable} ${SCRIPTS_DIR}/mkimage.py
-      --input=$<TARGET_FILE:${target}> --output=${target}.yaff DEPENDS ${target}
-      ${SCRIPTS_DIR}/scripts/mkimage.py
-    VERBATIM DEPENDS ${SCRIPTS_DIR}/scripts/mkimage.py)
+      cmake -E copy $<TARGET_FILE:${target}>
+      $<TARGET_FILE:${target}>.bak # copy of original ELF file since failure in
+                                   # this target is removing original one
+    COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}> # Stripping debug symbols
+                                                       # to reduce size
+    COMMAND ${mkimage_python_executable} ${MKIMAGE_DIR}/mkimage.py
+            --input=$<TARGET_FILE:${target}> --output=${target}.yaff
+    VERBATIM
+    DEPENDS ${target}
+    COMMENT "Generates YASIFF image for module")
 
-  set_property(
-    DIRECTORY
-    APPEND
-    PROPERTY CMAKE_CONFIGURE_DEPENDS ${SCRIPTS_DIR}/scripts/mkimage.py)
-
+  set_source_files_properties(${CMAKE_BINARY_DIR}/${target}.yaff
+                              PROPERTIES GENERATED TRUE)
 endfunction()
