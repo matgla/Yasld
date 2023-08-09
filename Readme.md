@@ -1,3 +1,7 @@
+# Disclaimer 
+This project is Work In Progress. 
+It works for some examples, but may fail in real usage.
+
 # About
 
 ```yasld``` implements dynamic linker and loader for ARM Cortex-M microcontrollers. 
