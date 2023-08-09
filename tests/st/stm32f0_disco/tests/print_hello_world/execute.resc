@@ -1,8 +1,0 @@
-using sysbus
-
-mach create
-machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl
-sysbus LoadBinary @${TEST_FILE} 0x08000000
-sysbus.cpu VectorTableOffset 0x08000000
-
-showAnalyzer sysbus.usart1
