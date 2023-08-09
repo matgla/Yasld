@@ -47,16 +47,24 @@ add_custom_command(
 
 add_dependencies(stm32f0_calculate_floating_point_host modules)
 
+add_executable(stm32f0_floating_point.yaff IMPORTED)
+set_property(
+  TARGET stm32f0_floating_point.yaff
+  PROPERTY IMPORTED_LOCATION
+           ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff)
+set_property(
+  DIRECTORY
+  APPEND
+  PROPERTY CMAKE_CONFIGURE_DEPENDS
+           ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff)
+
 add_custom_target(
   stm32f0_calculate_floating_point_image ALL
   COMMAND
     cat ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point_host.bin
     $<TARGET_FILE:stm32f0_floating_point.yaff> >
     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point.bin
-  DEPENDS modules
-          stm32f0_floating_point.yaff
-          ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff
-          stm32f0_calculate_floating_point_host)
+  DEPENDS stm32f0_floating_point.yaff stm32f0_calculate_floating_point_host)
 
 set(renode_test_binary
     ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_calculate_floating_point.bin)

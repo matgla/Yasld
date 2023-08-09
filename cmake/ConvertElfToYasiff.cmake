@@ -22,8 +22,8 @@ set(MKIMAGE_DIR ${CURRENT_FILE_DIR}/../mkimage)
 function(convert_elf_to_yasiff target)
   get_filename_component(MKIMAGE_DIR ${MKIMAGE_DIR} ABSOLUTE)
 
-  add_custom_target(
-    ${target}.yaff
+  add_custom_command(
+    OUTPUT ${target}.yaff
     COMMAND ${CMAKE_OBJCOPY} --localize-hidden
             $<TARGET_FILE:${target}> # mark hidden symbols as locals to reduce
                                      # symbol table
@@ -33,12 +33,17 @@ function(convert_elf_to_yasiff target)
                                    # this target is removing original one
     COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}> # Stripping debug symbols
                                                        # to reduce size
-    COMMAND ${mkimage_python_executable} ${MKIMAGE_DIR}/mkimage.py
-            --input=$<TARGET_FILE:${target}> --output=${target}.yaff
+    COMMAND
+      ${mkimage_python_executable} ${MKIMAGE_DIR}/mkimage.py
+      --input=$<TARGET_FILE:${target}>
+      --output=${CMAKE_CURRENT_BINARY_DIR}/${target}.yaff
     VERBATIM
-    DEPENDS ${target}
+    DEPENDS ${MKIMAGE_DIR}/mkimage.py ${target}
     COMMENT "Generates YASIFF image for module")
+
+  add_custom_target(generate_${target}.yaff ALL DEPENDS ${target}.yaff)
 
   set_source_files_properties(${CMAKE_BINARY_DIR}/${target}.yaff
                               PROPERTIES GENERATED TRUE)
+
 endfunction()

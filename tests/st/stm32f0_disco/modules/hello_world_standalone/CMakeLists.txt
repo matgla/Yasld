@@ -28,14 +28,7 @@ target_link_libraries(
           build_flags)
 
 include(ConvertElfToYasiff)
-
 convert_elf_to_yasiff(stm32f0_hello_world_standalone)
 
-add_custom_command(
-  TARGET stm32f0_hello_world_standalone
-  POST_BUILD
-  COMMAND
-    cmake -E copy stm32f0_hello_world_standalone.yaff
-    ${STM32F0_TEST_MODULES_DIR}/stm32f0_hello_world_standalone.yaff DEPENDS
-    modules
-  VERBATIM)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_hello_world_standalone.yaff
+        DESTINATION ${STM32F0_TEST_MODULES_DIR})

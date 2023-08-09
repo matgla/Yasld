@@ -37,6 +37,7 @@ class SectionCode(Enum):
     Data = 1 
     Unknown = 2
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description = 
                                     """

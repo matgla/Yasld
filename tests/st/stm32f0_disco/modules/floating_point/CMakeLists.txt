@@ -31,10 +31,5 @@ include(ConvertElfToYasiff)
 
 convert_elf_to_yasiff(stm32f0_floating_point)
 
-add_custom_command(
-  TARGET stm32f0_floating_point
-  POST_BUILD
-  COMMAND ${CMAKE_SIZE} $<TARGET_FILE:stm32f0_floating_point>
-  COMMAND cmake -E copy stm32f0_floating_point.yaff
-          ${STM32F0_TEST_MODULES_DIR}/stm32f0_floating_point.yaff
-  VERBATIM)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_floating_point.yaff
+        DESTINATION ${STM32F0_TEST_MODULES_DIR})

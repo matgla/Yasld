@@ -22,21 +22,37 @@ function(
   args
   source
   binary
-  depends)
-  ExternalProject_Add(
-    ${name}
-    CMAKE_ARGS ${args}
-    SOURCE_DIR ${source}
-    BINARY_DIR ${binary}
-    BUILD_ALWAYS 1
-    DEPENDS ${depends}
-    INSTALL_COMMAND "")
+  depends
+  install)
+  if(NOT
+     "${install}"
+     STREQUAL
+     "")
+    ExternalProject_Add(
+      ${name}
+      CMAKE_ARGS ${args}
+      SOURCE_DIR ${source}
+      BINARY_DIR ${binary}
+      INSTALL_DIR ${install}
+      BUILD_ALWAYS 1
+      DEPENDS ${depends})
+  else()
+    ExternalProject_Add(
+      ${name}
+      CMAKE_ARGS ${args}
+      SOURCE_DIR ${source}
+      BINARY_DIR ${binary}
+      INSTALL_COMMAND ""
+      BUILD_ALWAYS 1
+      DEPENDS ${depends})
+
+  endif()
 endfunction()
 
 macro(configure_with_toolchain)
   set(prefix CFG)
   set(optionArgs "")
-  set(singleValueArgs TOOLCHAIN NAME)
+  set(singleValueArgs TOOLCHAIN NAME INSTALL)
   set(multiValueArgs ARGS DEPENDS)
 
   include(CMakeParseArguments)
@@ -61,12 +77,16 @@ macro(configure_with_toolchain)
   set(args
       "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE};-DCMAKE_TOOLCHAIN_FILE=${CFG_TOOLCHAIN};${CFG_ARGS}"
   )
+  if(DEFINED CFG_INSTALL)
+    set(args "${args};-DCMAKE_INSTALL_PREFIX=${CFG_INSTALL}")
+  endif()
 
   configure_impl(
     ${CFG_NAME}
     "${args}"
     "${CMAKE_CURRENT_SOURCE_DIR}/${CFG_NAME}"
     "${CMAKE_CURRENT_BINARY_DIR}/${CFG_NAME}"
-    "${CFG_DEPENDS}")
+    "${CFG_DEPENDS}"
+    "${CFG_INSTALL}")
 
 endmacro()
