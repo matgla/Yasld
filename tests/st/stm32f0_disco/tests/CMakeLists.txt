@@ -16,6 +16,22 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
+macro(add_test_and_link_module) 
+  set (prefix TEST)
+  set (optionArgs "")
+  set (singleValueArgs NAME)
+  set (multiValueArgs SOURCES LIBRARIES)
+
+  include (CMakeParseArguments)
+
+  cmake_parse_arguments(
+
+    )
+  add_executable(${name})
+
+  target_sources(${name} PRIVATE ${sources})
+endfunction()
+
 add_subdirectory(common)
 add_subdirectory(print_hello_world)
 add_subdirectory(calculate_floating_point)
