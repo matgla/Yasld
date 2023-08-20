@@ -70,10 +70,9 @@ void print(const Header &header)
   log("External relocations amount: %d\n", header.external_relocations_amount);
   log("Local relocations amount: %d\n", header.local_relocations_amount);
   log("Data relocations amount: %d\n", header.data_relocations_amount);
-  // log("Exported relocations amount: %d\n",
-  // header.exported_relocations_amount);
   log("Exported symbols amount: %d\n", header.exported_symbols_amount);
   log("External symbols amount: %d\n", header.external_symbols_amount);
+
   const uint8_t *ptr =
     reinterpret_cast<const uint8_t *>(&header) + sizeof(Header);
 

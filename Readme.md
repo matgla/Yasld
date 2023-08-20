@@ -2,6 +2,8 @@
 This project is Work In Progress. 
 It works for some examples, but may fail in real usage.
 
+Currently only part of dynamic loader is implemented. Dynamic linking is not working yet.
+
 # About
 
 ```yasld``` implements dynamic linker and loader for ARM Cortex-M microcontrollers. 
@@ -37,28 +39,50 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 +---------------+           in bytes
 |    BSS Size   | 4B - size of bss section 
 +-------+-------+           in bytes
-| dls   |  res  | dls - 2B dependend libraries number
-+-------+-------+ res - 2B reserved
+|  dls  | a | r | dls - 2B dependend libraries number
++-------+-------+ a - 1B alignment of memory, res - 1B reserved
 | iv mj | iv mn | 2B iv mj/iv mn - image version 
 +-------+-------+                  major/minor
 |  ers  |  lrs  | 2B ers/lrs - number of external
 +-------+-------+          / local relocations 
-|  drs  |  epr  | 2B drs - number of data relocations,
-+-------+-------+ 2B epr - number of external symbols 
+|  drs  |  esa  | 2B drs - data relocations amount,
++-------+-------+ 2B esa - amount of exported symbols
+|  xsa  |  res  | 2B xsa - external symbols amount
++---+---+-------+ 2B res - reserved
 |               |
 .  future arch  . CPU Arch section, unused yet
-|               |   needed for arch verification
+|               |   needed for arch verification (0-N bytes)
 +---------------+
 |               |
-. dls library   .   names in ASCII followed by versio  
-|   names       |   ended with \0 aligned to 4 
+. dls library   . names in ASCII followed by version  
+|   names       | ended with \0 aligned to alignment (0-N bytes) 
++---------------+ 
+|               |
+.  alignement   . alignment to value in header
+|               |
++---------------+
+|   external    |
+.  relocations  . encoded external relocations
+|      ...      |
++---------------+
+|     local     |
+.  relocations  . encoded local relocations
+|      ...      |
++---------------+
+|     data      |
+.  relocations  . encoded data relocations
+|      ...      |
++---------------+
+|   exported    |
+.    symbols    . exported symbols table
+|      ...      |
++---------------+
+|   external    | 
+.   symbols     . external symbols table 
+|      ...      |
 +---------------+
 |               |
-.   symbols     . symbol table 
-|               |  
-+---------------+
-|               |
-.  relocations  . (ers + lrs + drs) relocation headers |               |     - encoded local relocations 
+.   alignment   . alignment to 16 bytes
 |               |
 +---------------+
 |               |
@@ -71,54 +95,36 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 +---------------+
 
 
-Relocation header 
-
+External Relocation Entry
 +---------------+
-|    index      | 4 bytes - index of relocation 
+|    index      | 4 bytes - lot index of relocation 
 +---------------+
 |    offset     | 4 bytes - offset to symbol 
 +---------------+
 
-Symbol header
-
-+---+-----------+
-| s |           | s - 1B section to which symbol  
-+---+           | belongs
-|               |
-.     name      . name of symbol in ASCII with 
-|               | \0 at end
+Local Relocation Entry
++---------------+
+|    index    |s| 31 bits - lot index of relocation, 1 bit section flag (code/data)
++---------------+
+|    offset     | 4 bytes - relocation offset
 +---------------+
 
-Symbol Table 
-
+Data Relocation Entry
 +---------------+
-|               |
-. Exported Symb . aligned to 4 
-|               |
+|     to      |s| 31 bits - offset to relocate, 1 bit section flag (code/data)
 +---------------+
-|               |
-. External Symb .
-|               |
+|     from      | 4 bytes - offset from relocate 
 +---------------+
 
-Relocation table 
+Symbol Table Entry 
++---------------+
+|    offset     | 4 byte - offset to symbol
 +---------------+
 |               |
-. exported rels .
+.     name      . name - name encoded in ASCII with trailing \0, aligned to alignemnt from header
 |               |
 +---------------+
-|               |
-.  external rel .
-|               |
-+---------------+
-|               |
-. local relocs  .
-|               |
-+---------------+
-|               |
-.  data relocs  .
-|               |
-+---------------+
+
 
 ```
 
