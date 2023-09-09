@@ -27,24 +27,25 @@
 namespace yasld
 {
 
-class __attribute__((packed)) DataRelocation
+class DataRelocation
 {
 public:
   DataRelocation(uint32_t to, uint32_t from);
-  [[nodiscard]] uint32_t       to_offset() const;
-  [[nodiscard]] uint32_t       from_offset() const;
-  [[nodiscard]] Section        section() const;
+
   constexpr static std::size_t size()
   {
     return sizeof(DataRelocation);
   }
 
+  [[nodiscard]] uint32_t              to() const;
+  [[nodiscard]] uint32_t              from() const;
+  [[nodiscard]] Section               section() const;
   [[nodiscard]] const DataRelocation &next() const;
-  [[nodiscard]] bool operator==(const DataRelocation &other) const;
+  [[nodiscard]] bool                  operator==(const DataRelocation &other);
 
 private:
-  uint32_t to_offset_;
-  uint32_t from_offset_;
+  uint32_t to_;
+  uint32_t from_;
 };
 
 } // namespace yasld

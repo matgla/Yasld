@@ -1,5 +1,6 @@
+
 #
-# execute_with_gdb.resc
+# execute.resc
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
@@ -20,8 +21,10 @@ $bin=@${renode_test_binary}
 
 mach create
 machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl
-showAnalyzer sysbus.usart1 
+showAnalyzer sysbus.usart1
 
-sysbus LoadBinary $bin 0x08000000 
+sysbus LoadBinary $bin 0x08000000
 sysbus.cpu VectorTableOffset 0x08000000
+ 
 start
+

@@ -21,37 +21,29 @@
 #include "yasld/loader.hpp"
 
 #include <cstring>
-#include <inttypes.h>
-#include <printf.h>
-#include <string_view>
 
-#include "yasld/align.hpp"
 #include "yasld/header.hpp"
 #include "yasld/logger.hpp"
 #include "yasld/parser.hpp"
-#include "yasld/relocation.hpp"
-#include "yasld/section.hpp"
 #include "yasld/symbol.hpp"
-#include "yasld/symbol_table.hpp"
 
 namespace yasld
 {
 
 Loader::Loader(const AllocatorType &allocator, const ReleaseType &release)
-  : allocator_(allocator)
-  , release_(release)
+  : allocator_{ allocator }
+  , release_{ release }
   , lot_{}
   , text_{}
   , data_{}
   , bss_{}
+  , exported_symbols_{ std::nullopt }
 {
 }
 
-std::optional<Executable> Loader::load_executable(
-  const void *module_address,
-  const Mode  mode)
+std::optional<Executable> Loader::load_executable(const void *module_address)
 {
-  log("Loading module at address: %p\n", module_address);
+  log("Loading exectuable from address: %p\n", module_address);
 
   const Header *header = process_header(module_address);
   if (!header)
@@ -59,72 +51,90 @@ std::optional<Executable> Loader::load_executable(
     return std::nullopt;
   }
 
-  log("Alignment is: %d\n", header->alignment);
   const Parser      parser(header);
-
-  // allocate LOT
-  const std::size_t lot_size =
-    (header->external_relocations_amount + header->local_relocations_amount);
-  const std::size_t lot_size_bytes = lot_size * sizeof(void *);
-  log("Allocation of LOT with size: %ldB\n", lot_size_bytes);
-
-  lot_ = std::span<std::size_t>(
-    reinterpret_cast<std::size_t *>(allocator_(lot_size_bytes).data()),
-    lot_size);
-
-  if (mode == Mode::copy_only_data)
+  const std::size_t lot_size = header->external_relocations_amount +
+                               header->exported_relocations_amount +
+                               header->local_relocations_amount;
+  void *lot = allocator_(sizeof(std::size_t) * lot_size);
+  if (!lot)
   {
-    text_ = parser.get_text();
-    log("Text is located at: %p\n", text_.data());
-  }
-  else
-  {
-    // TODO: add support
+    log("LOT allocation failure\n");
+    return std::nullopt;
   }
 
-  const auto result = process_data(*header, parser);
-  process_external_relocations(parser);
+  lot_  = std::span<std::size_t>(static_cast<std::size_t *>(lot), lot_size);
+  text_ = parser.get_text();
+
+  if (!process_data(*header, parser))
+  {
+    return std::nullopt;
+  }
+
+  process_symbol_table_relocations(parser);
   process_local_relocations(parser);
   process_data_relocations(parser);
 
-  exported_symbols_                             = parser.get_exported_symbols();
+  exported_symbols_ = parser.get_exported_symbol_table();
   const std::optional<std::size_t> main_address = find_symbol("main");
+
   if (main_address)
   {
-    return Executable{ *main_address,
-                       reinterpret_cast<std::size_t>(text_.data()),
-                       lot_ };
+    return Executable{ *main_address, lot_ };
   }
+
   return std::nullopt;
 }
 
 const Header *Loader::process_header(const void *module_address) const
 {
   const Header *header = static_cast<const Header *>(module_address);
-
   if (std::string_view(header->cookie, 4) != "YAFF")
   {
-    log("Not YASIFF file, aborting...\n");
+    log("It is not YASIFF file, aborting...\n");
     return nullptr;
   }
   return header;
 }
 
-void Loader::process_external_relocations(const Parser &parser)
+bool Loader::process_data(const Header &header, const Parser &parser)
 {
-  const auto span = parser.get_external_relocations().span();
-  log("Processing external relocations: %d\n", span.size());
-  for (const auto &rel : span)
+  const auto        data        = parser.get_data();
+  const std::size_t data_size   = header.data_length + header.bss_length;
+
+  void             *data_memory = allocator_(data_size);
+  if (!data_memory)
   {
-    // TODO(matgla): implement
+    log("Data allocation failure\n");
+    return false;
   }
+
+  data_ =
+    std::span<std::byte>(static_cast<std::byte *>(data_memory), data_size);
+
+  log(
+    "Copying data from: %p, to: %p, size: 0x%x\n",
+    data.data(),
+    data_memory,
+    data_size);
+  std::memcpy(data_.data(), data.data(), header.data_length);
+  bss_ = data_.subspan(header.data_length, header.bss_length);
+
+  log("Initializing .bss at: %p, size: 0x%x\n", bss_.data(), bss_.size_bytes());
+  std::fill(bss_.begin(), bss_.end(), std::byte(0));
+  return true;
+}
+
+void Loader::process_symbol_table_relocations(const Parser &parser)
+{
+  log("TODO: Implement symbol table relocations\n");
 }
 
 void Loader::process_local_relocations(const Parser &parser)
 {
-  const auto span = parser.get_local_relocations().span();
-  log("Processing local relocations: %u\n", (uint32_t)span.size());
-  for (const auto &rel : span)
+  const auto relocations = parser.get_local_relocations().span();
+
+  log("Processing local relocations: %d\n", relocations.size());
+  for (const auto &rel : relocations)
   {
     const std::size_t relocated_start_address =
       rel.section() == Section::code
@@ -132,8 +142,7 @@ void Loader::process_local_relocations(const Parser &parser)
         : reinterpret_cast<std::size_t>(data_.data());
     const std::size_t relocated = relocated_start_address + rel.offset();
     log(
-      "| local | lot: %d | base:0x%x | offset: 0x%x | %s "
-      "|\n",
+      "| local | lot: %d | base: 0x%lx | offset: 0x%lx | section: %s |\n",
       rel.lot_index(),
       relocated_start_address,
       rel.offset(),
@@ -144,82 +153,56 @@ void Loader::process_local_relocations(const Parser &parser)
 
 void Loader::process_data_relocations(const Parser &parser)
 {
-  const auto span = parser.get_data_relocations().span();
-  log("Processing data relocations: %zu\n", span.size());
-  for (const auto &rel : span)
-  {
-    std::size_t to_change_address =
-      reinterpret_cast<std::size_t>(data_.data()) + rel.to_offset();
-    std::size_t *to_change = reinterpret_cast<std::size_t *>(to_change_address);
+  const auto relocations = parser.get_data_relocations().span();
 
-    std::size_t  from_section_start =
+  log("Processing data relocations: %d\n", relocations.size());
+  for (const auto &rel : relocations)
+  {
+    const std::size_t address_to_change =
+      reinterpret_cast<std::size_t>(data_.data()) + rel.to();
+    std::size_t *target = reinterpret_cast<std::size_t *>(address_to_change);
+
+    const std::size_t base_address_from =
       rel.section() == Section::data
-         ? reinterpret_cast<std::size_t>(data_.data())
-         : reinterpret_cast<std::size_t>(text_.data());
+        ? reinterpret_cast<std::size_t>(data_.data())
+        : reinterpret_cast<std::size_t>(text_.data());
 
-    std::size_t from_address = from_section_start + rel.from_offset();
+    const std::size_t address_from = base_address_from + rel.from();
     log(
-      "| data | change: 0x%zx | to: 0x%zx | "
-      "old: 0x%zx | %s "
-      "|\n",
-      to_change_address,
-      from_address,
-      *to_change,
+      "| data | from: 0x%lx | to: 0x%lx | prev: 0x%lx | section: %s |\n",
+      address_from,
+      address_to_change,
+      *target,
       to_string(rel.section()).data());
-    *to_change = from_address;
+
+    *target = address_from;
   }
 }
 
-bool Loader::process_data(const Header &header, const Parser &parser)
-{
-  const auto data = parser.get_data();
-  data_           = allocator_(header.data_length + header.bss_length);
-  if (data_.empty())
-  {
-    log("Data memory allocation failure\n");
-    return false;
-  }
-
-  log(
-    "Copying data from %p to %p, size: 0x%x\n",
-    data.data(),
-    data_.data(),
-    data.size_bytes());
-
-  std::memcpy(data_.data(), data.data(), data.size_bytes());
-
-  bss_ = data_.subspan(header.data_length, header.bss_length);
-
-  if (bss_.empty())
-  {
-    log("BSS memory allocation failure\n");
-    return false;
-  }
-  log("BSS initialization on %p, size: 0x%x\n", bss_.data(), bss_.size_bytes());
-  std::fill(bss_.begin(), bss_.end(), std::byte(0));
-  return true;
-}
-
-std::optional<std::size_t> Loader::find_symbol(std::string_view name) const
+std::optional<std::size_t> Loader::find_symbol(
+  const std::string_view &name) const
 {
   log("Searching symbol: %s\n", name.data());
-  for (const auto &symbol : exported_symbols_)
+
+  if (!exported_symbols_)
   {
-    log("Name: %s\n", symbol.name().data());
+    log("Uninitialized exported symbol table\n");
+    return std::nullopt;
+  }
+  for (const auto &symbol : *exported_symbols_)
+  {
     if (symbol.name() == name)
     {
-      const std::size_t start_address =
+      const std::size_t base_address =
         symbol.section() == Section::code
           ? reinterpret_cast<std::size_t>(text_.data())
           : reinterpret_cast<std::size_t>(data_.data());
-      log(
-        "Found symbol '%s' at 0x%zx\n",
-        name.data(),
-        start_address + symbol.offset());
-      return start_address + symbol.offset();
+      const std::size_t address = base_address + symbol.offset();
+      log("Found symbol '%s' at: 0x%lx\n", symbol.name().data(), address);
+      return address;
     }
   }
-  return {};
+  return std::nullopt;
 }
 
 } // namespace yasld

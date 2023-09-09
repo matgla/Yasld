@@ -31,10 +31,9 @@ std::string_view to_string(Section s)
     return "code";
   case Section::data:
     return "data";
-  case Section::unknown:
-    return "unkn";
+  default:
+    return "unknown";
   }
-  return "unkn";
 }
 
 } // namespace yasld

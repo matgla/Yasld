@@ -16,6 +16,6 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-enable_testing()
+add_subdirectory(mkimage_tests)
 add_subdirectory(st)
 add_subdirectory(ut)

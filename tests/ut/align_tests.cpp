@@ -33,12 +33,4 @@ TEST(AlignShould, CorrectlyAlignAddress)
   EXPECT_EQ(align(4, 4), 4);
 }
 
-TEST(AlignTemplateShould, CorrectlyAlignAddress)
-{
-  EXPECT_EQ((align<int, 3>(0)), 0);
-  EXPECT_EQ((align<int, 16>(15)), 16);
-  EXPECT_EQ((align<int, 4>(1)), 4);
-  EXPECT_EQ((align<int, 4>(4)), 4);
-}
-
 } // namespace yasld

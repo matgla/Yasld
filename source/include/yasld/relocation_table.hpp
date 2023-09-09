@@ -26,15 +26,14 @@
 namespace yasld
 {
 
-class Relocation;
-
 template <typename T>
 class RelocationTable
 {
 public:
-  RelocationTable(std::uintptr_t address, std::size_t number_of_relocations)
-    : relocations_{ reinterpret_cast<const T *>(address),
-                    number_of_relocations }
+  using DataSpan = std::span<const T>;
+
+  RelocationTable(std::uintptr_t address, std::size_t amount)
+    : relocations_{ reinterpret_cast<const T *>(address), amount }
   {
   }
 
@@ -42,20 +41,19 @@ public:
   {
     return relocations_.size() * sizeof(T);
   }
+
   [[nodiscard]] std::uintptr_t address() const
   {
     return reinterpret_cast<std::uintptr_t>(relocations_.data());
   }
 
-  using ConstSpan = std::span<const T>;
-
-  const ConstSpan &span() const
+  const DataSpan &span() const
   {
     return relocations_;
   }
 
 private:
-  ConstSpan relocations_;
+  DataSpan relocations_;
 };
 
 } // namespace yasld

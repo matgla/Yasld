@@ -19,45 +19,79 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(
-  stm32f0_tests_modules
+  stm32f0_modules
   C
   CXX
   ASM)
 
-message(STATUS "STM32F0 Test Modules")
+message(STATUS "STM32F0 Discovery Board Test Modules")
 
 include(FetchContent)
 
 FetchContent_Declare(
   yaspem
   GIT_REPOSITORY https://github.com/matgla/Yaspem.git
-  GIT_TAG v1.2)
+  GIT_TAG v1.4)
 
 FetchContent_MakeAvailable(yaspem)
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
 
 include(yaspem)
 
 setup_yaspem(
-  YASPEM_SOURCE
-  ${yaspem_SOURCE_DIR}
-  OUTPUT_DIRECTORY
-  ${CMAKE_CURRENT_BINARY_DIR}/packages/
-  PACKAGE_FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/../packages.json)
+  YASPEM_SOURCE ${yaspem_SOURCE_DIR}
+  OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/packages
+  PACKAGE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/../../cmake
-                      ${PROJECT_SOURCE_DIR}/../cmake)
+set(YASLD_IS_NOT_PARENT ON)
+set(YASLD_DISABLE_TESTS ON)
+set(YASLD_ONLY_CMAKE ON)
+set(yasld_root_path "../../../..")
 
-include(BuildFlags)
+get_filename_component(
+  YASLD_CMAKE_MODULE_PATH
+  ${yasld_root_path}/cmake
+  ABSOLUTE)
 
-add_subdirectory(../../../.. ${CMAKE_CURRENT_BINARY_DIR}/yasld)
+set(CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH}
+    ${PROJECT_SOURCE_DIR}/../cmake
+    ${YASLD_CMAKE_MODULE_PATH})
 
-include(CreateLibOpenCM3Target)
-create_libopencm3_target(stm32/f0)
+set(YASLD_ARCH armv6-m)
+
+message(STATUS "Adding Yasld target")
+add_subdirectory(${yasld_root_path} ${CMAKE_CURRENT_BINARY_DIR}/yasld)
+
+include(CreateLibOpenCM3)
+
+create_libopencm3_with_pic(stm32/f0)
+
+add_library(build_flags INTERFACE)
+
+target_compile_options(
+  build_flags
+  INTERFACE -mcpu=cortex-m0
+            -nostartfiles
+            -mthumb
+            -mfloat-abi=soft
+            -Wall
+            -Wpedantic
+            -Werror
+            -Wextra
+            $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
+            -fno-rtti>)
+
+target_link_options(
+  build_flags
+  INTERFACE
+  -mcpu=cortex-m0
+  -nostartfiles
+  -mthumb
+  -Wl,--undefined,_printf_float
+  --specs=nano.specs)
 
 add_subdirectory(common)
-add_subdirectory(hello_world_standalone)
+add_subdirectory(hello_world)
+add_subdirectory(sum)
 add_subdirectory(floating_point)
-add_subdirectory(return_value)

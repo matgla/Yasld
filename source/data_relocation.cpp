@@ -24,24 +24,24 @@ namespace yasld
 {
 
 DataRelocation::DataRelocation(uint32_t to, uint32_t from)
-  : to_offset_(to)
-  , from_offset_(from)
+  : to_(to)
+  , from_(from)
 {
 }
 
-uint32_t DataRelocation::to_offset() const
+uint32_t DataRelocation::to() const
 {
-  return to_offset_;
+  return to_;
 }
 
-uint32_t DataRelocation::from_offset() const
+uint32_t DataRelocation::from() const
 {
-  return from_offset_ >> 1;
+  return from_ >> 1;
 }
 
 Section DataRelocation::section() const
 {
-  return static_cast<Section>(from_offset_ & 1);
+  return static_cast<Section>(from_ & 1);
 }
 
 const DataRelocation &DataRelocation::next() const
@@ -49,9 +49,9 @@ const DataRelocation &DataRelocation::next() const
   return *(this + 1);
 }
 
-bool DataRelocation::operator==(const DataRelocation &other) const
+bool DataRelocation::operator==(const DataRelocation &other)
 {
-  return from_offset_ == other.from_offset_ && to_offset_ == other.to_offset_;
+  return from_ == other.from_ && to_ == other.to_;
 }
 
 } // namespace yasld

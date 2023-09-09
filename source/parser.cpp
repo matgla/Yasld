@@ -1,5 +1,5 @@
 /**
- * parser.hpp
+ * parser.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -8,10 +8,10 @@
  * as published by the Free Software Foundation, either version
  * 3 of the License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * This program is distributed in the hope that it will be
+ * useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General
  * Public License along with this program. If not, see
@@ -21,99 +21,117 @@
 #include "yasld/parser.hpp"
 
 #include "yasld/align.hpp"
+#include "yasld/header.hpp"
 #include "yasld/logger.hpp"
-
-#include <printf.h>
 
 namespace yasld
 {
+
 Parser::Parser(const Header *header)
   : header_{ header }
-  , external_relocations_{ align<std::uintptr_t>(
-                             reinterpret_cast<std::uintptr_t>(header) +
-                               sizeof(yasld::Header),
-                             header->alignment),
-                           header->external_relocations_amount }
-  , local_relocations_{ external_relocations_.address() +
-                          external_relocations_.size(),
-                        header->local_relocations_amount }
-  , data_relocations_{ local_relocations_.address() + local_relocations_.size(),
-                       header->data_relocations_amount }
-  , exported_symbols_{ data_relocations_.address() + data_relocations_.size(),
-                       header->exported_symbols_amount,
-                       header->alignment }
-  , external_symbols_{ exported_symbols_.address() + exported_symbols_.size(),
-                       header->external_symbols_amount,
-                       header->alignment }
-  , text_address_{ align<std::uintptr_t, 16>(
-      external_symbols_.address() + external_symbols_.size()) }
+  , external_relocation_table_{ align<std::uintptr_t>(
+                                  reinterpret_cast<std::uintptr_t>(header) +
+                                    sizeof(Header),
+                                  header->alignment),
+                                header->external_relocations_amount }
+  , local_relocation_table_{ external_relocation_table_.address() +
+                               external_relocation_table_.size(),
+                             header->local_relocations_amount }
+  , data_relocation_table_{ local_relocation_table_.address() +
+                              local_relocation_table_.size(),
+                            header->data_relocations_amount }
+  , exported_relocation_table_{ data_relocation_table_.address() +
+                                  data_relocation_table_.size(),
+                                header->exported_relocations_amount }
+  , exported_symbol_table_{ exported_relocation_table_.address() +
+                              exported_relocation_table_.size(),
+                            header->exported_symbols_amount,
+                            header->alignment }
+  , external_symbol_table_{ exported_symbol_table_.address() +
+                              exported_symbol_table_.size(),
+                            header->external_symbols_amount,
+                            header->alignment }
+  , text_address_{ align<uintptr_t>(
+      external_symbol_table_.address() + external_symbol_table_.size(),
+      16) }
   , data_address_{ text_address_ + header->code_length }
+
 {
+  log("Header starts at       : %p\n", header);
   log(
-    "External relocations: 0x%-16zx -> 0x%-8zx B\n",
-    external_relocations_.address(),
-    external_relocations_.size());
+    "External relocations at : 0x%lx, size: 0x%lx\n",
+    external_relocation_table_.address(),
+    external_relocation_table_.size());
   log(
-    "Local relocations   : 0x%-16zx -> 0x%-8zx B\n",
-    local_relocations_.address(),
-    local_relocations_.size());
+    "Local relocations at    : 0x%lx, size: 0x%lx\n",
+    local_relocation_table_.address(),
+    local_relocation_table_.size());
   log(
-    "Data relocations    : 0x%-16zx -> 0x%-8zx B\n",
-    data_relocations_.address(),
-    data_relocations_.size());
+    "Data relocations at     : 0x%lx, size: 0x%lx\n",
+    data_relocation_table_.address(),
+    data_relocation_table_.size());
   log(
-    "Exported symbols    : 0x%-16zx -> 0x%-8zx B\n",
-    exported_symbols_.address(),
-    exported_symbols_.size());
+    "Exported relocations at : 0x%lx, size: 0x%lx\n",
+    exported_relocation_table_.address(),
+    exported_relocation_table_.size());
   log(
-    "External symbols    : 0x%-16zx -> 0x%-8zx B\n",
-    external_symbols_.address(),
-    external_symbols_.size());
+    "Exported symbol table at : 0x%lx, size: 0x%lx\n",
+    exported_symbol_table_.address(),
+    exported_symbol_table_.size());
   log(
-    "Text section        : 0x%-16zx -> 0x%-8x B\n",
+    "External symbol table at : 0x%lx, size: 0x%lx\n",
+    external_symbol_table_.address(),
+    external_symbol_table_.size());
+  log(
+    "Text section at : 0x%lx, size: 0x%lx\n",
     text_address_,
     header->code_length);
   log(
-    "Data section        : 0x%-16zx -> 0x%-8x B\n",
+    "Data section at : 0x%lx, size: 0x%lx\n",
     data_address_,
     header->data_length);
 }
 
-const SymbolTable Parser::get_exported_symbols() const
+const SymbolTable Parser::get_exported_symbol_table() const
 {
-  return exported_symbols_;
+  return exported_symbol_table_;
 }
 
-const SymbolTable Parser::get_external_symbols() const
+const SymbolTable Parser::get_external_symbol_table() const
 {
-  return external_symbols_;
+  return external_symbol_table_;
 }
 
 const RelocationTable<LocalRelocation> Parser::get_local_relocations() const
 {
-  return local_relocations_;
+  return local_relocation_table_;
 }
 
 const RelocationTable<DataRelocation> Parser::get_data_relocations() const
 {
-  return data_relocations_;
+  return data_relocation_table_;
 }
 
 const RelocationTable<Relocation> Parser::get_external_relocations() const
 {
-  return external_relocations_;
+  return external_relocation_table_;
 }
 
-std::span<const std::byte> Parser::get_text() const
+const RelocationTable<Relocation> Parser::get_exported_relocations() const
 {
-  return std::span<const std::byte>(
-    reinterpret_cast<const std::byte *>(text_address_), header_->code_length);
+  return exported_relocation_table_;
 }
 
 std::span<const std::byte> Parser::get_data() const
 {
   return std::span<const std::byte>(
     reinterpret_cast<const std::byte *>(data_address_), header_->data_length);
+}
+
+std::span<const std::byte> Parser::get_text() const
+{
+  return std::span<const std::byte>(
+    reinterpret_cast<const std::byte *>(text_address_), header_->code_length);
 }
 
 } // namespace yasld

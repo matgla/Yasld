@@ -31,12 +31,13 @@ class Symbol;
 class SymbolIterator
 {
 public:
-  SymbolIterator(const Symbol *symbol, uint8_t alignment);
   using iterator_category = std::forward_iterator_tag;
   using difference_type   = std::ptrdiff_t;
   using value_type        = Symbol;
   using pointer           = const Symbol *;
   using reference         = const Symbol &;
+
+  SymbolIterator(const Symbol *symbol, uint8_t alignment);
 
   reference       operator*() const;
   pointer         operator->() const;

@@ -26,22 +26,22 @@
 
 namespace yasld
 {
-
 class Symbol;
 
-class __attribute__((packed)) Relocation
+class Relocation
 {
 public:
-  Relocation(uint32_t index, uint32_t offset);
-  [[nodiscard]] uint32_t       lot_index() const;
-  [[nodiscard]] const Symbol  &symbol() const;
-  [[nodiscard]] uint32_t       symbol_offset() const;
+  Relocation(uint32_t index, uint32_t target_offset);
+
   constexpr static std::size_t size()
   {
     return sizeof(Relocation);
   }
-  [[nodiscard]] const Relocation &next() const;
 
+  [[nodiscard]] uint32_t          lot_index() const;
+  [[nodiscard]] const Symbol     &symbol() const;
+  [[nodiscard]] uint32_t          symbol_offset() const;
+  [[nodiscard]] const Relocation &next() const;
   [[nodiscard]] bool              operator==(const Relocation &other) const;
 
 private:

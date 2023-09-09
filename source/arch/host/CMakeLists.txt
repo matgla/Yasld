@@ -18,10 +18,6 @@
 
 add_library(yasld_arch)
 
-target_sources(
-  yasld_arch
-  PRIVATE call.c)
+target_sources(yasld_arch PRIVATE call.cpp)
 
-target_link_libraries(
-  yasld_arch
-  PRIVATE yasld_flags)
+target_link_libraries(yasld_arch PRIVATE yasld_flags)

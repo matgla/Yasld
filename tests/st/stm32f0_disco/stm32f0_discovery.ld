@@ -1,5 +1,5 @@
 /**
- * stm32f0-discovery.ld
+ * stm32f0_discovery.ld
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -20,8 +20,8 @@
 
 MEMORY
 {
-  rom (rx) : ORIGIN = 0x08000000, LENGTH = 128K
-  ram (rwx) : ORIGIN = 0x20000000, LENGTH = 16K 
+  rom(rx) : ORIGIN = 0x08000000, LENGTH = 128K
+  ram(rwx) : ORIGIN = 0x20000000, LENGTH = 16K
 }
 
 INCLUDE ./cortex-m-generic.ld

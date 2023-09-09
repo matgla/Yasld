@@ -20,14 +20,15 @@
 
 #pragma once
 
+#include "yasld/section.hpp"
+
 #include <cstdint>
 #include <string_view>
 
-#include "yasld/section.hpp"
 namespace yasld
 {
 
-class __attribute__((packed)) Symbol
+class Symbol
 {
 public:
   Symbol(const Symbol &symbol) = delete;

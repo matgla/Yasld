@@ -1,5 +1,5 @@
 *** Settings ***
-Resource            ${RENODEKEYWORDS}
+Resource            stm32f0_common.robot
 
 Suite Setup         Setup
 Suite Teardown      Teardown
@@ -12,19 +12,8 @@ ${TEST_FILE}    @renode_test_binary@
 
 
 *** Test Cases ***
-Print hello world to USART from standalone executable
+Print 'Hello World' on USART from relocated module
     Prepare Machine
 
-    Wait For Line On Uart    Hello from module!    timeout=1
-
-
-*** Keywords ***
-Prepare Machine
-    Execute Command    mach create
-    Execute Command    machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl
-    Execute Command    sysbus LoadBinary @${TEST_FILE} 0x08000000
-    Execute Command    sysbus.cpu VectorTableOffset 0x08000000
-
-    Create Terminal Tester    sysbus.usart1
-
-    Start Emulation
+    Wait For Line On Uart    [host] STM32F0 Discovery Board started!    timeout=1
+    Wait For Line On Uart    Hello from module

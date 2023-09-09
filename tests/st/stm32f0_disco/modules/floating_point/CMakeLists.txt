@@ -22,13 +22,12 @@ target_sources(stm32f0_floating_point PRIVATE main.cpp)
 
 target_link_libraries(
   stm32f0_floating_point
-  PRIVATE stm32f0_common
+  PRIVATE build_flags
           stm32f0_with_pic
-          yasld_executable_flags
-          build_flags)
+          stm32f0_modules_common
+          yasld_executable_flags)
 
 include(ConvertElfToYasiff)
-
 convert_elf_to_yasiff(stm32f0_floating_point)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_floating_point.yaff

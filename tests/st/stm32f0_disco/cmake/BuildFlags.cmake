@@ -16,41 +16,38 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-if(NOT TARGET build_flags)
-  set(CMAKE_ASM_FLAGS
-      "${CMAKE_ASM_FLAGS} -mcpu=cortex-m0 -fno-common -nostartfiles -mthumb -mfloat-abi=soft -fstrict-aliasing -O2"
-  )
+if(NOT
+   TARGET
+   build_flags_host)
+  add_library(build_flags_host INTERFACE)
 
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_ASM_FLAGS}")
-
-  set(CMAKE_CXX_FLAGS
-      "${CMAKE_CXX_FLAGS} ${CMAKE_C_FLAGS} -fno-exceptions -fno-rtti -std=c++20"
-  )
-
-  set(YASLD_LINKER_FLAGS
+  set(ASM_FLAGS
       -mcpu=cortex-m0
-      -fno-common
       -nostartfiles
       -mthumb
-      -Wl,--undefined,_printf_float
-      CACHE INTERNAL "")
+      -mfloat-abi=soft
+      -Wall
+      -Wpedantic
+      -Werror
+      -Wextra)
 
-  set(YASLD_ARCH
-      "armv6-m"
-      CACHE INTERNAL "")
+  set(C_FLAGS ${ASM_FLAGS})
 
-  set(YASLD_DISABLE_TESTS
-      true
-      CACHE INTERNAL "
-      ")
+  target_compile_options(
+    build_flags_host
+    INTERFACE ${ASM_FLAGS}
+              $<$<COMPILE_LANGUAGE:CXX>:
+              -fno-exceptions
+              -fno-rtti>)
 
-  add_library(build_flags INTERFACE)
   target_link_options(
-    build_flags
+    build_flags_host
     INTERFACE
-    ${YASLD_LINKER_FLAGS}
-    --specs=nano.specs)
-  add_library(build_flags_host INTERFACE)
-  target_link_options(build_flags_host INTERFACE ${YASLD_LINKER_FLAGS})
-  target_link_libraries(build_flags_host INTERFACE printf)
+    -mcpu=cortex-m0
+    -nostartfiles
+    -mthumb
+    -Wl,--undefined,_printf_float
+    --specs=nano.specs
+    -T${PROJECT_SOURCE_DIR}/stm32f0_discovery.ld)
+
 endif()

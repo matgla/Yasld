@@ -25,6 +25,10 @@ target_sources(
           align_tests.cpp
           parser_tests.cpp
           loader_tests.cpp)
-target_link_libraries(yasld_ut PUBLIC GTest::gtest_main GTest::gmock yasld)
+target_link_libraries(
+  yasld_ut
+  PUBLIC GTest::gtest_main
+         GTest::gmock
+         yasld)
 
 add_test(NAME YasldUnitTests COMMAND yasld_ut)

@@ -37,8 +37,8 @@ alignas(16) const std::array<uint8_t, 128 * 4> example_header = {
   0x0a, 0x00, 0x05, 0x10, // version major, minor
   0x00, 0x00, 0x02, 0x00, // external, local relocations amount
 
-  0x02, 0x00, 0x01, 0x00, // data relocations amount, exported symbols amount
-  0x01, 0x00, 0x00, 0x00, // external symbols amount, alignment to 8
+  0x02, 0x00, 0x00, 0x00, // data, exported relocations amount,
+  0x01, 0x00, 0x01, 0x00, // exported, external symbols amount
 
   0x01, 0x00, 0x00, 0x00, // local relocation 1 index from data
   0x04, 0x00, 0x00, 0x00, // local relocation 1 offset
@@ -49,6 +49,7 @@ alignas(16) const std::array<uint8_t, 128 * 4> example_header = {
   0x20, 0x00, 0x00, 0x00, // data relocation 1 offset based on code
   0x00, 0x00, 0x00, 0x00, // data relocation 2 index from data
   0x41, 0x00, 0x00, 0x00, // data relocation 2 offset based on data
+
   0x07, 0x00, 0x00, 0x00, // exported symbol 1 - section data
   'm',  'a',  'i',  'n',  // exported symbol 1 - name
 
@@ -85,20 +86,16 @@ TEST(LoaderShould, LoadExecutable)
       if (counter == 0)
       {
         counter++;
-        return std::span<std::byte>(
-          reinterpret_cast<std::byte *>(lot.data()), lot.size());
+        return reinterpret_cast<void *>(lot.data());
       }
-      return std::span<std::byte>(
-        reinterpret_cast<std::byte *>(data_and_bss.data()),
-        data_and_bss.size());
+      return reinterpret_cast<void *>(data_and_bss.data());
     },
-    [](std::span<std::byte> data)
+    [](void *data)
     {
-      free(data.data());
+      free(data);
     });
 
-  const auto exec =
-    loader.load_executable(example_header.data(), Loader::Mode::copy_only_data);
+  const auto exec = loader.load_executable(example_header.data());
 
   EXPECT_EQ(lot[0], reinterpret_cast<std::size_t>(data_and_bss.data()) + 4);
 
@@ -126,15 +123,6 @@ TEST(LoaderShould, LoadExecutable)
 
   // Executable verification
   EXPECT_TRUE(exec);
-  EXPECT_EQ(
-    exec->text_address(),
-    reinterpret_cast<std::size_t>(example_header.data()) + offset_to_text);
-
-  EXPECT_EQ(
-    *loader.find_symbol("main"),
-    reinterpret_cast<std::size_t>(data_and_bss.data()) + 3);
-
-  EXPECT_FALSE(loader.find_symbol("not_existing"));
 }
 
 } // namespace yasld

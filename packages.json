@@ -19,25 +19,6 @@
           "DISABLE_TESTS": "ON"
         }
       }
-    },
-    {
-      "link": "https://github.com/mpaland/printf.git",
-      "type": "git",
-      "version": "v4.0.0",
-      "target": "printf",
-      "options": {
-        "create_library": {
-          "type": "STATIC",
-          "sources_filter": [
-            "*.c"
-          ],
-          "include_directories": [
-            "."
-          ],
-          "sources_directory": ".",
-          "compile_definitions": ""
-        }
-      }
     }
   ]
 }

@@ -24,7 +24,6 @@
 #include <span>
 
 #include "yasld/data_relocation.hpp"
-#include "yasld/header.hpp"
 #include "yasld/local_relocation.hpp"
 #include "yasld/relocation.hpp"
 #include "yasld/relocation_table.hpp"
@@ -33,17 +32,20 @@
 namespace yasld
 {
 
+class Header;
+
 class Parser
 {
 public:
   Parser(const Header *header);
 
-  const SymbolTable                      get_exported_symbols() const;
-  const SymbolTable                      get_external_symbols() const;
+  const SymbolTable                      get_exported_symbol_table() const;
+  const SymbolTable                      get_external_symbol_table() const;
 
   const RelocationTable<LocalRelocation> get_local_relocations() const;
   const RelocationTable<DataRelocation>  get_data_relocations() const;
   const RelocationTable<Relocation>      get_external_relocations() const;
+  const RelocationTable<Relocation>      get_exported_relocations() const;
 
   std::span<const std::byte>             get_data() const;
   std::span<const std::byte>             get_text() const;
@@ -51,13 +53,16 @@ public:
 private:
   const Header                          *header_;
 
-  const RelocationTable<Relocation>      external_relocations_;
-  const RelocationTable<LocalRelocation> local_relocations_;
-  const RelocationTable<DataRelocation>  data_relocations_;
-  const SymbolTable                      exported_symbols_;
-  const SymbolTable                      external_symbols_;
-  const std::uintptr_t                   text_address_;
-  const std::uintptr_t                   data_address_;
+  const RelocationTable<Relocation>      external_relocation_table_;
+  const RelocationTable<LocalRelocation> local_relocation_table_;
+  const RelocationTable<DataRelocation>  data_relocation_table_;
+  const RelocationTable<Relocation>      exported_relocation_table_;
+
+  const SymbolTable                      exported_symbol_table_;
+  const SymbolTable                      external_symbol_table_;
+
+  const uintptr_t                        text_address_;
+  const uintptr_t                        data_address_;
 };
 
 } // namespace yasld

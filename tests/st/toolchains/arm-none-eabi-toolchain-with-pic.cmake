@@ -1,5 +1,5 @@
 #
-# arm-none-eabi-toolchain-with-pic.cmake
+# arm-none-eabi-toolchain.cmake
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
@@ -20,22 +20,52 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-if(NOT DEFINED ENV{YASLD_TOOLCHAIN_PATH})
-  set(ARM_GCC_PATH_WITH_PIC /opt/arm-none-eabi-with-pic/bin)
-else()
-  set(ARM_GCC_PATH_WITH_PIC $ENV{YASLD_TOOLCHAIN_PATH}/bin)
+message(
+  STATUS "${YASLD_TOOLCHAIN_PATH}, $ENV{YASLD_TOOLCHAIN_PATH}, ${GCC_ROOT_PATH}"
+)
+
+if(NOT
+   DEFINED
+   ENV{YASLD_TOOLCHAIN_PATH}
+   AND (NOT
+        DEFINED
+        YASLD_TOOLCHAIN_PATH
+        OR "${YASLD_TOOLCHAIN_PATH}"
+           STREQUAL
+           ""
+       )
+   AND NOT
+       DEFINED
+       GCC_ROOT_PATH)
+  message(
+    STATUS
+      "Please define path to Yasld toolchain via environment variable YASLD_TOOLCHAIN_PATH or pass -DYASLD_TOOLCHAIN_PATH=<path> to cmake"
+  )
 endif()
-set(CMAKE_ASM_COMPILER ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-gcc)
-set(CMAKE_C_COMPILER ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-gcc)
-set(CMAKE_CXX_COMPILER ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-g++)
-set(CMAKE_OBJCOPY ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-objcopy)
-set(CMAKE_OBJDUMP ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-objdump)
-set(CMAKE_AR ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-ar)
-set(CMAKE_RANLIB ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-ranlib)
-set(CMAKE_C_COMPILER_RANLIB ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-ranlib)
-set(CMAKE_SIZE ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-size)
-set(CMAKE_LINKER ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-ld)
-set(CMAKE_EXE_LINKER ${ARM_GCC_PATH_WITH_PIC}/arm-none-eabi-gcc)
+
+if(DEFINED YASLD_TOOLCHAIN_PATH)
+  set(GCC_ROOT_PATH
+      ${YASLD_TOOLCHAIN_PATH}/bin
+      CACHE INTERNAL
+            ""
+            FORCE)
+elseif(DEFINED ENV{YASLD_TOOLCHAIN_PATH})
+  set(GCC_ROOT_PATH
+      $ENV{YASLD_TOOLCHAIN_PATH}/bin
+      CACHE INTERNAL
+            ""
+            FORCE)
+endif()
+
+set(CMAKE_ASM_COMPILER ${GCC_ROOT_PATH}/arm-none-eabi-gcc)
+set(CMAKE_C_COMPILER ${GCC_ROOT_PATH}/arm-none-eabi-gcc)
+set(CMAKE_CXX_COMPILER ${GCC_ROOT_PATH}/arm-none-eabi-g++)
+set(CMAKE_OBJCOPY ${GCC_ROOT_PATH}/arm-none-eabi-objcopy)
+set(CMAKE_AR ${GCC_ROOT_PATH}/arm-none-eabi-gcc-ar)
+set(CMAKE_RANLIB ${GCC_ROOT_PATH}/arm-none-eabi-ranlib)
+set(CMAKE_C_COMPILER_RANLIB ${GCC_ROOT_PATH}/arm-none-eabi-ranlib)
+set(CMAKE_SIZE ${GCC_ROOT_PATH}/arm-none-eabi-size)
+set(CMAKE_LINKER ${GCC_ROOT_PATH}/arm-none-eabi-ld)
 
 set(CMAKE_EXECUTABLE_SUFFIX_C .elf)
 set(CMAKE_EXECUTABLE_SUFFIX_CXX .elf)

@@ -23,9 +23,9 @@
 namespace yasld
 {
 
-LocalRelocation::LocalRelocation(uint32_t index, uint32_t offset)
+LocalRelocation::LocalRelocation(uint32_t index, uint32_t target_offset)
   : index_(index)
-  , target_offset_(offset)
+  , target_offset_(target_offset)
 {
 }
 
@@ -37,6 +37,11 @@ uint32_t LocalRelocation::lot_index() const
 const LocalRelocation &LocalRelocation::next() const
 {
   return *(this + 1);
+}
+
+bool LocalRelocation::operator==(const LocalRelocation &other) const
+{
+  return index_ == other.index_ && target_offset_ == other.target_offset_;
 }
 
 Section LocalRelocation::section() const

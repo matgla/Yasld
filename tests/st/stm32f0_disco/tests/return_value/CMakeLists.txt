@@ -16,10 +16,9 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_test_and_link_module(
-  NAME
-  stm32f0_return_value_from_module
-  MODULE
-  stm32f0_return_value
-  SOURCES
-  main.cpp)
+include(AddTestWithModule)
+
+add_test_with_module(
+  NAME stm32f0_return_value
+  MODULE stm32f0_sum
+  SOURCES main.cpp)

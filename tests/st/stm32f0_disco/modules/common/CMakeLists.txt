@@ -16,24 +16,9 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_library(stm32f0_common)
+add_library(stm32f0_modules_common)
 
-target_sources(
-  stm32f0_common
-  PUBLIC runtime_init.hpp stub.cpp
-  PRIVATE runtime_init.cpp)
+target_sources(stm32f0_modules_common PUBLIC system_stubs.cpp)
 
-target_compile_options(
-  stm32f0_common
-  PRIVATE -fPIC
-          -mpic-register=r9
-          -msingle-pic-base
-          -mno-pic-data-is-text-relative)
-
-find_package(printf REQUIRED)
-target_link_libraries(
-  stm32f0_common
-  PUBLIC printf
-  PRIVATE build_flags stm32f0_with_pic)
-
-target_include_directories(stm32f0_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(stm32f0_modules_common PUBLIC yasld_executable_flags
+                                                    stm32f0_with_pic)

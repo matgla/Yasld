@@ -40,8 +40,8 @@ alignas(16) const std::vector<uint8_t> example_header = {
   0x00, 0x00, 0x08, 0x00, // external libraries, alignment: 8, reserved
   0x0a, 0x00, 0x05, 0x10, // version major, minor
   0x03, 0x00, 0x02, 0x00, // external, local relocations amount
-  0x01, 0x00, 0x02, 0x00, // data relocations amount, exported symbols amount
-  0x03, 0x00, 0x00, 0x00, // external symbols amount, alignment to 8
+  0x01, 0x00, 0x00, 0x00, // data, exported relocations amount
+  0x02, 0x00, 0x03, 0x00, // exported, external symbols amount
   0x00, 0x00, 0x00, 0x00, // external symbol relocation 1 index
   0x50, 0x00, 0x00, 0x00, // external symbol relocation 1 offset
   0x01, 0x00, 0x00, 0x00, // external symbol relocation 2 index
@@ -190,7 +190,7 @@ TEST_F(ParserShould, ParseLocalRelocationTable)
 
 TEST_F(ParserShould, ParseExportedSymbolTable)
 {
-  const auto exported_symbols = sut_.get_exported_symbols();
+  const auto exported_symbols = sut_.get_exported_symbol_table();
 
   EXPECT_EQ(exported_symbols.size(), 32);
   auto it = exported_symbols.begin();
@@ -205,7 +205,7 @@ TEST_F(ParserShould, ParseExportedSymbolTable)
 
 TEST_F(ParserShould, ParseExternalSymbolTable)
 {
-  const auto external_symbols = sut_.get_external_symbols();
+  const auto external_symbols = sut_.get_external_symbol_table();
 
   EXPECT_EQ(external_symbols.size(), 48);
   auto it = external_symbols.begin();
@@ -231,7 +231,8 @@ TEST_F(ParserShould, ParseTextSection)
   const std::size_t offset =
     sizeof(yasld::Header) + sut_.get_external_relocations().size() +
     sut_.get_local_relocations().size() + sut_.get_data_relocations().size() +
-    sut_.get_exported_symbols().size() + sut_.get_external_symbols().size();
+    sut_.get_exported_symbol_table().size() +
+    sut_.get_external_symbol_table().size();
 
   const std::size_t aligned_offset = offset + 16 - offset % 16;
 
@@ -248,7 +249,8 @@ TEST_F(ParserShould, ParseDataSection)
   const std::size_t text_offset =
     sizeof(yasld::Header) + sut_.get_external_relocations().size() +
     sut_.get_local_relocations().size() + sut_.get_data_relocations().size() +
-    sut_.get_exported_symbols().size() + sut_.get_external_symbols().size();
+    sut_.get_exported_symbol_table().size() +
+    sut_.get_external_symbol_table().size();
 
   const std::size_t aligned_offset = text_offset + 16 - text_offset % 16;
   const std::size_t data_offset    = aligned_offset + header_->code_length;

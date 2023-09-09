@@ -27,16 +27,17 @@
 namespace yasld
 {
 
-class __attribute__((packed)) LocalRelocation
+class LocalRelocation
 {
 public:
-  LocalRelocation(uint32_t index, uint32_t offset);
-  [[nodiscard]] uint32_t       lot_index() const;
+  LocalRelocation(uint32_t index, uint32_t target_offset);
 
   constexpr static std::size_t size()
   {
     return sizeof(LocalRelocation);
   }
+
+  [[nodiscard]] uint32_t               lot_index() const;
   [[nodiscard]] const LocalRelocation &next() const;
   [[nodiscard]] bool     operator==(const LocalRelocation &other) const;
   [[nodiscard]] Section  section() const;

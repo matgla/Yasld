@@ -25,16 +25,6 @@
 namespace yasld
 {
 
-template <typename T, std::size_t alignment>
-T align(const T address)
-{
-  if (address % alignment != 0)
-  {
-    return address + (alignment - address % alignment);
-  }
-  return address;
-}
-
 template <typename T>
 T align(const T address, std::size_t alignment)
 {

@@ -32,13 +32,13 @@ public:
   {
     Unknown    = 0,
     Executable = 1,
-    Library    = 2,
+    Library    = 2
   };
 
   enum class Architecture : uint16_t
   {
     Unknown = 0,
-    ArmV6_M = 1,
+    Armv6_m = 1
   };
 
   const char   cookie[4];
@@ -56,9 +56,9 @@ public:
   uint16_t     external_relocations_amount;
   uint16_t     local_relocations_amount;
   uint16_t     data_relocations_amount;
+  uint16_t     exported_relocations_amount;
   uint16_t     exported_symbols_amount;
   uint16_t     external_symbols_amount;
-  uint16_t     _reserved2;
 };
 
 void print(const Header &header);

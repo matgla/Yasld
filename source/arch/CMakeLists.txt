@@ -16,10 +16,4 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-if(${YASLD_ARCH} STREQUAL "armv6-m")
-  add_subdirectory(armv6-m)
-elseif(${YASLD_ARCH} STREQUAL "host")
-  add_subdirectory(host)
-else()
-  message(FATAL_ERROR "Unknown architecture: ${YASLD_ARCH}")
-endif()
+add_subdirectory(${YASLD_ARCH})

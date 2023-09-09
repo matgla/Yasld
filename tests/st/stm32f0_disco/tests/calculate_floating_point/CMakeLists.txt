@@ -1,3 +1,4 @@
+#
 # CMakeLists.txt
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
@@ -14,7 +15,10 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
-add_test_and_link_module(
+
+include(AddTestWithModule)
+
+add_test_with_module(
   NAME stm32f0_calculate_floating_point
-  MODULE stm32f0_floating_point 
+  MODULE stm32f0_floating_point
   SOURCES main.cpp)

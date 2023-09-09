@@ -1,7 +1,5 @@
 #
-# CMakeLists.txt
-#
-# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# CMakeLists.txt Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -20,25 +18,32 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 include(ConfigureWithToolchain)
 
-if(NOT EXISTS ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml)
-  file(TOUCH ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml)
-endif()
-
 configure_with_toolchain(
-  NAME
-  stm32f0_disco
-  ARGS
-  -DST_TESTS_FILE=${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
-  -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-  TOOLCHAIN
-  ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake)
+  NAME stm32f0_disco
+  TOOLCHAIN ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake
+  ARGS -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH})
 
 add_custom_target(
-  run_st
-  COMMAND renode-test --debug-on-error -t
-          ${CMAKE_CURRENT_BINARY_DIR}/renode_st_tests.yaml
+  run_stm32f0_st
+  COMMAND renode-test -t
+          ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_disco/stm32f0_tests.yaml
   DEPENDS stm32f0_disco
   VERBATIM)
 
-add_test(NAME YasldSystemTests COMMAND ${CMAKE_COMMAND} --build
-                                       ${CMAKE_BINARY_DIR} -- run_st)
+add_test(
+  build_tests
+  "${CMAKE_COMMAND}"
+  --build
+  "${CMAKE_BINARY_DIR}"
+  --config
+  "$<CONFIG>"
+  --target
+  stm32f0_disco)
+
+set_tests_properties(build_tests PROPERTIES FIXTURES_SETUP stm32f0_st_fixture)
+
+add_test(NAME Stm32F0SystemTests COMMAND ${CMAKE_COMMAND} --build
+                                         ${CMAKE_BINARY_DIR} -- run_stm32f0_st)
+
+set_tests_properties(Stm32F0SystemTests PROPERTIES FIXTURES_REQUIRED
+                                                   stm32f0_st_fixture)

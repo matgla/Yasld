@@ -45,10 +45,10 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 +-------+-------+                  major/minor
 |  ers  |  lrs  | 2B ers/lrs - number of external
 +-------+-------+          / local relocations 
-|  drs  |  esa  | 2B drs - data relocations amount,
-+-------+-------+ 2B esa - amount of exported symbols
-|  xsa  |  res  | 2B xsa - external symbols amount
-+---+---+-------+ 2B res - reserved
+|  drs  |  xrs  | 2B drs - data relocations amount,
++-------+-------+ 2B xrs - exported relocations amount
+|  esa  |  xsa  | 2B esa - amount of exported symbols
++---+---+-------+ 2B xsa - external symbols amount
 |               |
 .  future arch  . CPU Arch section, unused yet
 |               |   needed for arch verification (0-N bytes)

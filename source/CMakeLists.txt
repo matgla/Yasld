@@ -18,43 +18,63 @@
 
 add_library(yasld)
 
-set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld/)
+set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld)
+
+get_target_property(
+  eul_cxx_compilation_flags
+  yasld_arch_flags
+  INTERFACE_COMPILE_OPTIONS)
+
+get_target_property(
+  eul_cxx_linking_flags
+  yasld_arch_flags
+  INTERFACE_LINK_OPTIONS)
+
+if(NOT eul_cxx_compilation_flags)
+  set(eul_cxx_compilation_flags "")
+endif()
+
+if(NOT eul_cxx_linking_flags)
+  set(eul_cxx_linking_flags)
+endif()
+
+message(STATUS "${eul_cxx_linking_flags}")
+
+find_package(eul REQUIRED)
 
 target_sources(
   yasld
   PUBLIC ${include_dir}/align.hpp
          ${include_dir}/data_relocation.hpp
+         ${include_dir}/executable.hpp
+         ${include_dir}/header.hpp
          ${include_dir}/loader.hpp
          ${include_dir}/local_relocation.hpp
-         ${include_dir}/header.hpp
-         ${include_dir}/relocation.hpp
-         ${include_dir}/symbol.hpp
-         ${include_dir}/symbol_table.hpp
          ${include_dir}/logger.hpp
          ${include_dir}/parser.hpp
+         ${include_dir}/relocation.hpp
          ${include_dir}/relocation_table.hpp
+         ${include_dir}/section.hpp
+         ${include_dir}/symbol.hpp
          ${include_dir}/symbol_iterator.hpp
-         ${include_dir}/executable.hpp
+         ${include_dir}/symbol_table.hpp
   PRIVATE data_relocation.cpp
-          loader.cpp
           executable.cpp
-          local_relocation.cpp
           header.cpp
-          relocation.cpp
-          symbol.cpp
-          symbol_table.cpp
+          loader.cpp
+          local_relocation.cpp
           parser.cpp
+          relocation.cpp
           section.cpp
-          symbol_iterator.cpp)
+          symbol.cpp
+          symbol_iterator.cpp
+          symbol_table.cpp)
+
+target_include_directories(yasld PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 add_subdirectory(arch)
 
-find_package(eul REQUIRED)
-
-find_package(printf REQUIRED)
 target_link_libraries(
   yasld
-  PUBLIC eul::functional
-  PRIVATE yasld_arch yasld_flags printf)
-
-target_include_directories(yasld PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+  PRIVATE yasld_flags yasld_arch
+  PUBLIC eul::functional)

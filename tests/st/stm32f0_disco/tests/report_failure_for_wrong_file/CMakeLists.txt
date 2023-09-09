@@ -1,3 +1,4 @@
+#
 # CMakeLists.txt
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
@@ -15,10 +16,9 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_test_and_link_module(
-  NAME
-  stm32f0_report_failure_for_wrong_file
-  MODULE
-  stm32f0_hello_world_standalone
-  SOURCES
-  main.cpp)
+include(AddTestWithModule)
+
+add_test_with_module(
+  NAME stm32f0_report_failure_for_wrong_file
+  MODULE stm32f0_hello_world
+  SOURCES main.cpp)

@@ -17,13 +17,15 @@
 #
 
 function(
-  configure_impl
+  configure_with_toolchain_impl
   name
   args
   source
   binary
   depends
   install)
+  message(STATUS "Configuring project with toolchain")
+  include(ExternalProject)
   if(NOT
      "${install}"
      STREQUAL
@@ -45,48 +47,78 @@ function(
       INSTALL_COMMAND ""
       BUILD_ALWAYS 1
       DEPENDS ${depends})
-
   endif()
 endfunction()
 
 macro(configure_with_toolchain)
   set(prefix CFG)
   set(optionArgs "")
-  set(singleValueArgs TOOLCHAIN NAME INSTALL)
-  set(multiValueArgs ARGS DEPENDS)
+  set(singleValueArgs
+      TOOLCHAIN
+      NAME
+      INSTALL)
+  set(mutliValueArgs ARGS DEPENDS)
 
   include(CMakeParseArguments)
-
   cmake_parse_arguments(
     ${prefix}
     "${optionArgs}"
     "${singleValueArgs}"
-    "${multiValueArgs}"
+    "${mutliValueArgs}"
     ${ARGN})
 
-  include(ExternalProject)
-
-  if(NOT DEFINED CMAKE_BUILD_TYPE OR "${CMAKE_BUILD_TYPE}" STREQUAL "")
-    set(CMAKE_BUILD_TYPE Release)
+  if(NOT
+     DEFINED
+     CMAKE_BUILD_TYPE
+     OR "${CMAKE_BUILD_TYPE}"
+        STREQUAL
+        "")
+    set(CMAKE_BUILD_TYPE "Release")
   endif()
 
-  if(NOT DEFINED CFG_DEPENDS)
+  if(NOT
+     DEFINED
+     CFG_DEPENDS)
     set(CFG_DEPENDS "")
   endif()
 
-  set(args
-      "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE};-DCMAKE_TOOLCHAIN_FILE=${CFG_TOOLCHAIN};${CFG_ARGS}"
-  )
-  if(DEFINED CFG_INSTALL)
-    set(args "${args};-DCMAKE_INSTALL_PREFIX=${CFG_INSTALL}")
+  if(NOT
+     DEFINED
+     CFG_ARGS)
+    set(CFG_ARGS "")
   endif()
 
-  configure_impl(
+  if(NOT
+     DEFINED
+     CFG_TOOLCHAIN)
+    message(FATAL_ERROR "TOOLCHAIN must be passed to configure_with_toolchain")
+  endif()
+
+  if(NOT
+     DEFINED
+     CFG_NAME)
+    message(FATAL_ERROR "NAME must be passed to configure_with_toolchain")
+  endif()
+
+  message(STATUS "External project name     : ${CFG_NAME}")
+  message(STATUS "External project toolchain: ${CFG_TOOLCHAIN}")
+  message(STATUS "External project args     : ${CFG_ARGS}")
+  message(STATUS "External project depends  : ${CFG_DEPENDS}")
+  message(STATUS "External project install  : ${CFG_INSTALL}")
+
+  set(args
+      "-DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE};-DCMAKE_TOOLCHAIN_FILE=${CFG_TOOLCHAIN};${CFG_ARGS};"
+  )
+
+  if(DEFINED CFG_INSTALL)
+    set(args "${args};-DCMAKE_INSTALL_PREFIX=${CFG_INSTALL};")
+  endif()
+
+  configure_with_toolchain_impl(
     ${CFG_NAME}
     "${args}"
     "${CMAKE_CURRENT_SOURCE_DIR}/${CFG_NAME}"
     "${CMAKE_CURRENT_BINARY_DIR}/${CFG_NAME}"
     "${CFG_DEPENDS}"
     "${CFG_INSTALL}")
-
 endmacro()

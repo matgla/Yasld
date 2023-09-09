@@ -1,0 +1,13 @@
+{
+  "dependencies": [
+    {
+      "link": "https://github.com/libopencm3/libopencm3.git",
+      "type": "git",
+      "version": "master",
+      "target": "libopencm3",
+      "options": {
+        "is_cmake_library": true
+      }
+    }
+  ]
+}

@@ -1,4 +1,3 @@
-pyelftools
-jinja2
-colorama
-clang
+colorama == 0.4.6
+pyelftools == 0.29
+

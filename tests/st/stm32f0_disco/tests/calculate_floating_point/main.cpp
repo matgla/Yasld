@@ -18,101 +18,44 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include <libopencm3/stm32/gpio.h>
-#include <libopencm3/stm32/rcc.h>
-#include <libopencm3/stm32/usart.h>
+#include "board_init.hpp"
 
-#include <cstdarg>
-#include <span>
-#include <string_view>
+#include <cstdio>
+
 #include <yasld/loader.hpp>
-
-#include <printf.h>
-
-void clock_setup()
-
-{
-  rcc_periph_clock_enable(RCC_GPIOC);
-  rcc_periph_clock_enable(RCC_GPIOA);
-  rcc_periph_clock_enable(RCC_USART1);
-}
-
-void usart_setup()
-{
-  usart_set_baudrate(USART1, 115200);
-  usart_set_databits(USART1, 8);
-  usart_set_parity(USART1, USART_PARITY_NONE);
-  usart_set_stopbits(USART1, USART_CR2_STOPBITS_1);
-  usart_set_mode(USART1, USART_MODE_TX);
-  usart_set_flow_control(USART1, USART_FLOWCONTROL_NONE);
-  usart_enable(USART1);
-}
-
-void gpio_setup()
-{
-  gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO9);
-  gpio_set_af(GPIOA, GPIO_AF1, GPIO9);
-}
-
-double sum(int count, ...)
-{
-  double  sum = 0;
-  va_list args;
-  va_start(args, count);
-  for (int i = 0; i < count; ++i)
-  {
-    double num  = va_arg(args, double);
-    sum        += num;
-  }
-  va_end(args);
-  return sum;
-}
 
 int main(int argc, char *argv[])
 {
-  clock_setup();
-  gpio_setup();
-  usart_setup();
-  printf("[host] STM32F0 started!\n");
+  static_cast<void>(argc);
+  static_cast<void>(argv);
+  board_init();
+  puts("[host] STM32F0 Discovery Board started!");
 
   yasld::Loader loader(
     [](std::size_t size)
     {
-      void *memory = malloc(size);
-      printf("Memory allocation of: %d, address: %p\n", size, memory);
-      if (memory == nullptr)
-      {
-        printf("[host] memory allocation failure\n");
-        return std::span<std::byte>{};
-      }
-      return std::span<std::byte>(static_cast<std::byte *>(memory), size);
+      return malloc(size);
     },
-    [](std::span<std::byte> data)
+    [](void *ptr)
     {
-      free(data.data());
+      free(ptr);
     });
 
-  const auto exec = loader.load_executable(
-    reinterpret_cast<const void *>(0x08010000),
-    yasld::Loader::Mode::copy_only_data);
-  if (!exec)
+  void *module     = reinterpret_cast<void *>(0x08010000);
+  auto  executable = loader.load_executable(module);
+
+  if (executable)
   {
-    printf("[host] Executable loading failure\n");
+    printf("[host] Module loaded\n");
+    char  arg[]  = { "executable" };
+    char *args[] = { arg };
+    executable->execute(1, args);
   }
   else
   {
-    printf("[host] Text is loaded: 0x%x\n", exec->text_address());
-    printf("[host] Float test on host: %f\n", 1.2456f);
-    char   arg[20] = { "executable" };
-    char  *args[1] = { arg };
-
-    double a       = 1.5f;
-    double b       = 2.7f;
-    double s       = sum(2, a, b);
-    printf("sum is %f, %f + %f\n", s, a, b);
-
-    exec->execute(1, args);
+    printf("[host] Module loading failed\n");
   }
+
   while (true)
   {
   }

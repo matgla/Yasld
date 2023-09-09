@@ -20,9 +20,13 @@
 
 #pragma once
 
+#ifndef LOGGER_ENABLED
+#define LOGGER_ENABLED 0
+#endif // LOGGER_ENABLED
+
 #if (LOGGER_ENABLED == 1)
-#include <printf.h>
-#define log(...) printf("[YASLD] " __VA_ARGS__);
+#include <cstdio>
+#define log(...) printf("[YASLD] " __VA_ARGS__)
 #else
 #define log(...)
 #endif

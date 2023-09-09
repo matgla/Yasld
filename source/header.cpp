@@ -23,71 +23,57 @@
 #include <string_view>
 
 #include "yasld/logger.hpp"
-#include "yasld/relocation.hpp"
-#include "yasld/symbol.hpp"
 
 namespace yasld
 {
 
-// TODO(matgla): add ifdef for log usage
-
-std::string_view toString(const Header::Type type)
+std::string_view to_string(const Header::Type type)
 {
   switch (type)
   {
   case Header::Type::Library:
-    return "Library";
+    return "library";
   case Header::Type::Executable:
-    return "Executable";
-  default:
-    return "Unknown";
-  }
-}
-
-std::string_view toString(const Header::Architecture architecture)
-{
-  switch (architecture)
-  {
-  case Header::Architecture::ArmV6_M:
-    return "armv6-m";
-  default:
+    return "executable";
+  case Header::Type::Unknown:
     return "unknown";
   }
+  return "unknown";
+}
+
+std::string_view to_string(const Header::Architecture arch)
+{
+  switch (arch)
+  {
+  case Header::Architecture::Armv6_m:
+    return "armv6-m";
+  case Header::Architecture::Unknown:
+    return "unknown";
+  }
+  return "unknown";
 }
 
 void print(const Header &header)
 {
   log("Cookie: %.4s\n", header.cookie);
-  log("Type: %s\n", toString(header.type).data());
-  log("Architecture: %s\n", toString(header.arch).data());
-  log("Yasiff version: %d\n", header.yasiff_version);
+  log("Type: %s\n", to_string(header.type).data());
+  log("Architecture: %s\n", to_string(header.arch).data());
+  log("Yasiff version: %u\n", header.yasiff_version);
   log("Sections size:\n");
-  log("  .text: %d B\n", header.code_length);
-  log("  .data: %d B\n", header.data_length);
-  log("  .bss:  %d B\n", header.bss_length);
-  log("External libraries amount: %d\n", header.external_libraries_amount);
-  log("Version: %d.%d\n", header.version_minor, header.version_minor);
-  log("External relocations amount: %d\n", header.external_relocations_amount);
-  log("Local relocations amount: %d\n", header.local_relocations_amount);
-  log("Data relocations amount: %d\n", header.data_relocations_amount);
-  log("Exported symbols amount: %d\n", header.exported_symbols_amount);
-  log("External symbols amount: %d\n", header.external_symbols_amount);
-
-  const uint8_t *ptr =
-    reinterpret_cast<const uint8_t *>(&header) + sizeof(Header);
-
-  ptr += header.external_relocations_amount * sizeof(Relocation);
-  ptr += header.local_relocations_amount * sizeof(Relocation);
-  ptr += header.data_relocations_amount * sizeof(Relocation);
-  ptr += header.external_relocations_amount * sizeof(Relocation);
-
-  log("Exported symbols: %d\n", header.exported_symbols_amount);
-  const Symbol *symbol = reinterpret_cast<const Symbol *>(ptr);
-  for (int i = 0; i < header.exported_symbols_amount; ++i)
-  {
-    log("%s: %x\n", symbol->name().data(), symbol->offset());
-    symbol = symbol->next(header.alignment);
-  }
+  log("  .text: %u B\n", header.code_length);
+  log("  .data: %u B\n", header.data_length);
+  log("  .bss:  %u B\n", header.bss_length);
+  log("External libraries amount: %u\n", header.external_libraries_amount);
+  log("Alignment: %u\n", header.alignment);
+  log("Version: %u.%u\n", header.version_major, header.version_minor);
+  log("Relocations amount:\n");
+  log("  external: %u\n", header.external_relocations_amount);
+  log("  local:    %u\n", header.local_relocations_amount);
+  log("  data:     %u\n", header.data_relocations_amount);
+  log("  exported: %u\n", header.exported_relocations_amount);
+  log("Symbol table size:\n");
+  log("  exported: %u\n", header.exported_symbols_amount);
+  log("  external: %u\n", header.external_symbols_amount);
 }
 
 } // namespace yasld

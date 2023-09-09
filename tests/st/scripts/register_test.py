@@ -21,38 +21,51 @@
 # <https://www.gnu.org/licenses/>.
 #
 
-import yaml 
-import argparse 
-from pathlib import Path 
+import yaml
+import argparse
 import os
 import sys
+from pathlib import Path
 
-parser = argparse.ArgumentParser(description=
-                                """
-                                Script to register test in yaml file
-                                """)
+parser = argparse.ArgumentParser(
+    description="""
+Script to register test in yaml tests file
+"""
+)
 
-parser.add_argument("-r", "--register", dest="file", action="store", help="Path to file to be registered", required=True)
-parser.add_argument("-f", "--tests_file", dest="tests_file", action="store", help="Path to YAML file with registered tests", required=True)
-args, rest = parser.parse_known_args()
+parser.add_argument(
+    "-i",
+    "--input",
+    dest="file",
+    action="store",
+    help="Path to test file to be registered",
+    required=True,
+)
 
-current_tests = None
+parser.add_argument(
+    "-f",
+    "--tests_set",
+    dest="tests_file",
+    action="store",
+    help="Path to YAML file containing tests",
+    required=True,
+)
 
-if os.path.exists(Path(args.tests_file).absolute()): 
-  with open(args.tests_file, "r") as file:
-    print("Reading file:", args.tests_file)
-    current_tests = yaml.safe_load(file.read())
-    if current_tests is None:
-      current_tests = []
-else:
-  current_tests = []
+args, _ = parser.parse_known_args()
 
-print(current_tests)
+current_tests = []
+
+if os.path.exists(Path(args.tests_file).absolute()):
+    with open(args.tests_file, "r") as file:
+        current_tests = yaml.safe_load(file.read())
+        if current_tests is None:
+            current_tests = []
 
 test_path = Path(args.file).absolute()
-if str(test_path.absolute()) in current_tests:
-  sys.exit(0)
+if str(test_path) in current_tests:
+    sys.exit(0)
 else:
-  current_tests.append(str(test_path.absolute()))
-  with open(args.tests_file, "w") as file:
-    file.write(yaml.safe_dump(current_tests))
+    current_tests.append(str(test_path))
+    print("Appending test: " + str(test_path))
+    with open(args.tests_file, "w") as file:
+        file.write(yaml.safe_dump(current_tests))
