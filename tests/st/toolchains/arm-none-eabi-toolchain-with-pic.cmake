@@ -20,41 +20,28 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_PROCESSOR arm)
 set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 
-message(
-  STATUS "${YASLD_TOOLCHAIN_PATH}, $ENV{YASLD_TOOLCHAIN_PATH}, ${GCC_ROOT_PATH}"
-)
-
-if(NOT
-   DEFINED
-   ENV{YASLD_TOOLCHAIN_PATH}
-   AND (NOT
-        DEFINED
-        YASLD_TOOLCHAIN_PATH
-        OR "${YASLD_TOOLCHAIN_PATH}"
-           STREQUAL
-           ""
-       )
-   AND NOT
-       DEFINED
-       GCC_ROOT_PATH)
+if(NOT DEFINED ENV{YASLD_TOOLCHAIN_PATH}
+   AND (NOT DEFINED YASLD_TOOLCHAIN_PATH OR "${YASLD_TOOLCHAIN_PATH}" STREQUAL
+                                            "")
+   AND NOT DEFINED GCC_ROOT_PATH)
   message(
-    STATUS
+    FATAL_ERROR
       "Please define path to Yasld toolchain via environment variable YASLD_TOOLCHAIN_PATH or pass -DYASLD_TOOLCHAIN_PATH=<path> to cmake"
   )
 endif()
 
-if(DEFINED YASLD_TOOLCHAIN_PATH)
+if(DEFINED YASLD_TOOLCHAIN_PATH
+   AND ${YASLD_TOOLCHAIN_PATH}
+       NOT
+       STREQUAL
+       "")
   set(GCC_ROOT_PATH
       ${YASLD_TOOLCHAIN_PATH}/bin
-      CACHE INTERNAL
-            ""
-            FORCE)
+      CACHE INTERNAL "" FORCE)
 elseif(DEFINED ENV{YASLD_TOOLCHAIN_PATH})
   set(GCC_ROOT_PATH
       $ENV{YASLD_TOOLCHAIN_PATH}/bin
-      CACHE INTERNAL
-            ""
-            FORCE)
+      CACHE INTERNAL "" FORCE)
 endif()
 
 set(CMAKE_ASM_COMPILER ${GCC_ROOT_PATH}/arm-none-eabi-gcc)
