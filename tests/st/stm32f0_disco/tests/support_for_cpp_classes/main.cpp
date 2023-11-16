@@ -61,7 +61,14 @@ void create_external_implementation(
   int                     a,
   int                     b)
 {
+  printf("Create external implementation at: %p\n", static_cast<void *>(self));
   new (self) ExternalImplementation(name, a, b);
+  printf("Placement new finished\n");
+}
+
+int sum_wrapper(ExternalImplementation *self)
+{
+  return self->sum();
 }
 
 int main(int argc, char *argv[])
@@ -81,6 +88,7 @@ int main(int argc, char *argv[])
                        "_ZdlPvj", static_cast<void (*)(void *, size_t)>(&operator delete) },
     yasld::SymbolEntry{ "_ZN22ExternalImplementationC1ESt17basic_string_"
                         "viewIcSt11char_traitsIcEEii", &create_external_implementation },
+    yasld::SymbolEntry{ "_ZN22ExternalImplementation3sumEv", &sum_wrapper },
   };
 
   yasld::Loader loader(

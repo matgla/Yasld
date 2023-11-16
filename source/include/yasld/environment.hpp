@@ -31,15 +31,13 @@ namespace yasld
 struct SymbolEntry
 {
 public:
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wpedantic"
-  SymbolEntry(const std::string_view &symbol_name, auto symbol_address)
+  SymbolEntry(const std::string_view &symbol_name, auto &&symbol_address)
     : name{ symbol_name }
     , address{ reinterpret_cast<std::uintptr_t>(
-        reinterpret_cast<void *>(symbol_address)) }
+        reinterpret_cast<void *&>(symbol_address)) }
   {
+    printf("Pointer is: %p\n", reinterpret_cast<void *&>(symbol_address));
   }
-#pragma GCC diagnostic pop
 
   std::string_view name;
   std::uintptr_t   address;
@@ -70,6 +68,7 @@ public:
     {
       if (symbol.name == name)
       {
+        printf("Address is: %x\n", symbol.address);
         return &symbol;
       }
     }

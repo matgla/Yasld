@@ -78,7 +78,6 @@ target_compile_options(
             -Wpedantic
             -Werror
             -Wextra
-            -g
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
             -fno-rtti>)
 

@@ -31,6 +31,6 @@ jobs:
         shell: bash
         working-directory: build
         run: |
-          make -j$(nproc) run_st
+          make -j$(nproc) test 
 
 

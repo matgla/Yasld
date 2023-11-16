@@ -62,6 +62,8 @@ macro(add_test_with_module)
   add_dependencies(${TEST_NAME} modules)
   add_executable(${TEST_MODULE}.yaff IMPORTED)
   set(MODULE_PATH ${STM32F0_TEST_MODULES_DIR}/${TEST_MODULE}.yaff)
+  get_filename_component(MODULE_PATH ${MODULE_PATH} REALPATH)
+
   set_property(TARGET ${TEST_MODULE}.yaff PROPERTY IMPORTED_LOCATION
                                                    ${MODULE_PATH})
   set_property(
@@ -73,7 +75,7 @@ macro(add_test_with_module)
     ${TEST_NAME}_image ALL
     COMMAND cat ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.bin ${MODULE_PATH} >
             ${TEST_NAME}_test.bin
-    DEPENDS ${TEST_NAME} ${MODULE_PATH})
+    DEPENDS ${TEST_NAME} modules)
 
   set(renode_test_binary ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}_test.bin)
 
