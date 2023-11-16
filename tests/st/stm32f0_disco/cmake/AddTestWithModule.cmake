@@ -31,15 +31,11 @@ macro(add_test_with_module)
     "${multiValueArgs}"
     ${ARGN})
 
-  if(NOT
-     DEFINED
-     TEST_NAME)
+  if(NOT DEFINED TEST_NAME)
     message(FATAL_ERROR "NAME must be defined")
   endif()
 
-  if(NOT
-     DEFINED
-     TEST_SOURCES)
+  if(NOT DEFINED TEST_SOURCES)
     message(FATAL_ERROR "SOURCES must be defined")
   endif()
 
@@ -87,15 +83,11 @@ macro(add_test_with_module)
   configure_file(${PROJECT_SOURCE_DIR}/tests/execute_gdb.resc
                  ${CMAKE_CURRENT_BINARY_DIR}/execute_gdb.resc)
 
-  configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.robot
-    ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.robot
-    @ONLY)
+  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.robot
+                 ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.robot @ONLY)
 
-  configure_file(
-    ${PROJECT_SOURCE_DIR}/tests/stm32f0_common.robot
-    ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_common.robot
-    @ONLY)
+  configure_file(${PROJECT_SOURCE_DIR}/tests/stm32f0_common.robot
+                 ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_common.robot @ONLY)
 
   include(RegisterTest)
 

@@ -22,6 +22,7 @@
 
 #include <cstring>
 
+#include "yasld/environment.hpp"
 #include "yasld/header.hpp"
 #include "yasld/logger.hpp"
 #include "yasld/parser.hpp"
@@ -38,7 +39,13 @@ Loader::Loader(const AllocatorType &allocator, const ReleaseType &release)
   , data_{}
   , bss_{}
   , exported_symbols_{ std::nullopt }
+  , environment_{ nullptr }
 {
+}
+
+void Loader::set_environment(const Environment &environment)
+{
+  environment_ = &environment;
 }
 
 std::optional<Executable> Loader::load_executable(const void *module_address)
@@ -52,9 +59,8 @@ std::optional<Executable> Loader::load_executable(const void *module_address)
   }
 
   const Parser      parser(header);
-  const std::size_t lot_size = header->external_relocations_amount +
-                               header->exported_relocations_amount +
-                               header->local_relocations_amount;
+  const std::size_t lot_size =
+    header->symbol_table_relocations_amount + header->local_relocations_amount;
   void *lot = allocator_(sizeof(std::size_t) * lot_size);
   if (!lot)
   {
@@ -70,11 +76,15 @@ std::optional<Executable> Loader::load_executable(const void *module_address)
     return std::nullopt;
   }
 
-  process_symbol_table_relocations(parser);
+  exported_symbols_ = parser.get_exported_symbol_table();
+
+  if (!process_symbol_table_relocations(parser))
+  {
+    return std::nullopt;
+  }
   process_local_relocations(parser);
   process_data_relocations(parser);
 
-  exported_symbols_ = parser.get_exported_symbol_table();
   const std::optional<std::size_t> main_address = find_symbol("main");
 
   if (main_address)
@@ -124,9 +134,25 @@ bool Loader::process_data(const Header &header, const Parser &parser)
   return true;
 }
 
-void Loader::process_symbol_table_relocations(const Parser &parser)
+bool Loader::process_symbol_table_relocations(const Parser &parser)
 {
-  log("TODO: Implement symbol table relocations\n");
+  const auto relocations = parser.get_symbol_table_relocations().span();
+  log("Processing symbol table relocations: %d\n", relocations.size());
+  const auto symbols = parser.get_imported_symbol_table();
+  for (const auto &rel : relocations)
+  {
+    const auto &symbol  = symbols[rel.symbol_index()];
+    const auto  address = find_symbol(symbol.name());
+    if (!address)
+    {
+      log("Can't find symbol: %s\n", symbol.name().data());
+      return false;
+    }
+    log("LOT[%d]: 0x%x\n", rel.lot_index(), *address);
+    lot_[rel.lot_index()] = *address;
+  }
+
+  return true;
 }
 
 void Loader::process_local_relocations(const Parser &parser)
@@ -184,13 +210,26 @@ std::optional<std::size_t> Loader::find_symbol(
 {
   log("Searching symbol: %s\n", name.data());
 
+  // Symbols provided by runtime system has highest priority
+  if (environment_)
+  {
+    const auto symbol = environment_->find_symbol(name);
+    if (symbol)
+    {
+      return symbol->address;
+    }
+  }
+
+  // then local symbols
   if (!exported_symbols_)
   {
     log("Uninitialized exported symbol table\n");
     return std::nullopt;
   }
+
   for (const auto &symbol : *exported_symbols_)
   {
+    printf("Symbol address %p\n", &symbol);
     if (symbol.name() == name)
     {
       const std::size_t base_address =
@@ -202,6 +241,8 @@ std::optional<std::size_t> Loader::find_symbol(
       return address;
     }
   }
+
+  // And symbols imported from other libraries at end
   return std::nullopt;
 }
 

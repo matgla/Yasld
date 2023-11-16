@@ -12,8 +12,12 @@ ${TEST_FILE}    @renode_test_binary@
 
 
 *** Test Cases ***
-Print 'Hello World' on USART from relocated module
+Calculate of values in module using imported symbols
     Prepare Machine
 
     Wait For Line On Uart    [host] STM32F0 Discovery Board started!    timeout=1
-    Wait For Line On Uart    Hello from module    timeout=1
+    Wait For Line On Uart    Module 'executable' got array size: 3
+    Wait For Line On Uart    3.150000
+    Wait For Line On Uart    23.141230
+    Wait For Line On Uart    -1231.123047
+    Wait For Line On Uart    [host] Module returned: -5

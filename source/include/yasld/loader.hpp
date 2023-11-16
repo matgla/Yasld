@@ -34,6 +34,7 @@ namespace yasld
 
 class Header;
 class Parser;
+class Environment;
 
 class Loader
 {
@@ -43,6 +44,8 @@ public:
 
   Loader(const AllocatorType &allocator, const ReleaseType &release);
 
+  void                      set_environment(const Environment &environment);
+
   std::optional<Executable> load_executable(const void *module_address);
 
 private:
@@ -50,7 +53,7 @@ private:
   bool          process_data(const Header &header, const Parser &parser);
   void          process_local_relocations(const Parser &parser);
   void          process_data_relocations(const Parser &parser);
-  void          process_symbol_table_relocations(const Parser &parser);
+  bool          process_symbol_table_relocations(const Parser &parser);
 
   std::optional<std::size_t> find_symbol(const std::string_view &name) const;
 
@@ -62,6 +65,7 @@ private:
   std::span<std::byte>       data_;
   std::span<std::byte>       bss_;
   std::optional<SymbolTable> exported_symbols_;
+  const Environment         *environment_;
 };
 
 } // namespace yasld

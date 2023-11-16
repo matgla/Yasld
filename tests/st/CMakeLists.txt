@@ -19,9 +19,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(ConfigureWithToolchain)
 
 configure_with_toolchain(
-  NAME stm32f0_disco
-  TOOLCHAIN ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake
-  ARGS -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH})
+  NAME
+  stm32f0_disco
+  TOOLCHAIN
+  ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake
+  ARGS
+  -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH})
 
 add_custom_target(
   run_stm32f0_st

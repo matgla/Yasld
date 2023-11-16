@@ -34,46 +34,61 @@
 alignas(16) const std::vector<uint8_t> example_header = {
   0x59, 0x41, 0x46, 0x46, // YAFF
   0x01, 0x00, 0x01, 0x01, // executable, armv6-m, YASIFF version 1
+
   0x04, 0x00, 0x00, 0x00, // code length = 4B
   0x02, 0x00, 0x00, 0x00, // data length = 2B
+
   0x08, 0x00, 0x00, 0x00, // bss length
   0x00, 0x00, 0x08, 0x00, // external libraries, alignment: 8, reserved
+
   0x0a, 0x00, 0x05, 0x10, // version major, minor
   0x03, 0x00, 0x02, 0x00, // external, local relocations amount
+
   0x01, 0x00, 0x00, 0x00, // data, exported relocations amount
   0x02, 0x00, 0x03, 0x00, // exported, external symbols amount
+
   0x00, 0x00, 0x00, 0x00, // external symbol relocation 1 index
   0x50, 0x00, 0x00, 0x00, // external symbol relocation 1 offset
+
   0x01, 0x00, 0x00, 0x00, // external symbol relocation 2 index
   0x50, 0x00, 0x00, 0x00, // external symbol relocation 2 offset
+
   0x02, 0x00, 0x00, 0x00, // external symbol relocation 3 index
   0x58, 0x00, 0x00, 0x00, // external symbol relocation 3 offset
+
   0x07, 0x00, 0x00, 0x00, // local relocation 1 index
   0x30, 0x42, 0x21, 0x24, // local relocation 1 offset
+
   0x08, 0x00, 0x00, 0x00, // local relocation 2 index
   0x5e, 0x44, 0x01, 0x24, // local relocation 2 offset
+
   0x05, 0x00, 0x00, 0x00, // data relocation 1 index
   0x5e, 0x12, 0x01, 0x24, // data relocation 1 offset
-  0x13, 0x23, 0x34, 0x51, // exported symbol 1 - section data
-  'a',  'b',  'c',  'd',  // exported symbol 1 - name
-  '\0', 0x00, 0x00, 0x00, // exported symbol 1 name
-  0x00, 0x00, 0x00, 0x00, // alignment to 8
-  0x00, 0x00, 0x11, 0x10, // exported symbol 2 - section code
-  't',  'h',  'a',  't',  //
-  'f',  'u',  'n',  '\0', // exported symbol 2 name
-  0x00, 0x00, 0x00, 0x00, // alignment to 8
+
   0x02, 0x03, 0x04, 0x51, // external symbol 1 - section code
   'z',  't',  'a',  '\0', // external symbol 1 name
+  0x00, 0x00, 0x00, 0x00, // external symbol 1 alignment
+
   0x00, 0x01, 0x11, 0x10, // external symbol 2 - section code
   'h',  'e',  'y',  'y',  //
   'o',  'u',  '_',  '\0', // external symbol 2 name
-  0x00, 0x00, 0x00, 0x00, // alignment to 8
+
   0x01, 0x03, 0x03, 0x42, // external symbol 3 - section data
   'n',  'a',  'm',  'e',  //
   'i',  's',  't',  'h',  //
   'e',  'f',  'u',  'n',  //
   'c',  't',  'i',  'o',  //
-  'n',  0x00, 0x00, 0x00
+  'n',  0x00, 0x00, 0x00, //
+  0x00, 0x00, 0x00, 0x00,
+
+  0x13, 0x23, 0x34, 0x51, // exported symbol 1 - section data
+  'a',  'b',  'c',  'd',  // exported symbol 1 - name
+  '\0', 0x00, 0x00, 0x00, // exported symbol 1 name
+
+  0x00, 0x00, 0x11, 0x10, // exported symbol 2 - section code
+  't',  'h',  'a',  't',  //
+  'f',  'u',  'n',  '\0', // exported symbol 2 name
+
 };
 
 namespace yasld
@@ -83,7 +98,7 @@ void PrintTo(const yasld::Relocation &rel, ::std::ostream *os)
 {
   *os << "Relocation { "
       << ".index: 0x" << std::hex << rel.lot_index() << ", "
-      << ".offset: 0x" << std::hex << rel.symbol_offset() << " }";
+      << ".offset: 0x" << std::hex << rel.symbol_index() << " }";
 }
 
 void PrintTo(const std::span<const Relocation> &rels, ::std::ostream *os)
@@ -123,9 +138,9 @@ protected:
   const yasld::Parser  sut_;
 };
 
-TEST_F(ParserShould, ParseExternalRelocationTable)
+TEST_F(ParserShould, ParseSymbolTableRelocationTable)
 {
-  const auto external_rels = sut_.get_external_relocations();
+  const auto external_rels = sut_.get_symbol_table_relocations();
   // Alignment to 8 enforced in header to not crash on 64 bit machines
   ASSERT_EQ(header_->alignment, 8);
 
@@ -143,20 +158,14 @@ TEST_F(ParserShould, ParseExternalRelocationTable)
 
   const auto &r0 = external_rels_span[0];
   EXPECT_EQ(r0, yasld::Relocation(0, 0x50));
-  const auto &es0 = external_rels_span[0].symbol();
-  EXPECT_EQ(es0.name(), "zta");
 
   const auto &r1 = external_rels_span[1];
-  const auto &s1 = r1.symbol();
 
   EXPECT_EQ(r1, yasld::Relocation(1, 0x50));
-  EXPECT_EQ(s1.name(), "heyyou_");
 
   const auto &r2 = external_rels_span[2];
-  const auto &s2 = r2.symbol();
 
   EXPECT_EQ(r2, yasld::Relocation(2, 0x58));
-  EXPECT_EQ(s2.name(), "nameisthefunction");
 }
 
 TEST_F(ParserShould, ParseLocalRelocationTable)
@@ -169,7 +178,8 @@ TEST_F(ParserShould, ParseLocalRelocationTable)
     local_rels.address(),
     reinterpret_cast<std::uintptr_t>(example_header.data()) +
       align(
-        header_->external_relocations_amount * sizeof(yasld::Relocation), 8) +
+        header_->symbol_table_relocations_amount * sizeof(yasld::Relocation),
+        8) +
       align(sizeof(yasld::Header), header_->alignment));
 
   EXPECT_EQ(local_rels.size(), 2 * sizeof(yasld::LocalRelocation));
@@ -192,7 +202,7 @@ TEST_F(ParserShould, ParseExportedSymbolTable)
 {
   const auto exported_symbols = sut_.get_exported_symbol_table();
 
-  EXPECT_EQ(exported_symbols.size(), 32);
+  EXPECT_EQ(exported_symbols.size(), 24);
   auto it = exported_symbols.begin();
   EXPECT_EQ(it->name(), "abcd");
   EXPECT_EQ(it->section(), yasld::Section::data);
@@ -205,9 +215,9 @@ TEST_F(ParserShould, ParseExportedSymbolTable)
 
 TEST_F(ParserShould, ParseExternalSymbolTable)
 {
-  const auto external_symbols = sut_.get_external_symbol_table();
+  const auto external_symbols = sut_.get_imported_symbol_table();
 
-  EXPECT_EQ(external_symbols.size(), 48);
+  EXPECT_EQ(external_symbols.size(), 52);
   auto it = external_symbols.begin();
   EXPECT_EQ(it->name(), "zta");
   EXPECT_EQ(it->section(), yasld::Section::code);
@@ -229,10 +239,10 @@ TEST_F(ParserShould, ParseTextSection)
   EXPECT_EQ(text.size(), header_->code_length);
 
   const std::size_t offset =
-    sizeof(yasld::Header) + sut_.get_external_relocations().size() +
+    sizeof(yasld::Header) + sut_.get_symbol_table_relocations().size() +
     sut_.get_local_relocations().size() + sut_.get_data_relocations().size() +
     sut_.get_exported_symbol_table().size() +
-    sut_.get_external_symbol_table().size();
+    sut_.get_imported_symbol_table().size();
 
   const std::size_t aligned_offset = offset + 16 - offset % 16;
 
@@ -247,10 +257,10 @@ TEST_F(ParserShould, ParseDataSection)
   EXPECT_EQ(data.size(), header_->data_length);
 
   const std::size_t text_offset =
-    sizeof(yasld::Header) + sut_.get_external_relocations().size() +
+    sizeof(yasld::Header) + sut_.get_symbol_table_relocations().size() +
     sut_.get_local_relocations().size() + sut_.get_data_relocations().size() +
     sut_.get_exported_symbol_table().size() +
-    sut_.get_external_symbol_table().size();
+    sut_.get_imported_symbol_table().size();
 
   const std::size_t aligned_offset = text_offset + 16 - text_offset % 16;
   const std::size_t data_offset    = aligned_offset + header_->code_length;

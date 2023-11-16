@@ -16,10 +16,15 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(calculate_floating_point)
-add_subdirectory(calculate_of_sine_of_extern_values)
-add_subdirectory(print_hello_world)
-add_subdirectory(print_hello_world_using_external_symbols)
-add_subdirectory(report_failure_for_wrong_file)
-add_subdirectory(return_value)
-add_subdirectory(support_for_cpp_classes)
+add_executable(stm32f0_sum_shared)
+
+target_sources(stm32f0_sum_shared PRIVATE main.cpp)
+
+target_link_libraries(stm32f0_sum_shared PRIVATE build_flags_for_shared
+                                                 yasld_executable_flags_shared)
+
+include(ConvertElfToYasiff)
+convert_elf_to_yasiff(stm32f0_sum_shared)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_sum_shared.yaff
+        DESTINATION ${STM32F0_TEST_MODULES_DIR})

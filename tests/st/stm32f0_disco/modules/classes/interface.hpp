@@ -1,5 +1,5 @@
 /**
- * symbol_table.hpp
+ * interface.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -20,35 +20,31 @@
 
 #pragma once
 
-#include <cstdint>
+#include <cstdio>
+#include <string_view>
 
-#include "yasld/symbol_iterator.hpp"
-
-namespace yasld
-{
-
-class Symbol;
-
-class SymbolTable
+class InternalClassInterface
 {
 public:
-  SymbolTable(
-    std::uintptr_t address,
-    uint16_t       number_of_symbols,
-    uint8_t        alignment);
+  virtual ~InternalClassInterface()
+  {
+    printf("~InternalClassInterface()\n");
+  }
 
-  [[nodiscard]] std::uintptr_t address() const;
-  [[nodiscard]] std::size_t    size() const;
-
-  SymbolIterator               begin() const;
-  SymbolIterator               end() const;
-
-  const Symbol                &operator[](uint32_t position) const;
-
-private:
-  uint8_t       alignment_;
-  uint16_t      number_of_symbols_;
-  const Symbol *root_;
+  virtual std::string_view get_name() = 0;
+  virtual int              sum()      = 0;
 };
 
-} // namespace yasld
+class ExternalImplementation : public InternalClassInterface
+{
+public:
+  ExternalImplementation(std::string_view name, int a, int b);
+  ~ExternalImplementation();
+  std::string_view get_name() override;
+  int              sum() override;
+
+private:
+  std::string_view name_;
+  int              a_;
+  int              b_;
+};

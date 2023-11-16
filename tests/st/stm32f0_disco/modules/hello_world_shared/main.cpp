@@ -1,5 +1,5 @@
 /**
- * symbol_table.hpp
+ * main.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,37 +18,11 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <cstdio>
 
-#include <cstdint>
-
-#include "yasld/symbol_iterator.hpp"
-
-namespace yasld
+int main(int argc, char *argv[])
 {
-
-class Symbol;
-
-class SymbolTable
-{
-public:
-  SymbolTable(
-    std::uintptr_t address,
-    uint16_t       number_of_symbols,
-    uint8_t        alignment);
-
-  [[nodiscard]] std::uintptr_t address() const;
-  [[nodiscard]] std::size_t    size() const;
-
-  SymbolIterator               begin() const;
-  SymbolIterator               end() const;
-
-  const Symbol                &operator[](uint32_t position) const;
-
-private:
-  uint8_t       alignment_;
-  uint16_t      number_of_symbols_;
-  const Symbol *root_;
-};
-
-} // namespace yasld
+  static_cast<void>(argc);
+  static_cast<void>(argv);
+  printf("Hello from non-standalone %s!!\n", "module");
+}

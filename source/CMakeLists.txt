@@ -20,15 +20,11 @@ add_library(yasld)
 
 set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld)
 
-get_target_property(
-  eul_cxx_compilation_flags
-  yasld_arch_flags
-  INTERFACE_COMPILE_OPTIONS)
+get_target_property(eul_cxx_compilation_flags yasld_arch_flags
+                    INTERFACE_COMPILE_OPTIONS)
 
-get_target_property(
-  eul_cxx_linking_flags
-  yasld_arch_flags
-  INTERFACE_LINK_OPTIONS)
+get_target_property(eul_cxx_linking_flags yasld_arch_flags
+                    INTERFACE_LINK_OPTIONS)
 
 if(NOT eul_cxx_compilation_flags)
   set(eul_cxx_compilation_flags "")
@@ -46,6 +42,7 @@ target_sources(
   yasld
   PUBLIC ${include_dir}/align.hpp
          ${include_dir}/data_relocation.hpp
+         ${include_dir}/environment.hpp
          ${include_dir}/executable.hpp
          ${include_dir}/header.hpp
          ${include_dir}/loader.hpp

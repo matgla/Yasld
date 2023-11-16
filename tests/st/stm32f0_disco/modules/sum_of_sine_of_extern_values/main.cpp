@@ -1,5 +1,5 @@
 /**
- * symbol_table.hpp
+ * main.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,37 +18,24 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <array>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
-#include <cstdint>
+std::array<float, 3> get_values_for_test();
+static float         sum;
 
-#include "yasld/symbol_iterator.hpp"
-
-namespace yasld
+int                  main(int argc, char *argv[])
 {
-
-class Symbol;
-
-class SymbolTable
-{
-public:
-  SymbolTable(
-    std::uintptr_t address,
-    uint16_t       number_of_symbols,
-    uint8_t        alignment);
-
-  [[nodiscard]] std::uintptr_t address() const;
-  [[nodiscard]] std::size_t    size() const;
-
-  SymbolIterator               begin() const;
-  SymbolIterator               end() const;
-
-  const Symbol                &operator[](uint32_t position) const;
-
-private:
-  uint8_t       alignment_;
-  uint16_t      number_of_symbols_;
-  const Symbol *root_;
-};
-
-} // namespace yasld
+  static_cast<void>(argc);
+  auto values = get_values_for_test();
+  printf("Module '%s' got array size: %d\n", argv[0], values.size());
+  sum = 0;
+  for (const auto &data : values)
+  {
+    printf("%f\n", data);
+    sum += std::sin(data) * 10;
+  }
+  return static_cast<int>(sum);
+}

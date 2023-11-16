@@ -20,10 +20,7 @@ set(CURRENT_FILE_DIR ${CMAKE_CURRENT_LIST_DIR})
 set(MKIMAGE_DIR ${CURRENT_FILE_DIR}/../mkimage)
 
 function(convert_elf_to_yasiff target)
-  get_filename_component(
-    MKIMAGE_DIR
-    ${MKIMAGE_DIR}
-    ABSOLUTE)
+  get_filename_component(MKIMAGE_DIR ${MKIMAGE_DIR} ABSOLUTE)
 
   add_custom_command(
     OUTPUT ${target}.yaff

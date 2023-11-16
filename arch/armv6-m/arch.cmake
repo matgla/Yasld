@@ -32,13 +32,20 @@ target_link_options(
   -fomit-frame-pointer
   -fvisibility=hidden)
 
-if(NOT
-   DEFINED
-   YASLD_USE_CUSTOM_LINKER_SCRIPT)
-  target_link_options(
-    yasld_executable_flags
-    INTERFACE
-    -T${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+add_library(yasld_executable_flags_shared INTERFACE)
+
+target_link_libraries(yasld_executable_flags_shared
+                      INTERFACE yasld_executable_flags)
+target_link_options(
+  yasld_executable_flags_shared
+  INTERFACE
+  -nodefaultlibs
+  -nostdlib
+  -Wl,--unresolved-symbols=ignore-in-object-files)
+
+if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
+  target_link_options(yasld_executable_flags INTERFACE
+                      -T${CMAKE_CURRENT_LIST_DIR}/executable.ld)
 endif()
 
 set_target_properties(
@@ -53,6 +60,7 @@ target_compile_options(
             -fno-rtti
             -fno-exceptions>
             -fno-inline
+            -mlong-calls # long calls necessary to call imported functions
             -mpic-register=r9
             -msingle-pic-base
             -mno-pic-data-is-text-relative

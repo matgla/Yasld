@@ -44,7 +44,7 @@ std::string_view Symbol::name() const
 std::size_t Symbol::size(std::size_t alignment) const
 {
   // symbol offset + name + \0
-  return align<std::size_t>(sizeof(Symbol) + name().size() + 1, alignment);
+  return sizeof(Symbol) + align<std::size_t>(name().size() + 1, alignment);
 }
 
 const Symbol *Symbol::next(std::size_t alignment) const

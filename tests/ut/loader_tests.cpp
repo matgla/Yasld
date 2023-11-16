@@ -50,13 +50,13 @@ alignas(16) const std::array<uint8_t, 128 * 4> example_header = {
   0x00, 0x00, 0x00, 0x00, // data relocation 2 index from data
   0x41, 0x00, 0x00, 0x00, // data relocation 2 offset based on data
 
-  0x07, 0x00, 0x00, 0x00, // exported symbol 1 - section data
-  'm',  'a',  'i',  'n',  // exported symbol 1 - name
-
-  '\0', 0x00, 0x00, 0x00, // exported symbol 1 name
-  0x00, 0x00, 0x00, 0x00, // alignment to 8
   0x02, 0x00, 0x00, 0x00, // external symbol 1 - section code
   'z',  't',  'a',  '\0', // external symbol 1 name
+  0x00, 0x00, 0x00, 0x00, // alignment to 8
+
+  0x07, 0x00, 0x00, 0x00, // exported symbol 1 - section data
+  'm',  'a',  'i',  'n',  // exported symbol 1 - name
+  '\0', 0x00, 0x00, 0x00, // exported symbol 1 name
 
   0x01, 0x02, 0x03, 0x04, // text
   0x05, 0x06, 0x07, 0x08, // text

@@ -62,8 +62,18 @@ SymbolIterator SymbolTable::end() const
 {
   return SymbolIterator(
     reinterpret_cast<const Symbol *>(
-      reinterpret_cast<const uintptr_t *>(&root_) + size()),
+      reinterpret_cast<uintptr_t>(root_) + size()),
     alignment_);
+}
+
+const Symbol &SymbolTable::operator[](uint32_t position) const
+{
+  auto b = begin();
+  for (uint32_t p = 0; p < position; ++p)
+  {
+    ++b;
+  }
+  return *b;
 }
 
 } // namespace yasld

@@ -12,8 +12,9 @@ ${TEST_FILE}    @renode_test_binary@
 
 
 *** Test Cases ***
-Print 'Hello World' on USART from relocated module
+Report if symbol not exists
     Prepare Machine
 
     Wait For Line On Uart    [host] STM32F0 Discovery Board started!    timeout=1
-    Wait For Line On Uart    Hello from module    timeout=1
+    Wait For Line On Uart    [YASLD] Can't find symbol: __aeabi_f2d
+    Wait For Line On Uart    [host] Module loading failed

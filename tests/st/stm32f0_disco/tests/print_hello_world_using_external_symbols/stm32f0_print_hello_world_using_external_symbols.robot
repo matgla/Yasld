@@ -12,8 +12,8 @@ ${TEST_FILE}    @renode_test_binary@
 
 
 *** Test Cases ***
-Print 'Hello World' on USART from relocated module
+Print 'Hello World' on USART from relocated module using imported symbols
     Prepare Machine
 
     Wait For Line On Uart    [host] STM32F0 Discovery Board started!    timeout=1
-    Wait For Line On Uart    Hello from module    timeout=1
+    Wait For Line On Uart    Hello from non-standalone module!!

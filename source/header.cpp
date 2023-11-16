@@ -67,13 +67,12 @@ void print(const Header &header)
   log("Alignment: %u\n", header.alignment);
   log("Version: %u.%u\n", header.version_major, header.version_minor);
   log("Relocations amount:\n");
-  log("  external: %u\n", header.external_relocations_amount);
-  log("  local:    %u\n", header.local_relocations_amount);
-  log("  data:     %u\n", header.data_relocations_amount);
-  log("  exported: %u\n", header.exported_relocations_amount);
+  log("  symtab: %u\n", header.symbol_table_relocations_amount);
+  log("  local:  %u\n", header.local_relocations_amount);
+  log("  data:   %u\n", header.data_relocations_amount);
   log("Symbol table size:\n");
   log("  exported: %u\n", header.exported_symbols_amount);
-  log("  external: %u\n", header.external_symbols_amount);
+  log("  external: %u\n", header.imported_symbols_amount);
 }
 
 } // namespace yasld

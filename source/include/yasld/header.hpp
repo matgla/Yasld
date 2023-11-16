@@ -53,12 +53,12 @@ public:
   uint8_t      _reserved;
   uint16_t     version_major;
   uint16_t     version_minor;
-  uint16_t     external_relocations_amount;
+  uint16_t     symbol_table_relocations_amount;
   uint16_t     local_relocations_amount;
   uint16_t     data_relocations_amount;
-  uint16_t     exported_relocations_amount;
+  uint16_t     _reserved2;
   uint16_t     exported_symbols_amount;
-  uint16_t     external_symbols_amount;
+  uint16_t     imported_symbols_amount;
 };
 
 void print(const Header &header);

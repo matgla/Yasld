@@ -25,7 +25,7 @@
 
 #include <libopencm3/stm32/usart.h>
 
-static std::array<uint8_t, 7 * 1024> heap;
+static std::array<uint8_t, 8 * 1024> heap;
 
 extern "C"
 {

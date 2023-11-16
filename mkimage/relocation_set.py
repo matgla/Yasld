@@ -25,6 +25,7 @@
 class RelocationSet:
     def __init__(self):
         self.relocations = []
+        self.omitted_relocations = []
         self.index = 0
 
     def __get_relocation(self, name):
@@ -54,8 +55,17 @@ class RelocationSet:
         )
         self.index += 1
 
-    def add_relocation(self, relocation, visibility):
+    def add_symbol_table_relocation(self, relocation):
         if self.__get_relocation(relocation["symbol_name"]) != None:
+            self.omitted_relocations.append(
+                {
+                    "name": relocation["symbol_name"],
+                    "offset": relocation["offset"],
+                    "index": self.__get_relocation(relocation["symbol_name"])["index"],
+                    "symbol_value": relocation["symbol_value"],
+                    "type": "symbol_table",
+                }
+            )
             return
 
         self.relocations.append(
@@ -64,7 +74,7 @@ class RelocationSet:
                 "offset": relocation["offset"],
                 "index": self.__create_index(relocation["symbol_name"]),
                 "symbol_value": relocation["symbol_value"],
-                "type": visibility,
+                "type": "symbol_table",
             }
         )
 

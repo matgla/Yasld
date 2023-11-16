@@ -26,7 +26,6 @@
 
 namespace yasld
 {
-class Symbol;
 
 class Relocation
 {
@@ -39,14 +38,13 @@ public:
   }
 
   [[nodiscard]] uint32_t          lot_index() const;
-  [[nodiscard]] const Symbol     &symbol() const;
-  [[nodiscard]] uint32_t          symbol_offset() const;
+  [[nodiscard]] uint32_t          symbol_index() const;
   [[nodiscard]] const Relocation &next() const;
   [[nodiscard]] bool              operator==(const Relocation &other) const;
 
 private:
   uint32_t index_;
-  uint32_t symbol_offset_;
+  uint32_t symbol_index_;
 };
 
 } // namespace yasld

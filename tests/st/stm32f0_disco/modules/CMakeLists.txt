@@ -39,24 +39,23 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
 include(yaspem)
 
 setup_yaspem(
-  YASPEM_SOURCE ${yaspem_SOURCE_DIR}
-  OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/packages
-  PACKAGE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
+  YASPEM_SOURCE
+  ${yaspem_SOURCE_DIR}
+  OUTPUT_DIRECTORY
+  ${CMAKE_BINARY_DIR}/packages
+  PACKAGE_FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
 
 set(YASLD_IS_NOT_PARENT ON)
 set(YASLD_DISABLE_TESTS ON)
 set(YASLD_ONLY_CMAKE ON)
 set(yasld_root_path "../../../..")
 
-get_filename_component(
-  YASLD_CMAKE_MODULE_PATH
-  ${yasld_root_path}/cmake
-  ABSOLUTE)
+get_filename_component(YASLD_CMAKE_MODULE_PATH ${yasld_root_path}/cmake
+                       ABSOLUTE)
 
-set(CMAKE_MODULE_PATH
-    ${CMAKE_MODULE_PATH}
-    ${PROJECT_SOURCE_DIR}/../cmake
-    ${YASLD_CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/../cmake
+                      ${YASLD_CMAKE_MODULE_PATH})
 
 set(YASLD_ARCH armv6-m)
 
@@ -67,10 +66,10 @@ include(CreateLibOpenCM3)
 
 create_libopencm3_with_pic(stm32/f0)
 
-add_library(build_flags INTERFACE)
+add_library(build_flags_for_shared INTERFACE)
 
 target_compile_options(
-  build_flags
+  build_flags_for_shared
   INTERFACE -mcpu=cortex-m0
             -nostartfiles
             -mthumb
@@ -79,19 +78,27 @@ target_compile_options(
             -Wpedantic
             -Werror
             -Wextra
+            -g
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
             -fno-rtti>)
 
 target_link_options(
-  build_flags
+  build_flags_for_shared
   INTERFACE
   -mcpu=cortex-m0
   -nostartfiles
   -mthumb
-  -Wl,--undefined,_printf_float
   --specs=nano.specs)
+
+add_library(build_flags INTERFACE)
+
+target_link_options(build_flags INTERFACE -Wl,--undefined,_printf_float)
+target_link_libraries(build_flags INTERFACE build_flags_for_shared)
 
 add_subdirectory(common)
 add_subdirectory(hello_world)
 add_subdirectory(sum)
 add_subdirectory(floating_point)
+add_subdirectory(hello_world_shared)
+add_subdirectory(sum_of_sine_of_extern_values)
+add_subdirectory(classes)

@@ -149,14 +149,27 @@ class Application:
                 self.logger.error("Found duplicated symbol: " + name)
                 raise RuntimeError("Symbols processing failed")
 
+            # Fix undefined symbols
+            is_global_and_visible = (
+                data["binding"] == "STB_GLOBAL" and data["visibility"] != "STV_HIDDEN"
+            )
+
             self.symbols[name] = data
-            if self.elf.is_executable():
-                if is_main:
-                    self.symbols[name]["localization"] = "exported"
+
+            if is_global_and_visible or is_main:
+                if data["section_index"] == "SHN_UNDEF":
+                    self.symbols[name]["localization"] = "imported"
                 else:
-                    self.symbols[name]["localization"] = "internal"
+                    # only main can be exported in executable
+                    if self.elf.is_executable():
+                        if is_main:
+                            self.symbols[name]["localization"] = "exported"
+                        else:
+                            self.symbols[name]["localization"] = "internal"
+                    else:
+                        self.symbols[name]["localization"] = "exported"
             else:
-                raise RuntimeError("Implement here support for libraries")
+                self.symbols[name]["localization"] = "internal"
 
     def __print_symbol_table(self, visibility):
         symbols = dict(
@@ -192,7 +205,7 @@ class Application:
         if self.args.verbose:
             self.logger.verbose("Symbol table")
             self.__print_symbol_table("exported")
-            self.__print_symbol_table("external")
+            self.__print_symbol_table("imported")
             self.__print_symbol_table("internal")
 
     def __process_relocations(self):
@@ -206,19 +219,12 @@ class Application:
             "R_ARM_JUMP24",  # PC Relative
             "R_ARM_THM_CALL",  # PC Relative
             "R_ARM_ABS32",  # allowed for .data
+            "R_ARM_PREL31",  # PC relative
         ]
 
         self.relocations = RelocationSet()
 
         for relocation in self.elf.relocations:
-            if self.elf.get_section_name(relocation["section_index"]) == None:
-                self.logger.error(
-                    "Relocation '{}' towards unsupported sections: {}".format(
-                        relocation["symbol_name"], relocation["section_index"]
-                    ),
-                )
-                raise RuntimeError("Relocation processing failure")
-
             if relocation["info_type"] in skipped_relocations:
                 continue
             elif relocation["info_type"] == "R_ARM_GOT_BREL":
@@ -226,7 +232,7 @@ class Application:
                 if visibility == "internal":
                     self.relocations.add_local_relocation(relocation)
                 else:
-                    self.relocations.add_relocation(relocation, visibility)
+                    self.relocations.add_symbol_table_relocation(relocation)
             else:
                 raise RuntimeError(
                     "Unknown relocation for '{name}': {relocation}".format(
@@ -252,9 +258,9 @@ class Application:
                 if relocation["symbol_name"] in self.symbols:
                     if self.elf.get_section_name(relocation["section_index"]) == None:
                         self.logger.error(
-                            "Relocation '{}' towards unsupported sections: {}"
-                            + relocation["symbol_name"]
-                            + relocation["section_index"],
+                            "Relocation '{}' towards unsupported sections: {}".format(
+                                relocation["symbol_name"], relocation["section_index"]
+                            )
                         )
                         raise RuntimeError("Data relocation processing failure")
                     from_address = int(relocation["offset"] - data_offset)
@@ -311,17 +317,16 @@ class Application:
             "+------------------------------------------+---------+--------------------+-----------------+---------+"
         )
 
-    def __dump_normal_relocations(self, relocation_type):
-        self.logger.step("Dumping " + relocation_type + " relocations")
-        rels = self.relocations.get_relocations(relocation_type)
+    def __dump_symbol_table_relocations(self):
+        self.logger.step("Dumping symbol table relocations")
+        rels = self.relocations.get_relocations("symbol_table")
         if len(rels) == 0:
             return
 
         self.logger.verbose(
-            "+------------------------------------------| {: <8 } |--------------------+-----------------+".format(
-                relocation_type
-            )
+            "+----------------------------------------| symbol table |-----------------+-----------------+"
         )
+
         self.logger.verbose(
             "|                   name                   |   lot   |       offset       |      value      |"
         )
@@ -377,8 +382,7 @@ class Application:
 
     def __dump_relocations(self):
         self.__dump_local_relocations()
-        self.__dump_normal_relocations("external")
-        self.__dump_normal_relocations("exported")
+        self.__dump_symbol_table_relocations()
         self.__dump_data_relocations()
 
     def __process_elf_file(self):
@@ -395,18 +399,32 @@ class Application:
     def __fix_offsets_in_code(self):
         self.logger.step("Fixing offsets in code section")
         self.logger.verbose(
-            "+------- at --------+------ from -------+------- to --------+"
+            "+------- at --------+------ from -------+------- to --------+------ symbol --------+"
         )
 
         for rel in self.relocations.relocations:
             if rel["type"] == "data":
                 continue
+
             old = struct.unpack_from("<I", self.text, rel["offset"])[0]
             new = rel["index"] * 4
             struct.pack_into("<I", self.text, rel["offset"], new)
             self.logger.verbose(
-                "| {: <17} | {: <17} | {: <17} |".format(
-                    hex(rel["offset"]), hex(old), hex(new)
+                "| {: <17} | {: <17} | {: <17} | {}".format(
+                    hex(rel["offset"]), hex(old), hex(new), rel["name"]
+                )
+            )
+
+        for rel in self.relocations.omitted_relocations:
+            if rel["type"] == "data":
+                continue
+
+            old = struct.unpack_from("<I", self.text, rel["offset"])[0]
+            new = rel["index"] * 4
+            struct.pack_into("<I", self.text, rel["offset"], new)
+            self.logger.verbose(
+                "| {: <17} | {: <17} | {: <17} | {}".format(
+                    hex(rel["offset"]), hex(old), hex(new), rel["name"]
                 )
             )
 
@@ -420,6 +438,7 @@ class Application:
             return SectionCode.Code
         elif index == self.data_section["index"] or index == self.bss_section["index"]:
             return SectionCode.Data
+        return None
 
     def __get_relocation_section(self, relocation):
         index = relocation["section"]
@@ -430,7 +449,7 @@ class Application:
 
     def __build_symbol_tables(self):
         self.exported_symbol_table = []
-        self.external_symbol_table = []
+        self.imported_symbol_table = []
 
         for symbol, data in self.symbols.items():
             visibility = data["localization"]
@@ -443,8 +462,8 @@ class Application:
                     }
                 )
 
-            elif visibility == "external":
-                self.external_symbol_table.append(
+            elif visibility == "imported":
+                self.imported_symbol_table.append(
                     {
                         "section": self.__get_symbol_section(data),
                         "value": data["value"],
@@ -476,28 +495,40 @@ class Application:
             if symbol["section"] == SectionCode.Data:
                 value -= len(self.text)
 
-            value = value << 1 | symbol["section"].value
+            # if undefined treat same as text
+            section = symbol["section"].value if symbol["section"] is not None else 0
+            value = value << 1 | section
             table += struct.pack("<I", value)
             table += Application.__align_bytes(
                 bytearray(symbol["name"] + "\0", "ascii"), 4
             )
+
         return table
 
     def __build_binary_relocation_table(
         self,
-        exported_relocations,
-        external_relocations,
+        symbol_table_relocations,
         local_relocations,
         data_relocations,
-        exported_symbol_table,
+        imported_symbol_table,
     ):
         table = []
 
-        if len(exported_relocations) > 0:
-            raise RuntimeError("Implement")
+        for rel in symbol_table_relocations:
+            symbol = None
+            symbol_table_index = 0
+            for s in imported_symbol_table:
+                if s["name"] == rel["name"]:
+                    symbol = s
+                    break
+                else:
+                    symbol_table_index += 1
 
-        if len(external_relocations) > 0:
-            raise RuntimeError("Implement")
+            if not symbol:
+                raise RuntimeError(
+                    "Symbol {} not found in symbol table.".format(rel["name"])
+                )
+            table.append({"index": rel["index"], "offset": symbol_table_index})
 
         for rel in local_relocations:
             section = self.__get_relocation_section(rel)
@@ -526,44 +557,42 @@ class Application:
         image += struct.pack("<HBB", 0, 4, 0)
         image += struct.pack("<HH", 0, 0)
 
-        exported_relocations = self.__filter_relocations("exported", True)
-        external_relocations = self.__filter_relocations("external", True)
+        symbol_table_relocations = self.__filter_relocations("symbol_table", True)
         local_relocations = self.__filter_relocations("local", False)
         data_relocations = self.__filter_relocations("data", False)
 
         image += struct.pack(
             "<HHHH",
-            len(external_relocations),
+            len(symbol_table_relocations),
             len(local_relocations),
             len(data_relocations),
-            len(exported_relocations),
+            0,  # TODO: Update header
         )
 
         exported_symbol_table = self.__build_binary_symbol_table_for(
             self.exported_symbol_table
         )
 
-        external_symbol_table = self.__build_binary_symbol_table_for(
-            self.external_symbol_table
+        imported_symbol_table = self.__build_binary_symbol_table_for(
+            self.imported_symbol_table
         )
 
         relocations = self.__build_binary_relocation_table(
-            exported_relocations,
-            external_relocations,
+            symbol_table_relocations,
             local_relocations,
             data_relocations,
-            exported_symbol_table,
+            self.imported_symbol_table,
         )
 
         image += struct.pack(
-            "<HH", len(self.exported_symbol_table), len(self.external_symbol_table)
+            "<HH", len(self.exported_symbol_table), len(self.imported_symbol_table)
         )
 
         for rel in relocations:
             image += struct.pack("<II", rel["index"], rel["offset"])
 
+        image += imported_symbol_table
         image += exported_symbol_table
-        image += external_symbol_table
 
         image = Application.__align_bytes(image, 16)
         image += self.text

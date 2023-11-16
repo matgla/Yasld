@@ -40,12 +40,11 @@ public:
   Parser(const Header *header);
 
   const SymbolTable                      get_exported_symbol_table() const;
-  const SymbolTable                      get_external_symbol_table() const;
+  const SymbolTable                      get_imported_symbol_table() const;
 
   const RelocationTable<LocalRelocation> get_local_relocations() const;
   const RelocationTable<DataRelocation>  get_data_relocations() const;
-  const RelocationTable<Relocation>      get_external_relocations() const;
-  const RelocationTable<Relocation>      get_exported_relocations() const;
+  const RelocationTable<Relocation>      get_symbol_table_relocations() const;
 
   std::span<const std::byte>             get_data() const;
   std::span<const std::byte>             get_text() const;
@@ -53,13 +52,12 @@ public:
 private:
   const Header                          *header_;
 
-  const RelocationTable<Relocation>      external_relocation_table_;
+  const RelocationTable<Relocation>      symbol_table_relocation_table_;
   const RelocationTable<LocalRelocation> local_relocation_table_;
   const RelocationTable<DataRelocation>  data_relocation_table_;
-  const RelocationTable<Relocation>      exported_relocation_table_;
 
+  const SymbolTable                      imported_symbol_table_;
   const SymbolTable                      exported_symbol_table_;
-  const SymbolTable                      external_symbol_table_;
 
   const uintptr_t                        text_address_;
   const uintptr_t                        data_address_;

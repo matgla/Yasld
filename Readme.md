@@ -61,8 +61,8 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 .  alignement   . alignment to value in header
 |               |
 +---------------+
-|   external    |
-.  relocations  . encoded external relocations
+|    symtab     |
+.  relocations  . encoded symbol table relocations
 |      ...      |
 +---------------+
 |     local     |
@@ -73,12 +73,12 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 .  relocations  . encoded data relocations
 |      ...      |
 +---------------+
-|   exported    |
-.    symbols    . exported symbols table
+|   imported    | 
+.   symbols     . imported symbols table 
 |      ...      |
 +---------------+
-|   external    | 
-.   symbols     . external symbols table 
+|   exported    |
+.    symbols    . exported symbols table
 |      ...      |
 +---------------+
 |               |
@@ -95,11 +95,11 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 +---------------+
 
 
-External Relocation Entry
+Symbol Table Relocation Entry
 +---------------+
 |    index      | 4 bytes - lot index of relocation 
 +---------------+
-|    offset     | 4 bytes - offset to symbol 
+| symtab index  | 4 bytes - index in symbol table 
 +---------------+
 
 Local Relocation Entry
