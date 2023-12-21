@@ -48,14 +48,14 @@ void Loader::set_environment(const Environment &environment)
   environment_ = &environment;
 }
 
-std::optional<Executable> Loader::load_executable(const void *module_address)
+bool Loader::load_module(const void *module_address)
 {
-  log("Loading exectuable from address: %p\n", module_address);
+  log("Loading module from address: %p\n", module_address);
 
   const Header *header = process_header(module_address);
   if (!header)
   {
-    return std::nullopt;
+    return false;
   }
 
   const Parser      parser(header);
@@ -65,7 +65,7 @@ std::optional<Executable> Loader::load_executable(const void *module_address)
   if (!lot)
   {
     log("LOT allocation failure\n");
-    return std::nullopt;
+    return false;
   }
 
   lot_  = std::span<std::size_t>(static_cast<std::size_t *>(lot), lot_size);
@@ -73,17 +73,27 @@ std::optional<Executable> Loader::load_executable(const void *module_address)
 
   if (!process_data(*header, parser))
   {
-    return std::nullopt;
+    return false;
   }
 
   exported_symbols_ = parser.get_exported_symbol_table();
 
   if (!process_symbol_table_relocations(parser))
   {
-    return std::nullopt;
+    return false;
   }
   process_local_relocations(parser);
   process_data_relocations(parser);
+
+  return true;
+}
+
+std::optional<Executable> Loader::load_executable(const void *module_address)
+{
+  if (!load_module(module_address))
+  {
+    return std::nullopt;
+  }
 
   const std::optional<std::size_t> main_address = find_symbol("main");
 
@@ -93,6 +103,17 @@ std::optional<Executable> Loader::load_executable(const void *module_address)
   }
 
   return std::nullopt;
+}
+
+std::optional<Library> Loader::load_library(const void *module_address)
+{
+  if (!load_module(module_address))
+  {
+    return std::nullopt;
+  }
+
+  return Library{};
+  // return Library{ lot_ };
 }
 
 const Header *Loader::process_header(const void *module_address) const
@@ -244,6 +265,16 @@ std::optional<std::size_t> Loader::find_symbol(
 
   // And symbols imported from other libraries at end
   return std::nullopt;
+}
+
+void Loader::save(ForeignCallContext ctx)
+{
+  foreignCallContext_ = ctx;
+}
+
+ForeignCallContext Loader::restore()
+{
+  return foreignCallContext_;
 }
 
 } // namespace yasld

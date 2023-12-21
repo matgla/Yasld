@@ -156,6 +156,14 @@ class Application:
 
             self.symbols[name] = data
 
+            print(
+                "Name: ",
+                name,
+                " global:",
+                is_global_and_visible,
+                data["binding"],
+                data["visibility"],
+            )
             if is_global_and_visible or is_main:
                 if data["section_index"] == "SHN_UNDEF":
                     self.symbols[name]["localization"] = "imported"

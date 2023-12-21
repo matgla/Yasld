@@ -21,6 +21,7 @@
 .thumb
 .syntax unified
 .arch armv6-m
+.cpu cortex-m0plus
 
 /*
 r0 - int argc
@@ -41,5 +42,6 @@ call_main:
   pop {r4, r5}
   mov r9, r4
   pop {r4, pc}
+ 
 
 

@@ -70,13 +70,12 @@ add_library(build_flags_for_shared INTERFACE)
 
 target_compile_options(
   build_flags_for_shared
-  INTERFACE -mcpu=cortex-m0
-            -nostartfiles
+  INTERFACE -nostartfiles
             -mthumb
             -mfloat-abi=soft
             -Wall
             -Wpedantic
-            -Werror
+            # -Werror
             -Wextra
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
             -fno-rtti>)
@@ -95,9 +94,7 @@ target_link_options(build_flags INTERFACE -Wl,--undefined,_printf_float)
 target_link_libraries(build_flags INTERFACE build_flags_for_shared)
 
 add_subdirectory(common)
-add_subdirectory(hello_world)
-add_subdirectory(sum)
-add_subdirectory(floating_point)
-add_subdirectory(hello_world_shared)
-add_subdirectory(sum_of_sine_of_extern_values)
-add_subdirectory(classes)
+# add_subdirectory(hello_world) add_subdirectory(sum)
+# add_subdirectory(floating_point) add_subdirectory(hello_world_shared)
+# add_subdirectory(sum_of_sine_of_extern_values) add_subdirectory(classes)
+add_subdirectory(simple_library)

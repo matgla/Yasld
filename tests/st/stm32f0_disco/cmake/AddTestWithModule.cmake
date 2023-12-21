@@ -49,7 +49,8 @@ macro(add_test_with_module)
             build_flags_host
             stm32f0_host_common
             ${TEST_LIBRARIES}
-            yasld)
+            yasld
+            yasld_arch)
 
   add_custom_command(
     TARGET ${TEST_NAME}

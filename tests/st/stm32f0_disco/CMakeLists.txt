@@ -18,11 +18,7 @@
 
 cmake_minimum_required(VERSION 3.24)
 
-project(
-  stm32f0_tests
-  LANGUAGES CXX
-            C
-            ASM)
+project(stm32f0_tests LANGUAGES CXX C ASM)
 
 message(STATUS "Stm32F0 Discovery Board Testing Project configuration started")
 
@@ -38,10 +34,7 @@ set(CMAKE_MODULE_PATH
     ${MODULES_PATH})
 
 set(yasld_root "../../../")
-get_filename_component(
-  yasld_root
-  ${yasld_root}
-  ABSOLUTE)
+get_filename_component(yasld_root ${yasld_root} ABSOLUTE)
 
 include(FetchContent)
 
@@ -58,10 +51,13 @@ message(
   STATUS
     "--------------------------------------------------- ${yaspem_SOURCE_DIR}")
 setup_yaspem(
-  YASPEM_SOURCE ${yaspem_SOURCE_DIR}
-  OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/packages
-  PACKAGE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/packages.json
-                ${yasld_root}/packages.json)
+  YASPEM_SOURCE
+  ${yaspem_SOURCE_DIR}
+  OUTPUT_DIRECTORY
+  ${CMAKE_BINARY_DIR}/packages
+  PACKAGE_FILES
+  ${CMAKE_CURRENT_SOURCE_DIR}/packages.json
+  ${yasld_root}/packages.json)
 
 find_package(CMakeUtils REQUIRED)
 
@@ -83,15 +79,18 @@ set(YASLD_ENABLE_LOGGER ON)
 set(YASLD_ARCH armv6-m)
 
 add_subdirectory(${yasld_root} ${CMAKE_CURRENT_BINARY_DIR}/yasld)
-
 include(ConfigureWithToolchain)
 configure_with_toolchain(
-  NAME modules
+  NAME
+  modules
   TOOLCHAIN
-    ${PROJECT_SOURCE_DIR}/../toolchains/arm-none-eabi-toolchain-with-pic.cmake
-  ARGS -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH}
-       -DSTM32F0_TEST_MODULES_DIR=${STM32F0_TEST_MODULES_DIR}
-  INSTALL ${STM32F0_TEST_MODULES_DIR})
+  ${PROJECT_SOURCE_DIR}/../toolchains/arm-none-eabi-toolchain-with-pic.cmake
+  ARGS
+  -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH}
+  -DSTM32F0_TEST_MODULES_DIR=${STM32F0_TEST_MODULES_DIR}
+  -DYASLD_ARCH_DIR=${YASLD_ARCH_DIR}
+  INSTALL
+  ${STM32F0_TEST_MODULES_DIR})
 
 add_subdirectory(common)
 add_subdirectory(tests)

@@ -27,7 +27,10 @@
 #include <eul/functional/function.hpp>
 
 #include "yasld/executable.hpp"
+#include "yasld/library.hpp"
 #include "yasld/symbol_table.hpp"
+
+#include "yasld/arch.hpp"
 
 namespace yasld
 {
@@ -47,6 +50,14 @@ public:
   void                      set_environment(const Environment &environment);
 
   std::optional<Executable> load_executable(const void *module_address);
+  std::optional<Library>    load_library(const void *module_address);
+
+  // If call from foreign module previous R9 and PC counter inside wrapper must
+  // be saved
+  // Works thanks to limitation that shared libraries cannot contain
+  // cyclic dependency
+  void                      save(ForeignCallContext ctx);
+  ForeignCallContext        restore();
 
 private:
   const Header *process_header(const void *module_address) const;
@@ -54,7 +65,7 @@ private:
   void          process_local_relocations(const Parser &parser);
   void          process_data_relocations(const Parser &parser);
   bool          process_symbol_table_relocations(const Parser &parser);
-
+  bool          load_module(const void *module_address);
   std::optional<std::size_t> find_symbol(const std::string_view &name) const;
 
   AllocatorType              allocator_;
@@ -64,6 +75,8 @@ private:
   std::span<const std::byte> text_;
   std::span<std::byte>       data_;
   std::span<std::byte>       bss_;
+
+  ForeignCallContext         foreignCallContext_;
   std::optional<SymbolTable> exported_symbols_;
   const Environment         *environment_;
 };

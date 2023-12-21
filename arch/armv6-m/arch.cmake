@@ -29,6 +29,7 @@ target_link_options(
   -mno-pic-data-is-text-relative
   -msingle-pic-base
   -mpic-register=r9
+  -fno-plt
   -fomit-frame-pointer
   -fvisibility=hidden)
 
@@ -64,14 +65,16 @@ target_compile_options(
             -mpic-register=r9
             -msingle-pic-base
             -mno-pic-data-is-text-relative
+            -fno-plt
             -fPIC)
 
 add_library(yasld_arch_flags INTERFACE)
 
 target_compile_options(
   yasld_arch_flags
-  INTERFACE -mcpu=cortex-m0
+  INTERFACE -mcpu=cortex-m0plus
             -mfloat-abi=soft
+            -fno-plt
             -mthumb
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
             -fno-rtti>)
@@ -79,6 +82,10 @@ target_compile_options(
 target_link_options(
   yasld_arch_flags
   INTERFACE
-  -mcpu=cortex-m0
+  -mcpu=cortex-m0plus
   -mfloat-abi=soft
   -mthumb)
+
+set(yasld_arch_flags_str
+    "-mcpu=cortex-m0plus -mfloat-abi=soft -mthumb"
+    CACHE INTERNAL "" FORCE)

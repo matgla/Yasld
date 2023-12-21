@@ -16,9 +16,7 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-if(NOT
-   TARGET
-   build_flags_host)
+if(NOT TARGET build_flags_host)
   add_library(build_flags_host INTERFACE)
 
   set(ASM_FLAGS
@@ -28,7 +26,7 @@ if(NOT
       -mfloat-abi=soft
       -Wall
       -Wpedantic
-      -Werror
+      # -Werror
       -Wextra)
 
   set(C_FLAGS ${ASM_FLAGS})

@@ -19,7 +19,18 @@
 set(CURRENT_FILE_DIR ${CMAKE_CURRENT_LIST_DIR})
 set(MKIMAGE_DIR ${CURRENT_FILE_DIR}/../mkimage)
 
+include(GenerateWrappers)
+
 function(convert_elf_to_yasiff target)
+  get_target_property(target_type ${target} TYPE)
+
+  if(NOT
+     ${target_type}
+     STREQUAL
+     "EXECUTABLE")
+    generate_wrappers_for(${target})
+  endif()
+
   get_filename_component(MKIMAGE_DIR ${MKIMAGE_DIR} ABSOLUTE)
 
   add_custom_command(

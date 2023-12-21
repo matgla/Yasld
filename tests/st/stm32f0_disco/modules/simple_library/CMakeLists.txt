@@ -16,15 +16,25 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_library(yasld_arch)
+set_property(GLOBAL PROPERTY TARGET_SUPPORTS_SHARED_LIBS TRUE)
 
-set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld)
+add_library(stm32f0_simple_library SHARED)
+
+set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_sources(
-  yasld_arch
-  PUBLIC ${include_dir}/arch.hpp
-  PRIVATE call.cpp)
+  stm32f0_simple_library
+  PUBLIC ${include_dir}/simple_library.hpp
+  PRIVATE simple_library.cpp other_file.cpp)
 
-target_link_libraries(yasld_arch PRIVATE yasld_flags)
+target_link_libraries(
+  stm32f0_simple_library PRIVATE build_flags_for_shared
+                                 yasld_executable_flags_shared)
 
-target_include_directories(yasld_arch
+target_include_directories(stm32f0_simple_library
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+include(ConvertElfToYasiff)
+convert_elf_to_yasiff(stm32f0_simple_library)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_simple_library.yaff
+        DESTINATION ${STM32F0_TEST_MODULES_DIR})
