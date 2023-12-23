@@ -44,33 +44,3 @@ call_main:
   pop {r4, pc}
  
 
-.global print
-.thumb_func
-.extern print
-.align 1
-.type print, %function 
-print:
-  push {r0, r1}
-  mov r0, pc 
-  mov r1, lr
-  push {r0, r1} 
-  mov r1, sp
-  movs r0, #0xa
-  svc #0
-  pop {r0, r1}
-  pop {r0, r1}
-
-  bl print_wrapped
-  push {r0, r1}
-  mov r0, pc 
-  push {r0, r1} 
-  mov r1, sp 
-  movs r0, #0xb
-  svc #0
-  pop {r0, r1}
-  mov ip, r0
-  pop {r0, r1}
-  mov pc, ip 
-
-
-

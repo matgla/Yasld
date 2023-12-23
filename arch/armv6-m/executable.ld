@@ -27,7 +27,7 @@ ENTRY(main)
 
 SECTIONS
 {
-  .text:
+  .text :
   {
     . = ALIGN(8);
     KEEP(*(.entry))

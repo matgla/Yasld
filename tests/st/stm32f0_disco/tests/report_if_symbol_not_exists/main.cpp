@@ -55,7 +55,7 @@ int main(int argc, char *argv[])
     printf("[host] Module loaded\n");
     char  arg[]  = { "executable" };
     char *args[] = { arg };
-    executable->execute(1, args);
+    (*executable)->execute(1, args);
   }
   else
   {

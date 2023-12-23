@@ -7,7 +7,6 @@
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
-#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -96,7 +95,10 @@ target_link_options(build_flags INTERFACE -Wl,--undefined,_printf_float)
 target_link_libraries(build_flags INTERFACE build_flags_for_shared)
 
 add_subdirectory(common)
-# add_subdirectory(hello_world) add_subdirectory(sum)
-# add_subdirectory(floating_point) add_subdirectory(hello_world_shared)
-# add_subdirectory(sum_of_sine_of_extern_values) add_subdirectory(classes)
+add_subdirectory(hello_world) 
+add_subdirectory(sum)
+add_subdirectory(floating_point) 
+add_subdirectory(hello_world_shared)
+add_subdirectory(sum_of_sine_of_extern_values) 
+add_subdirectory(classes)
 add_subdirectory(simple_library)

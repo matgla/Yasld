@@ -53,11 +53,7 @@ extern "C"
     break;
     };
   }
-
-  void print_wrapped()
-  {
-    printf("Hello from printf\n");
-  }
+  signed __aeabi_idiv(signed numerator, signed denominator);
 }
 
 int main(int argc, char *argv[])
@@ -68,9 +64,10 @@ int main(int argc, char *argv[])
   puts("[host] STM32F0 Discovery Board started!");
 
   const yasld::StaticEnvironment environment{
-    yasld::SymbolEntry{"printf",  &printf},
-    yasld::SymbolEntry{ "puts",   &puts  },
-    yasld::SymbolEntry{ "strlen", &strlen}
+    yasld::SymbolEntry{"printf",        &printf      },
+    yasld::SymbolEntry{ "puts",         &puts        },
+    yasld::SymbolEntry{ "strlen",       &strlen      },
+    yasld::SymbolEntry{ "__aeabi_idiv", &__aeabi_idiv}
   };
 
   yasld::Loader loader(
@@ -86,7 +83,6 @@ int main(int argc, char *argv[])
 
   loader.set_environment(environment);
 
-  print_wrapped();
   void *module  = reinterpret_cast<void *>(0x08010000);
   auto  library = loader.load_library(module);
   if (library)
@@ -127,7 +123,24 @@ int main(int argc, char *argv[])
     }
 
     printf("[host][sum] Other sum is: %d\n", sum(100, 1000));
-    printf("[host][process_str] Str is: %s\n", str("other ", "test").data());
+    printf("[host][process_str] Str is: %s\n", str("other", "test").data());
+
+    auto c_fun = yasld::SymbolGet<int(int, int, int, int, int)>::get_symbol(
+      **library, "c_fun");
+
+    if (!c_fun)
+    {
+      printf("[host] Symbol not found\n");
+
+      while (true)
+      {
+      }
+    }
+    else
+    {
+      printf("[host][c_fun] Calculated: %d\n", c_fun(1, 10, 20, 30, 5));
+      printf("[host][c_fun] Calculated: %d\n", c_fun(20, 123, 4, 80, 1000));
+    }
   }
   else
   {

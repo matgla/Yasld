@@ -50,3 +50,21 @@ process_str(const std::string_view &a, const std::string_view &b)
 }
 
 } // namespace a::b::c
+
+extern "C"
+{
+  int __attribute__((visibility("default")))
+  c_fun(int a, int b, int c, int d, int e)
+  {
+    printf(
+      "[simple_library] Got arguments using stack: %d, %d, %d, %d, %d \n",
+      a,
+      b,
+      c,
+      d,
+      e);
+    printf("[simple_library] Call count: %d\n", counter++);
+
+    return a * b * c * d / e;
+  }
+}

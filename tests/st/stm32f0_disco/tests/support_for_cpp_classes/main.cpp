@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     char  arg[]  = { "executable" };
     char *args[] = { arg };
 
-    executable->execute(1, args);
+    (*executable)->execute(1, args);
     printf("Errno is: %s\n", strerror(errno));
   }
   else

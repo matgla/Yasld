@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     char  arg3[] = "1";
     char *args[] = { arg, arg1, arg2, arg3 };
 
-    int   rc     = executable->execute(4, args);
+    int   rc     = (*executable)->execute(4, args);
     printf("[host] Returned value: %d\n", rc);
   }
   else

@@ -25,7 +25,7 @@ target_link_libraries(
                                  yasld_executable_flags_shared)
 
 include(ConvertElfToYasiff)
-convert_elf_to_yasiff(stm32f0_classes_shared)
+convert_elf_to_yasiff(stm32f0_classes_shared "executable")
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_classes_shared.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})
