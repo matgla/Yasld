@@ -45,9 +45,11 @@ target_sources(
          ${include_dir}/environment.hpp
          ${include_dir}/executable.hpp
          ${include_dir}/header.hpp
+         ${include_dir}/library.hpp
          ${include_dir}/loader.hpp
          ${include_dir}/local_relocation.hpp
          ${include_dir}/logger.hpp
+         ${include_dir}/module.hpp
          ${include_dir}/parser.hpp
          ${include_dir}/relocation.hpp
          ${include_dir}/relocation_table.hpp
@@ -58,7 +60,9 @@ target_sources(
   PRIVATE data_relocation.cpp
           executable.cpp
           header.cpp
+          library.cpp
           loader.cpp
+          module.cpp
           local_relocation.cpp
           parser.cpp
           relocation.cpp

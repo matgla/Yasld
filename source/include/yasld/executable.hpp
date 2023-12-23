@@ -23,19 +23,21 @@
 #include <cstdlib>
 #include <span>
 
+#include "yasld/module.hpp"
+
 namespace yasld
 {
 
-class Executable
+class Executable : public Module
 {
 public:
-  Executable(const std::size_t main_address, std::span<std::size_t> lot);
+  using Module::Module;
 
-  int execute(int argc, char *argv[]) const;
+  bool initialize_main();
+  int  execute(int argc, char *argv[]) const;
 
 private:
-  std::size_t            main_address_;
-  std::span<std::size_t> lot_;
+  std::optional<std::size_t> main_address_;
 };
 
 } // namespace yasld

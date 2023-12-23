@@ -34,11 +34,6 @@ namespace yasld
 Loader::Loader(const AllocatorType &allocator, const ReleaseType &release)
   : allocator_{ allocator }
   , release_{ release }
-  , lot_{}
-  , text_{}
-  , data_{}
-  , bss_{}
-  , exported_symbols_{ std::nullopt }
   , environment_{ nullptr }
 {
 }
@@ -48,7 +43,7 @@ void Loader::set_environment(const Environment &environment)
   environment_ = &environment;
 }
 
-bool Loader::load_module(const void *module_address)
+bool Loader::load_module(const void *module_address, Module &module)
 {
   log("Loading module from address: %p\n", module_address);
 
@@ -61,59 +56,60 @@ bool Loader::load_module(const void *module_address)
   const Parser      parser(header);
   const std::size_t lot_size =
     header->symbol_table_relocations_amount + header->local_relocations_amount;
-  void *lot = allocator_(sizeof(std::size_t) * lot_size);
-  if (!lot)
+  void *lot_memory = allocator_(sizeof(std::size_t) * lot_size);
+  if (!lot_memory)
   {
     log("LOT allocation failure\n");
     return false;
   }
 
-  lot_  = std::span<std::size_t>(static_cast<std::size_t *>(lot), lot_size);
-  text_ = parser.get_text();
+  module.set_lot(
+    std::span<std::size_t>(static_cast<std::size_t *>(lot_memory), lot_size));
 
-  if (!process_data(*header, parser))
+  module.set_text(parser.get_text());
+
+  if (!process_data(*header, parser, module))
   {
     return false;
   }
 
-  exported_symbols_ = parser.get_exported_symbol_table();
+  module.set_exported_symbol_table(parser.get_exported_symbol_table());
 
-  if (!process_symbol_table_relocations(parser))
+  if (!process_symbol_table_relocations(parser, module))
   {
     return false;
   }
-  process_local_relocations(parser);
-  process_data_relocations(parser);
+  process_local_relocations(parser, module);
+  process_data_relocations(parser, module);
 
   return true;
 }
 
 std::optional<Executable> Loader::load_executable(const void *module_address)
 {
-  if (!load_module(module_address))
+  Executable executable;
+  if (!load_module(module_address, executable))
   {
     return std::nullopt;
   }
 
-  const std::optional<std::size_t> main_address = find_symbol("main");
-
-  if (main_address)
+  if (!executable.initialize_main())
   {
-    return Executable{ *main_address, lot_ };
+    return std::nullopt;
   }
 
-  return std::nullopt;
+  return executable;
 }
 
 std::optional<Library> Loader::load_library(const void *module_address)
 {
-  if (!load_module(module_address))
+  Library library;
+  if (!load_module(module_address, library))
   {
     return std::nullopt;
   }
 
-  return Library{};
-  // return Library{ lot_ };
+  return library;
 }
 
 const Header *Loader::process_header(const void *module_address) const
@@ -127,35 +123,47 @@ const Header *Loader::process_header(const void *module_address) const
   return header;
 }
 
-bool Loader::process_data(const Header &header, const Parser &parser)
+bool Loader::process_data(
+  const Header &header,
+  const Parser &parser,
+  Module       &module)
 {
-  const auto        data        = parser.get_data();
-  const std::size_t data_size   = header.data_length + header.bss_length;
+  const auto        data_initializer = parser.get_data();
+  const std::size_t data_size        = header.data_length + header.bss_length;
 
-  void             *data_memory = allocator_(data_size);
+  void             *data_memory      = allocator_(data_size);
   if (!data_memory)
   {
     log("Data allocation failure\n");
     return false;
   }
 
-  data_ =
-    std::span<std::byte>(static_cast<std::byte *>(data_memory), data_size);
+  module.set_data(
+    std::span<std::byte>(static_cast<std::byte *>(data_memory), data_size));
 
   log(
     "Copying data from: %p, to: %p, size: 0x%x\n",
-    data.data(),
+    data_initializer.data(),
     data_memory,
     data_size);
-  std::memcpy(data_.data(), data.data(), header.data_length);
-  bss_ = data_.subspan(header.data_length, header.bss_length);
 
-  log("Initializing .bss at: %p, size: 0x%x\n", bss_.data(), bss_.size_bytes());
-  std::fill(bss_.begin(), bss_.end(), std::byte(0));
+  std::memcpy(
+    module.get_data().data(), data_initializer.data(), header.data_length);
+
+  module.set_bss(
+    module.get_data().subspan(header.data_length, header.bss_length));
+
+  log(
+    "Initializing .bss at: %p, size: 0x%x\n",
+    module.get_bss().data(),
+    module.get_bss().size_bytes());
+  std::fill(module.get_bss().begin(), module.get_bss().end(), std::byte(0));
   return true;
 }
 
-bool Loader::process_symbol_table_relocations(const Parser &parser)
+bool Loader::process_symbol_table_relocations(
+  const Parser &parser,
+  Module       &module)
 {
   const auto relocations = parser.get_symbol_table_relocations().span();
   log("Processing symbol table relocations: %d\n", relocations.size());
@@ -170,13 +178,13 @@ bool Loader::process_symbol_table_relocations(const Parser &parser)
       return false;
     }
     log("LOT[%d]: 0x%x\n", rel.lot_index(), *address);
-    lot_[rel.lot_index()] = *address;
+    module.get_lot()[rel.lot_index()] = *address;
   }
 
   return true;
 }
 
-void Loader::process_local_relocations(const Parser &parser)
+void Loader::process_local_relocations(const Parser &parser, Module &module)
 {
   const auto relocations = parser.get_local_relocations().span();
 
@@ -185,8 +193,8 @@ void Loader::process_local_relocations(const Parser &parser)
   {
     const std::size_t relocated_start_address =
       rel.section() == Section::code
-        ? reinterpret_cast<std::size_t>(text_.data())
-        : reinterpret_cast<std::size_t>(data_.data());
+        ? reinterpret_cast<std::size_t>(module.get_text().data())
+        : reinterpret_cast<std::size_t>(module.get_data().data());
     const std::size_t relocated = relocated_start_address + rel.offset();
     log(
       "| local | lot: %d | base: 0x%lx | offset: 0x%lx | section: %s |\n",
@@ -194,11 +202,11 @@ void Loader::process_local_relocations(const Parser &parser)
       relocated_start_address,
       rel.offset(),
       to_string(rel.section()).data());
-    lot_[rel.lot_index()] = relocated;
+    module.get_lot()[rel.lot_index()] = relocated;
   }
 }
 
-void Loader::process_data_relocations(const Parser &parser)
+void Loader::process_data_relocations(const Parser &parser, Module &module)
 {
   const auto relocations = parser.get_data_relocations().span();
 
@@ -206,13 +214,13 @@ void Loader::process_data_relocations(const Parser &parser)
   for (const auto &rel : relocations)
   {
     const std::size_t address_to_change =
-      reinterpret_cast<std::size_t>(data_.data()) + rel.to();
+      reinterpret_cast<std::size_t>(module.get_data().data()) + rel.to();
     std::size_t *target = reinterpret_cast<std::size_t *>(address_to_change);
 
     const std::size_t base_address_from =
       rel.section() == Section::data
-        ? reinterpret_cast<std::size_t>(data_.data())
-        : reinterpret_cast<std::size_t>(text_.data());
+        ? reinterpret_cast<std::size_t>(module.get_data().data())
+        : reinterpret_cast<std::size_t>(module.get_text().data());
 
     const std::size_t address_from = base_address_from + rel.from();
     log(
@@ -238,28 +246,6 @@ std::optional<std::size_t> Loader::find_symbol(
     if (symbol)
     {
       return symbol->address;
-    }
-  }
-
-  // then local symbols
-  if (!exported_symbols_)
-  {
-    log("Uninitialized exported symbol table\n");
-    return std::nullopt;
-  }
-
-  for (const auto &symbol : *exported_symbols_)
-  {
-    printf("Symbol address %p\n", &symbol);
-    if (symbol.name() == name)
-    {
-      const std::size_t base_address =
-        symbol.section() == Section::code
-          ? reinterpret_cast<std::size_t>(text_.data())
-          : reinterpret_cast<std::size_t>(data_.data());
-      const std::size_t address = base_address + symbol.offset();
-      log("Found symbol '%s' at: 0x%lx\n", symbol.name().data(), address);
-      return address;
     }
   }
 

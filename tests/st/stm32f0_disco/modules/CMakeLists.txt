@@ -75,18 +75,20 @@ target_compile_options(
             -mfloat-abi=soft
             -Wall
             -Wpedantic
-            # -Werror
+            -Werror
             -Wextra
+            -fno-plt
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
             -fno-rtti>)
 
 target_link_options(
   build_flags_for_shared
   INTERFACE
-  -mcpu=cortex-m0
   -nostartfiles
-  -mthumb
+  -fno-plt
   --specs=nano.specs)
+
+target_link_libraries(build_flags_for_shared INTERFACE yasld_arch_flags)
 
 add_library(build_flags INTERFACE)
 

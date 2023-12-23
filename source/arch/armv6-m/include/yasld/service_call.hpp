@@ -1,5 +1,5 @@
 /**
- * interface.hpp
+ * service_call.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -20,24 +20,9 @@
 
 #pragma once
 
-#include <string_view>
+#include <cstdlib>
 
-int __attribute__((visibility("default"))) sum(int a, int b);
+#include <yasld/module.hpp>
 
-class Foo
-{
-public:
-  int __attribute__((visibility("default"))) bar(int a, int b, int c, int d);
-};
-
-extern "C"
-{
-  int __attribute__((visibility("default")))
-  c_fun(int a, int b, int c, int d, int e);
-}
-
-namespace a::b::c
-{
-std::string_view __attribute__((visibility("default")))
-process_str(const std::string_view &a, const std::string_view b);
-}
+void process_entry_service_call(yasld::Loader *loader, std::size_t *args);
+void process_exit_service_call(yasld::Loader *loader, std::size_t *args);

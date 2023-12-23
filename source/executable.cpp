@@ -30,18 +30,20 @@ extern "C"
 namespace yasld
 {
 
-Executable::Executable(
-  const std::size_t      main_address,
-  std::span<std::size_t> lot)
-  : main_address_(main_address)
-  , lot_(lot)
+bool Executable::initialize_main()
 {
+  main_address_ = find_symbol("main");
+  return main_address_.has_value();
 }
 
 int Executable::execute(int argc, char *argv[]) const
 {
   log("Executing 'main' inside module\n");
-  return call_main(argc, argv, main_address_, lot_.data());
+  if (!main_address_)
+  {
+    return -1;
+  }
+  return call_main(argc, argv, *main_address_, lot_.data());
 }
 
 } // namespace yasld

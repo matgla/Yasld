@@ -82,6 +82,12 @@ def parse_cli_arguments():
     parser.add_argument(
         "-l", "--log", dest="log", action="store", help="Path to log file"
     )
+    parser.add_argument(
+        "-t",
+        "--type",
+        action="store",
+        help="Type of module: library/executable. Workaround for Cortex-M0 to create shared libraries from executables",
+    )
 
     args, _ = parser.parse_known_args()
     return args
@@ -96,6 +102,11 @@ class Application:
             self.logger.register_logger(
                 FileLogger(self.args.verbose, True, self.args.log)
             )
+        if args.type:
+            if args.type == "shared_library":
+                self.is_executable = False
+            else:
+                self.is_executable = True
 
     def __print_header(self):
         self.logger.log(" ===========================================", Fore.YELLOW)
@@ -154,7 +165,13 @@ class Application:
                 data["binding"] == "STB_GLOBAL" and data["visibility"] != "STV_HIDDEN"
             )
 
-            self.symbols[name] = data
+            if self.is_executable:
+                self.symbols[name] = data
+            else:
+                if name != "main":
+                    self.symbols[name] = data
+                else:
+                    continue
 
             print(
                 "Name: ",
@@ -169,7 +186,7 @@ class Application:
                     self.symbols[name]["localization"] = "imported"
                 else:
                     # only main can be exported in executable
-                    if self.elf.is_executable():
+                    if self.elf.is_executable() and self.is_executable:
                         if is_main:
                             self.symbols[name]["localization"] = "exported"
                         else:

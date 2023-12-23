@@ -17,9 +17,11 @@
 #
 
 add_library(yasld_executable_flags INTERFACE)
+add_library(yasld_shared_flags INTERFACE)
+add_library(yasld_common_flags INTERFACE)
 
 target_link_options(
-  yasld_executable_flags
+  yasld_common_flags
   INTERFACE
   -Wl,--emit-relocs
   -Wl,--no-warn-rwx-segments
@@ -30,31 +32,43 @@ target_link_options(
   -msingle-pic-base
   -mpic-register=r9
   -fno-plt
-  -fomit-frame-pointer
-  -fvisibility=hidden)
+  -fomit-frame-pointer)
+
+target_link_options(yasld_executable_flags INTERFACE -fvisibility=hidden)
+target_link_libraries(yasld_executable_flags INTERFACE yasld_common_flags)
+
+target_link_options(
+  yasld_shared_flags
+  INTERFACE
+  -nodefaultlibs
+  -Wl,--unresolved-symbols=ignore-in-object-files
+  -nostdlib)
+target_link_libraries(yasld_shared_flags INTERFACE yasld_common_flags)
 
 add_library(yasld_executable_flags_shared INTERFACE)
 
 target_link_libraries(yasld_executable_flags_shared
-                      INTERFACE yasld_executable_flags)
-target_link_options(
-  yasld_executable_flags_shared
-  INTERFACE
-  -nodefaultlibs
-  -nostdlib
-  -Wl,--unresolved-symbols=ignore-in-object-files)
+                      INTERFACE yasld_shared_flags)
+target_link_options(yasld_executable_flags_shared INTERFACE -fvisibility=hidden)
 
 if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
   target_link_options(yasld_executable_flags INTERFACE
                       -T${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+
+  target_link_options(yasld_shared_flags INTERFACE
+                      -T${CMAKE_CURRENT_LIST_DIR}/library.ld)
+
+  set_target_properties(
+    yasld_executable_flags PROPERTIES INTERFACE_LINK_DEPENDS
+                                      ${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+
+  set_target_properties(
+    yasld_shared_flags PROPERTIES INTERFACE_LINK_DEPENDS
+                                  ${CMAKE_CURRENT_LIST_DIR}/library.ld)
 endif()
 
-set_target_properties(
-  yasld_executable_flags PROPERTIES INTERFACE_LINK_DEPENDS
-                                    ${CMAKE_CURRENT_LIST_DIR}/executable.ld)
-
 target_compile_options(
-  yasld_executable_flags
+  yasld_common_flags
   INTERFACE -fomit-frame-pointer
             -fvisibility=hidden
             $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden
@@ -67,6 +81,8 @@ target_compile_options(
             -mno-pic-data-is-text-relative
             -fno-plt
             -fPIC)
+
+target_link_libraries(yasld_common_flags INTERFACE yasld_arch_flags)
 
 add_library(yasld_arch_flags INTERFACE)
 
@@ -87,5 +103,5 @@ target_link_options(
   -mthumb)
 
 set(yasld_arch_flags_str
-    "-mcpu=cortex-m0plus -mfloat-abi=soft -mthumb"
+    "-fomit-frame-pointer -mlong-calls -fPIC -nostartfiles -msingle-pic-base -mno-pic-data-is-text-relative -mcpu=cortex-m0plus -mfloat-abi=soft -mthumb -fno-section-anchors -fno-inline"
     CACHE INTERNAL "" FORCE)

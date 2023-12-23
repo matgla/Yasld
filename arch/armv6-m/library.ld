@@ -1,5 +1,5 @@
 /**
- * executable.ld
+ * library.ld
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -23,11 +23,9 @@ MEMORY
   image(rwx) : ORIGIN = 0x00000000, LENGTH = 0xffffffff
 }
 
-ENTRY(main)
-
 SECTIONS
 {
-  .text:
+  .text :
   {
     . = ALIGN(8);
     KEEP(*(.entry))

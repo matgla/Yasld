@@ -1,5 +1,5 @@
 /**
- * interface.hpp
+ * service_call.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,26 +18,19 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "yasld/service_call.hpp"
 
-#include <string_view>
+#include "yasld/logger.hpp"
 
-int __attribute__((visibility("default"))) sum(int a, int b);
-
-class Foo
+void process_entry_service_call(yasld::Loader *loader, std::size_t *args)
 {
-public:
-  int __attribute__((visibility("default"))) bar(int a, int b, int c, int d);
-};
-
-extern "C"
-{
-  int __attribute__((visibility("default")))
-  c_fun(int a, int b, int c, int d, int e);
+  yasld::Module *m = loader->find_module(args[0]);
+  if (m == nullptr)
+  {
+    log("Can't find module at 0x%x\n", args[0]);
+    return;
+  }
 }
-
-namespace a::b::c
+void process_exit_service_call(yasld::Loader *loader, std::size_t *args)
 {
-std::string_view __attribute__((visibility("default")))
-process_str(const std::string_view &a, const std::string_view b);
 }

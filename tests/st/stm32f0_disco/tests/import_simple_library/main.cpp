@@ -21,13 +21,16 @@
 #include "board_init.hpp"
 
 #include <cstdio>
+#include <cstring>
 
+#include <yasld/environment.hpp>
 #include <yasld/loader.hpp>
 
 #include <cstdio>
 #include <string_view>
 
 #include "yasld/arch.hpp"
+#include "yasld/svc.hpp"
 
 yasld::Loader *l;
 
@@ -41,19 +44,20 @@ extern "C"
     {
     case 10:
     {
-      printf("Program Counter: %lx\n", static_cast<uint32_t>(args[0]));
-      l->save(ForeignCallContext{ .r9 = 0xabcdef, .pc = args[1] });
+      process_entry_service_call(l, args);
     }
     break;
     case 11:
     {
-      printf("Restore\n");
-      ForeignCallContext c = l->restore();
-      args[0]              = c.pc;
-      args[1]              = c.r9;
+      process_exit_service_call(l, args);
     }
     break;
     };
+  }
+
+  void print_wrapped()
+  {
+    printf("Hello from printf\n");
   }
 }
 
@@ -63,6 +67,12 @@ int main(int argc, char *argv[])
   static_cast<void>(argv);
   board_init();
   puts("[host] STM32F0 Discovery Board started!");
+
+  const yasld::StaticEnvironment environment{
+    yasld::SymbolEntry{"printf",  &printf},
+    yasld::SymbolEntry{ "puts",   &puts  },
+    yasld::SymbolEntry{ "strlen", &strlen}
+  };
 
   yasld::Loader loader(
     [](std::size_t size)
@@ -75,20 +85,30 @@ int main(int argc, char *argv[])
     });
   l = &loader;
 
-  // void *module = reinterpret_cast<void *>(0x08010000);
-  //  auto  executable = loader.load_library(module);
+  loader.set_environment(environment);
 
-  // if (executable)
-  // {
-  //   printf("[host] Module loaded\n");
-  //   char  arg[]  = { "executable" };
-  //   char *args[] = { arg };
-  //   executable->execute(1, args);
-  // }
-  // else
-  // {
-  //   printf("[host] Module loading failed\n");
-  // }
+  print_wrapped();
+  void *module  = reinterpret_cast<void *>(0x08010000);
+  auto  library = loader.load_library(module);
+
+  if (library)
+  {
+    printf("[host] Module loaded\n");
+    auto sum =
+      yasld::SymbolGet<int(int, int)>::get_symbol(*library, "_Z3sumii");
+    if (!sum)
+    {
+      printf("Sybmol not found\n");
+    }
+    else
+    {
+      printf("[sum] Sum is: %d\n", sum(15, 22));
+    }
+  }
+  else
+  {
+    printf("[host] Loading failed\n");
+  }
 
   while (true)
   {

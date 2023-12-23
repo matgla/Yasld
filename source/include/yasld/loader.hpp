@@ -61,23 +61,23 @@ public:
 
 private:
   const Header *process_header(const void *module_address) const;
-  bool          process_data(const Header &header, const Parser &parser);
-  void          process_local_relocations(const Parser &parser);
-  void          process_data_relocations(const Parser &parser);
-  bool          process_symbol_table_relocations(const Parser &parser);
-  bool          load_module(const void *module_address);
+  bool process_data(const Header &header, const Parser &parser, Module &module);
+  void process_local_relocations(const Parser &parser, Module &module);
+  void process_data_relocations(const Parser &parser, Module &module);
+  bool process_symbol_table_relocations(const Parser &parser, Module &module);
+  bool load_module(const void *module_address, Module &module);
   std::optional<std::size_t> find_symbol(const std::string_view &name) const;
 
   AllocatorType              allocator_;
   ReleaseType                release_;
 
-  std::span<std::size_t>     lot_;
-  std::span<const std::byte> text_;
-  std::span<std::byte>       data_;
-  std::span<std::byte>       bss_;
+  // std::span<std::size_t>     lot_;
+  // std::span<const std::byte> text_;
+  // std::span<std::byte>       data_;
+  // std::span<std::byte>       bss_;
 
   ForeignCallContext         foreignCallContext_;
-  std::optional<SymbolTable> exported_symbols_;
+  // std::optional<SymbolTable> exported_symbols_;
   const Environment         *environment_;
 };
 

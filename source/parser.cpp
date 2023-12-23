@@ -24,6 +24,8 @@
 #include "yasld/header.hpp"
 #include "yasld/logger.hpp"
 
+#include "yasld/symbol.hpp"
+
 namespace yasld
 {
 
@@ -83,6 +85,12 @@ Parser::Parser(const Header *header)
     "Data section at : 0x%lx, size: 0x%lx\n",
     data_address_,
     header->data_length);
+
+  log("Exported symbol table\n");
+  for (const auto &e : exported_symbol_table_)
+  {
+    log("%s\n", e.name().data());
+  }
 }
 
 const SymbolTable Parser::get_exported_symbol_table() const

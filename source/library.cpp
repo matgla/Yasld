@@ -1,5 +1,5 @@
 /**
- * interface.hpp
+ * library.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,26 +18,9 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "yasld/library.hpp"
 
-#include <string_view>
-
-int __attribute__((visibility("default"))) sum(int a, int b);
-
-class Foo
+namespace yasld
 {
-public:
-  int __attribute__((visibility("default"))) bar(int a, int b, int c, int d);
-};
 
-extern "C"
-{
-  int __attribute__((visibility("default")))
-  c_fun(int a, int b, int c, int d, int e);
-}
-
-namespace a::b::c
-{
-std::string_view __attribute__((visibility("default")))
-process_str(const std::string_view &a, const std::string_view b);
-}
+} // namespace yasld

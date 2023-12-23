@@ -26,18 +26,22 @@ function(generate_wrappers_for target)
     PRE_LINK
     COMMAND
       ${mkimage_python_executable} ${MKIMAGE_DIR}/generate_wrappers.py --input
-      $<TARGET_OBJECTS:${target}> --output ${target}_wrappers.S --objcopy
+      $<TARGET_OBJECTS:${target}> --output ${target}_wrappers.s --objcopy
       ${CMAKE_OBJCOPY} --verbose --template ${YASLD_ARCH_DIR}/${YASLD_ARCH}
-      --compiler=${CMAKE_ASM_COMPILER} --ar ${CMAKE_AR}
+      --compiler=${CMAKE_C_COMPILER} --ar ${CMAKE_AR}
       --compiler_flags=${yasld_arch_flags_str}
       ${MKIMAGE_DIR}/generate_wrappers.py
     VERBATIM)
 
-  # add_library(${target}_wrapped OBJECT IMPORTED)
-  #
-  # set_property( TARGET ${target}_wrapped PROPERTY IMPORTED_OBJECTS
-  # ${CMAKE_CURRENT_BINARY_DIR}/${target}_wrappers.S.obj)
+  add_custom_command(
+    TARGET ${target}
+    POST_BUILD
+    COMMAND ${mkimage_python_executable} ${MKIMAGE_DIR}/fix_names.py --input
+            $<TARGET_FILE:${target}> --objcopy ${CMAKE_OBJCOPY}
+    VERBATIM)
 
   target_link_directories(${target} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-  target_link_libraries(${target} PRIVATE ${target}_wrappers.a)
+  target_link_libraries(
+    ${target} PRIVATE -Wl,--whole-archive ${target}_wrappers.a
+                      -Wl,--no-whole-archive)
 endfunction()

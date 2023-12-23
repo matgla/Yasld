@@ -20,23 +20,40 @@
 
 #pragma once
 
-#include <string_view>
-
-extern "C"
-{
-}
+#include "yasld/module.hpp"
 
 namespace yasld
 {
-
-class Library
+class Library : public Module
 {
 public:
-  template <typename T, typename... Args>
-  T call(const std::string_view &name, Args &&...args)
+  using Module::Module;
+
+  template <typename T>
+  T get_symbol(const std::string_view &name)
   {
-    // find symbol address
-    asm("push r9");
+    auto address = find_symbol(name);
+    return reinterpret_cast<T>(address);
+  }
+};
+
+template <class R, class... Args>
+class SymbolGet;
+
+template <class R, class... Args>
+class SymbolGet<R(Args...)>
+{
+public:
+  using F = R (*)(Args...);
+
+  static F get_symbol(const Library &library, const std::string_view &name)
+  {
+    auto symbol = library.find_symbol(name);
+    if (!symbol)
+    {
+      return nullptr;
+    }
+    return reinterpret_cast<R (*)(Args...)>(*symbol);
   }
 };
 

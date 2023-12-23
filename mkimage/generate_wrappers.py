@@ -29,7 +29,7 @@ from pathlib import Path
 
 from elf_parser import ElfParser
 
-print("!!!!!!!!!!!!!!!!!!!!!!Generating wrappers for public functions:")
+print("Generating wrappers for public functions:")
 
 parser = argparse.ArgumentParser(
     description="""
@@ -63,31 +63,27 @@ files = args.input.replace(",", ";").split(";")
 templates = Path(args.template)
 print("Template path is: ", templates)
 env = jinja2.Environment(loader=jinja2.FileSystemLoader(templates))
-template = env.get_template("call_wrapped.S.tmpl")
+template = env.get_template("call_wrapped.s.tmpl")
 
 generated_file = ""
 for file in files:
     symbols = []
+    wrapped_symbols = []
     parser = ElfParser(file)
     for name, data in parser.symbols.items():
         if name.endswith("_yasld_original"):
+            wrapped_symbols.append(
+                name.removeprefix("__").removesuffix("_yasld_original")
+            )
             continue
         is_global_and_visible = (
             data["binding"] == "STB_GLOBAL" and data["visibility"] != "STV_HIDDEN"
         )
         if is_global_and_visible and data["type"] == "STT_FUNC":
             symbols.append(name)
+            wrapped_symbols.append(name)
 
-    redefine_command = args.objcopy
-    for symbol in symbols:
-        redefine_command += (
-            " --redefine-sym " + symbol + "=" + "__" + symbol + "_yasld_original"
-        )
-
-    redefine_command += " " + file + " " + file
-    subprocess.run(redefine_command, shell=True)
-
-    generated_file += template.render(names=symbols)
+    generated_file += template.render(names=wrapped_symbols)
 
 if os.path.exists(args.output):
     os.remove(args.output)
@@ -107,7 +103,6 @@ command = (
 )
 print("Generate file with command: ", command)
 output = subprocess.run(command, shell=True, capture_output=True)
-
 
 print(output.stdout)
 print(output.stderr)

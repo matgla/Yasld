@@ -27,3 +27,20 @@ int sum(int a, int b)
   printf("[simple_library] Calculating sum %d + %d\n", a, b);
   return a + b;
 }
+
+int Foo::bar(int a, int b, int c, int d)
+{
+  printf("Foo::bar()\n");
+  return a + b + c + d;
+}
+
+namespace a::b::c
+{
+std::string_view __attribute__((visibility("default")))
+process_str(const std::string_view &a, const std::string_view &b)
+{
+  printf("A: %s, B: %s\n", a.data(), b.data());
+  return "aa";
+}
+
+} // namespace a::b::c

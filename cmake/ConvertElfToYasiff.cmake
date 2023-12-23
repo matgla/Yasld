@@ -21,13 +21,9 @@ set(MKIMAGE_DIR ${CURRENT_FILE_DIR}/../mkimage)
 
 include(GenerateWrappers)
 
-function(convert_elf_to_yasiff target)
-  get_target_property(target_type ${target} TYPE)
+function(convert_elf_to_yasiff target type)
 
-  if(NOT
-     ${target_type}
-     STREQUAL
-     "EXECUTABLE")
+  if(${type} STREQUAL "shared_library")
     generate_wrappers_for(${target})
   endif()
 
@@ -39,7 +35,7 @@ function(convert_elf_to_yasiff target)
     COMMAND cmake -E copy $<TARGET_FILE:${target}> $<TARGET_FILE:${target}>.bak
     COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}>
     COMMAND
-      ${mkimage_python_executable} ${MKIMAGE_DIR}/mkimage.py
+      ${mkimage_python_executable} ${MKIMAGE_DIR}/mkimage.py --type=${type}
       --input=$<TARGET_FILE:${target}>
       --output=${CMAKE_CURRENT_BINARY_DIR}/${target}.yaff --verbose
     VERBATIM
