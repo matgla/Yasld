@@ -44,8 +44,6 @@ if(NOT DEFINED YASLD_IS_NOT_PARENT)
     PACKAGE_FILES
     ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
 
-  add_subdirectory(mkimage)
-
   enable_language(C CXX ASM)
 
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -53,6 +51,8 @@ endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 23)
+
+add_subdirectory(mkimage)
 
 if(NOT DEFINED YASLD_ARCH)
   set(YASLD_ARCH "host")
@@ -71,7 +71,7 @@ if(NOT YASLD_ONLY_CMAKE)
     yasld_flags
     INTERFACE -Wall
               -Wextra
-              # -Werror
+              -Werror
               -Wshadow
               -Wdouble-promotion
               -Wno-format

@@ -65,17 +65,17 @@ std::span<std::size_t> &Module::get_lot()
   return lot_;
 }
 
-const std::span<const std::byte> &Module::get_text() const
+std::span<const std::byte> Module::get_text() const
 {
   return text_;
 }
 
-std::span<std::byte> &Module::get_data()
+std::span<std::byte> Module::get_data()
 {
   return data_;
 }
 
-std::span<std::byte> &Module::get_bss()
+std::span<std::byte> Module::get_bss()
 {
   return bss_;
 }
@@ -102,6 +102,25 @@ std::optional<std::size_t> Module::find_symbol(
     }
   }
   return std::nullopt;
+}
+
+void Module::save_caller_state(ForeignCallContext ctx)
+{
+  foreignCallContext_ = ctx;
+}
+
+ForeignCallContext Module::restore_caller_state()
+{
+  return foreignCallContext_;
+}
+
+std::span<const std::byte> Module::get_data() const
+{
+  return data_;
+}
+std::span<const std::byte> Module::get_bss() const
+{
+  return bss_;
 }
 
 } // namespace yasld

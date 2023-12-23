@@ -22,15 +22,20 @@
 
 #include <cstdio>
 
+int counter = 0;
+
 int sum(int a, int b)
 {
   printf("[simple_library] Calculating sum %d + %d\n", a, b);
+  printf("[simple_library] Call count: %d\n", counter++);
   return a + b;
 }
 
 int Foo::bar(int a, int b, int c, int d)
 {
-  printf("Foo::bar()\n");
+  printf("[simple_library] Foo::bar()\n");
+  printf("[simple_library] Call count: %d\n", counter++);
+
   return a + b + c + d;
 }
 
@@ -39,7 +44,8 @@ namespace a::b::c
 std::string_view __attribute__((visibility("default")))
 process_str(const std::string_view &a, const std::string_view &b)
 {
-  printf("A: %s, B: %s\n", a.data(), b.data());
+  printf("[simple_library] A: %s, B: %s\n", a.data(), b.data());
+  printf("[simple_library] Call count: %d\n", counter++);
   return "aa";
 }
 

@@ -30,7 +30,7 @@
 #include <string_view>
 
 #include "yasld/arch.hpp"
-#include "yasld/svc.hpp"
+#include "yasld/service_call.hpp"
 
 yasld::Loader *l;
 
@@ -39,7 +39,6 @@ extern "C"
   void __attribute__((noinline))
   sv_call_handler(std::size_t svc_id, std::size_t *args)
   {
-    printf("SVC triggered: %d\n", svc_id);
     switch (svc_id)
     {
     case 10:
@@ -90,26 +89,51 @@ int main(int argc, char *argv[])
   print_wrapped();
   void *module  = reinterpret_cast<void *>(0x08010000);
   auto  library = loader.load_library(module);
-
   if (library)
   {
     printf("[host] Module loaded\n");
     auto sum =
-      yasld::SymbolGet<int(int, int)>::get_symbol(*library, "_Z3sumii");
+      yasld::SymbolGet<int(int, int)>::get_symbol(**library, "_Z3sumii");
     if (!sum)
     {
-      printf("Sybmol not found\n");
+      printf("[host] Symbol not found\n");
+      while (true)
+      {
+      }
     }
     else
     {
-      printf("[sum] Sum is: %d\n", sum(15, 22));
+      printf("[host][sum] Sum is: %d\n", sum(15, 22));
     }
+
+    auto str = yasld::SymbolGet<std::string_view(
+      const std::string_view &, const std::string_view &)>::
+      get_symbol(
+        **library,
+        "_ZN1a1b1c11process_strERKSt17basic_string_viewIcSt11char_"
+        "traitsIcEES7_");
+
+    if (!str)
+    {
+      printf("[host] Symbol not found\n");
+
+      while (true)
+      {
+      }
+    }
+    else
+    {
+      printf("[host][process_str] Str is: %s\n", str("hello", "elo").data());
+    }
+
+    printf("[host][sum] Other sum is: %d\n", sum(100, 1000));
+    printf("[host][process_str] Str is: %s\n", str("other ", "test").data());
   }
   else
   {
     printf("[host] Loading failed\n");
   }
-
+  printf("[host] TEST SUCCESS\n");
   while (true)
   {
   }

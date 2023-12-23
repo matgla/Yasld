@@ -22,7 +22,10 @@
 
 #include <cstdlib>
 
-#include <yasld/module.hpp>
+#include <yasld/loader.hpp>
 
-void process_entry_service_call(yasld::Loader *loader, std::size_t *args);
-void process_exit_service_call(yasld::Loader *loader, std::size_t *args);
+namespace yasld
+{
+void process_entry_service_call(Loader *loader, std::size_t *args);
+void process_exit_service_call(Loader *loader, std::size_t *args);
+} // namespace yasld

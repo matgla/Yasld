@@ -78,4 +78,4 @@ add_subdirectory(arch)
 target_link_libraries(
   yasld
   PRIVATE yasld_flags
-  PUBLIC eul::functional yasld_arch)
+  PUBLIC eul::functional eul::container yasld_arch)

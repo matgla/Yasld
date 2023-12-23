@@ -85,30 +85,34 @@ bool Loader::load_module(const void *module_address, Module &module)
   return true;
 }
 
-std::optional<Executable> Loader::load_executable(const void *module_address)
+std::optional<Loader::ObservedExecutable> Loader::load_executable(
+  const void *module_address)
 {
-  Executable executable;
-  if (!load_module(module_address, executable))
+  ObservedExecutable executable;
+  if (!load_module(module_address, *executable))
   {
     return std::nullopt;
   }
 
-  if (!executable.initialize_main())
+  if (!executable->initialize_main())
   {
     return std::nullopt;
   }
 
+  executables_.push_back(executable);
   return executable;
 }
 
-std::optional<Library> Loader::load_library(const void *module_address)
+std::optional<Loader::ObservedLibrary> Loader::load_library(
+  const void *module_address)
 {
-  Library library;
-  if (!load_module(module_address, library))
+  ObservedLibrary library;
+  if (!load_module(module_address, *library))
   {
     return std::nullopt;
   }
 
+  libraries_.push_back(library);
   return library;
 }
 
@@ -253,14 +257,59 @@ std::optional<std::size_t> Loader::find_symbol(
   return std::nullopt;
 }
 
-void Loader::save(ForeignCallContext ctx)
+bool Loader::is_fragment_of_module(
+  const Module *module,
+  std::size_t   program_counter) const
 {
-  foreignCallContext_ = ctx;
+  {
+    const std::size_t text_start =
+      reinterpret_cast<std::size_t>(module->get_text().data());
+    const std::size_t text_end = text_start + module->get_text().size();
+    if (program_counter >= text_start && program_counter < text_end)
+    {
+      return true;
+    }
+  }
+  {
+    const std::size_t data_start =
+      reinterpret_cast<std::size_t>(module->get_data().data());
+    const std::size_t data_end = data_start + module->get_data().size();
+    if (program_counter >= data_start && program_counter < data_end)
+    {
+      return true;
+    }
+  }
+  {
+    const std::size_t bss_start =
+      reinterpret_cast<std::size_t>(module->get_bss().data());
+    const std::size_t bss_end = bss_start + module->get_bss().size();
+    if (program_counter >= bss_start && program_counter < bss_end)
+    {
+      return true;
+    }
+  }
+  return false;
 }
 
-ForeignCallContext Loader::restore()
+Module *Loader::find_module(std::size_t program_counter)
 {
-  return foreignCallContext_;
+  for (auto &e : executables_)
+  {
+    if (is_fragment_of_module(&(*e), program_counter))
+    {
+      return &(*e);
+    }
+  }
+
+  for (auto &l : libraries_)
+  {
+    if (is_fragment_of_module(&(*l), program_counter))
+    {
+      return &(*l);
+    }
+  }
+
+  return nullptr;
 }
 
 } // namespace yasld

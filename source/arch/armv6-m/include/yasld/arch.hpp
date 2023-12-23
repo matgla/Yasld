@@ -48,5 +48,6 @@ int inline __attribute__((always_inline)) get_lot_svcall()
 struct ForeignCallContext
 {
   std::size_t r9;
-  std::size_t pc;
+  std::size_t lr;
+  std::size_t tmpReg[2];
 };

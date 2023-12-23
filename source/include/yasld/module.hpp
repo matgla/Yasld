@@ -24,6 +24,7 @@
 #include <span>
 #include <string_view>
 
+#include "yasld/arch.hpp"
 #include "yasld/symbol_table.hpp"
 
 namespace yasld
@@ -43,12 +44,20 @@ public:
   void                    set_exported_symbol_table(const SymbolTable &table);
 
   std::span<std::size_t> &get_lot();
-  const std::span<const std::byte> &get_text() const;
-  std::span<std::byte>             &get_data();
-  std::span<std::byte>             &get_bss();
+  std::span<const std::byte>        get_text() const;
+  std::span<std::byte>              get_data();
+  std::span<std::byte>              get_bss();
+  std::span<const std::byte>        get_data() const;
+  std::span<const std::byte>        get_bss() const;
   const std::optional<SymbolTable> &get_exported_symbol_table() const;
-
   std::optional<std::size_t> find_symbol(const std::string_view &name) const;
+
+  // If call from foreign module previous R9 and PC counter inside wrapper must
+  // be saved
+  // Works thanks to limitation that shared libraries cannot contain
+  // cyclic dependency
+  void                       save_caller_state(ForeignCallContext ctx);
+  ForeignCallContext         restore_caller_state();
 
 protected:
   std::span<std::size_t>     lot_;
@@ -56,6 +65,7 @@ protected:
   std::span<std::byte>       data_;
   std::span<std::byte>       bss_;
   std::optional<SymbolTable> exported_symbols_;
+  ForeignCallContext         foreignCallContext_;
 };
 
 } // namespace yasld

@@ -25,6 +25,8 @@ import argparse
 import subprocess
 import jinja2
 import os
+import sys
+
 from pathlib import Path
 
 from elf_parser import ElfParser
@@ -103,9 +105,11 @@ command = (
 )
 print("Generate file with command: ", command)
 output = subprocess.run(command, shell=True, capture_output=True)
-
 print(output.stdout)
 print(output.stderr)
+if output.returncode != 0:
+    sys.exit(output.returncode)
+
 
 command = (
     args.ar + " rcs lib" + args.output.split(".")[0] + ".a" + " " + args.output + ".obj"
@@ -117,3 +121,7 @@ output = subprocess.run(command, shell=True, capture_output=True)
 
 print(output.stdout)
 print(output.stderr)
+if output.returncode != 0:
+    sys.exit(output.returncode)
+
+
