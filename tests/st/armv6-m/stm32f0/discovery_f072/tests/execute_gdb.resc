@@ -1,5 +1,8 @@
+
 #
-# CMakeLists.txt Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# execute.resc
+#
+# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -14,4 +17,13 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(armv6-m)
+$bin=@${renode_test_binary}
+
+mach create
+machine LoadPlatformDescription @platforms/boards/stm32f072b_discovery.repl
+showAnalyzer sysbus.usart1
+
+sysbus LoadBinary $bin 0x08000000
+sysbus.cpu VectorTableOffset 0x08000000
+machine StartGdbServer 3333 
+

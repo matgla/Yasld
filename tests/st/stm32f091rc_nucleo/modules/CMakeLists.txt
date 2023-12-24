@@ -18,12 +18,12 @@
 cmake_minimum_required(VERSION 3.24)
 
 project(
-  stm32f0_modules
+  stm32f029_rc_modules
   C
   CXX
   ASM)
 
-message(STATUS "STM32F0 Discovery Board Test Modules")
+message(STATUS "ST Nucleo F091RC Test Modules")
 
 include(FetchContent)
 
@@ -95,11 +95,4 @@ target_link_options(build_flags INTERFACE -Wl,--undefined,_printf_float)
 target_link_libraries(build_flags INTERFACE build_flags_for_shared)
 
 add_subdirectory(common)
-add_subdirectory(hello_world) 
-add_subdirectory(sum)
-add_subdirectory(floating_point) 
-add_subdirectory(hello_world_shared)
-add_subdirectory(sum_of_sine_of_extern_values) 
-add_subdirectory(classes)
-add_subdirectory(simple_library)
 add_subdirectory(shared_libc)

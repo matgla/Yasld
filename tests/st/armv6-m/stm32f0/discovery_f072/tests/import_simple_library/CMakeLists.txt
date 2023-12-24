@@ -1,5 +1,7 @@
 #
-# CMakeLists.txt Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# CMakeLists.txt
+#
+# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -14,4 +16,13 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(armv6-m)
+include(AddTestWithModule)
+
+add_test_with_module(
+  NAME
+  stm32f0_import_simple_library
+  MODULE
+  stm32f0_simple_library
+  SOURCES
+  main.cpp
+  test.cpp)

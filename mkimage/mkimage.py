@@ -245,6 +245,9 @@ class Application:
             "R_ARM_THM_CALL",  # PC Relative
             "R_ARM_ABS32",  # allowed for .data
             "R_ARM_PREL31",  # PC relative
+            "R_ARM_TARGET1", # relative for dynamic version
+            "R_ARM_REL32", # PC relative
+            "R_ARM_NONE", # can be ignored, just marker
         ]
 
         self.relocations = RelocationSet()
@@ -329,13 +332,16 @@ class Application:
         )
 
         for rel in rels:
+            section = self.elf.get_section_name(rel["section"]) 
+            if section is None:
+                section = "none"
             self.logger.verbose(
                 "| {: <40s} | {: <7} | {: <18} | {: <15} | {: <7s} |".format(
                     rel["name"],
                     rel["index"],
                     hex(rel["offset"]),
                     hex(rel["symbol_value"]),
-                    self.elf.get_section_name(rel["section"]),
+                    section,
                 )
             )
         self.logger.verbose(
@@ -463,7 +469,7 @@ class Application:
             return SectionCode.Code
         elif index == self.data_section["index"] or index == self.bss_section["index"]:
             return SectionCode.Data
-        return None
+        return None 
 
     def __get_relocation_section(self, relocation):
         index = relocation["section"]
@@ -536,6 +542,7 @@ class Application:
         local_relocations,
         data_relocations,
         imported_symbol_table,
+        exported_symbol_table
     ):
         table = []
 
@@ -548,6 +555,14 @@ class Application:
                     break
                 else:
                     symbol_table_index += 1
+            # todo: reprocude in test
+            for s in exported_symbol_table:
+                if s["name"] == rel["name"]:
+                    symbol = s
+                    break
+                else:
+                    symbol_table_index += 1
+
 
             if not symbol:
                 raise RuntimeError(
@@ -607,6 +622,7 @@ class Application:
             local_relocations,
             data_relocations,
             self.imported_symbol_table,
+            self.exported_symbol_table
         )
 
         image += struct.pack(

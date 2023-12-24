@@ -48,7 +48,7 @@ setup_yaspem(
 set(YASLD_IS_NOT_PARENT ON)
 set(YASLD_DISABLE_TESTS ON)
 set(YASLD_ONLY_CMAKE ON)
-set(yasld_root_path "../../../..")
+set(yasld_root_path "../../../../../..")
 
 get_filename_component(YASLD_CMAKE_MODULE_PATH ${yasld_root_path}/cmake
                        ABSOLUTE)

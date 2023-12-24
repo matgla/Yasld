@@ -1,5 +1,7 @@
 #
-# CMakeLists.txt Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# CMakeLists.txt
+#
+# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -14,4 +16,14 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(armv6-m)
+add_library(stm32f0_host_common)
+
+target_sources(
+  stm32f0_host_common
+  PUBLIC include/board_init.hpp system_stubs.cpp
+  PRIVATE board_init.cpp)
+
+target_link_libraries(stm32f0_host_common PRIVATE build_flags_host stm32f0)
+
+target_include_directories(stm32f0_host_common
+                           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

@@ -7,6 +7,7 @@
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
 # version.
+#
 # This program is distributed in the hope that it will be useful, but WITHOUT
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
@@ -23,7 +24,7 @@ project(
   CXX
   ASM)
 
-message(STATUS "STM32F0 Discovery Board Test Modules")
+message(STATUS "STM32F0 Test Modules Configuration Started")
 
 include(FetchContent)
 
@@ -48,12 +49,12 @@ setup_yaspem(
 set(YASLD_IS_NOT_PARENT ON)
 set(YASLD_DISABLE_TESTS ON)
 set(YASLD_ONLY_CMAKE ON)
-set(yasld_root_path "../../../..")
+set(yasld_root_path "../../../../..")
 
 get_filename_component(YASLD_CMAKE_MODULE_PATH ${yasld_root_path}/cmake
                        ABSOLUTE)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/../cmake
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../common/cmake
                       ${YASLD_CMAKE_MODULE_PATH})
 
 set(YASLD_ARCH armv6-m)
@@ -95,11 +96,12 @@ target_link_options(build_flags INTERFACE -Wl,--undefined,_printf_float)
 target_link_libraries(build_flags INTERFACE build_flags_for_shared)
 
 add_subdirectory(common)
-add_subdirectory(hello_world) 
-add_subdirectory(sum)
-add_subdirectory(floating_point) 
-add_subdirectory(hello_world_shared)
-add_subdirectory(sum_of_sine_of_extern_values) 
-add_subdirectory(classes)
-add_subdirectory(simple_library)
-add_subdirectory(shared_libc)
+# add_subdirectory(hello_world) 
+# add_subdirectory(sum)
+# add_subdirectory(floating_point) 
+# add_subdirectory(hello_world_shared)
+# add_subdirectory(sum_of_sine_of_extern_values) 
+# add_subdirectory(classes)
+# add_subdirectory(simple_library)
+# add_subdirectory(shared_libc)
+

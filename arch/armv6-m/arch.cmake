@@ -16,9 +16,11 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
+add_library(yasld_standalone_executable_flags INTERFACE)
 add_library(yasld_executable_flags INTERFACE)
 add_library(yasld_shared_flags INTERFACE)
 add_library(yasld_common_flags INTERFACE)
+add_library(yasld_arch_flags INTERFACE)
 
 target_link_options(
   yasld_common_flags
@@ -34,38 +36,6 @@ target_link_options(
   -fno-plt
   -fomit-frame-pointer)
 
-target_link_options(yasld_executable_flags INTERFACE -fvisibility=hidden)
-target_link_libraries(yasld_executable_flags INTERFACE yasld_common_flags)
-
-target_link_options(
-  yasld_shared_flags
-  INTERFACE
-  -nodefaultlibs
-  -Wl,--unresolved-symbols=ignore-in-object-files
-  -nostdlib)
-target_link_libraries(yasld_shared_flags INTERFACE yasld_common_flags)
-
-add_library(yasld_executable_flags_shared INTERFACE)
-
-target_link_libraries(yasld_executable_flags_shared
-                      INTERFACE yasld_shared_flags)
-target_link_options(yasld_executable_flags_shared INTERFACE -fvisibility=hidden)
-
-if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
-  target_link_options(yasld_executable_flags INTERFACE
-                      -T${CMAKE_CURRENT_LIST_DIR}/executable.ld)
-
-  target_link_options(yasld_shared_flags INTERFACE
-                      -T${CMAKE_CURRENT_LIST_DIR}/library.ld)
-
-  set_target_properties(
-    yasld_executable_flags PROPERTIES INTERFACE_LINK_DEPENDS
-                                      ${CMAKE_CURRENT_LIST_DIR}/executable.ld)
-
-  set_target_properties(
-    yasld_shared_flags PROPERTIES INTERFACE_LINK_DEPENDS
-                                  ${CMAKE_CURRENT_LIST_DIR}/library.ld)
-endif()
 
 target_compile_options(
   yasld_common_flags
@@ -82,9 +52,42 @@ target_compile_options(
             -fno-plt
             -fPIC)
 
+target_link_options(yasld_standalone_executable_flags INTERFACE -fvisibility=hidden)
+target_link_libraries(yasld_standalone_executable_flags INTERFACE yasld_common_flags)
+
+target_link_options(
+  yasld_shared_flags
+  INTERFACE
+  -nodefaultlibs
+  -Wl,--unresolved-symbols=ignore-in-object-files
+  -nostdlib)
+target_link_libraries(yasld_shared_flags INTERFACE yasld_common_flags)
+
+target_link_libraries(yasld_executable_flags
+                      INTERFACE yasld_standalone_executable_flags)
+target_link_options(yasld_executable_flags INTERFACE 
+  -nodefaultlibs 
+  -Wl,--unresolved-symbols=ignore-in-object-files 
+  -nostdlib)
+
+if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
+  target_link_options(yasld_standalone_executable_flags INTERFACE
+                      -T${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+
+  target_link_options(yasld_shared_flags INTERFACE
+                      -T${CMAKE_CURRENT_LIST_DIR}/library.ld)
+
+  set_target_properties(
+    yasld_standalone_executable_flags PROPERTIES INTERFACE_LINK_DEPENDS
+                                      ${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+
+  set_target_properties(
+    yasld_shared_flags PROPERTIES INTERFACE_LINK_DEPENDS
+                                  ${CMAKE_CURRENT_LIST_DIR}/library.ld)
+endif()
+
 target_link_libraries(yasld_common_flags INTERFACE yasld_arch_flags)
 
-add_library(yasld_arch_flags INTERFACE)
 
 target_compile_options(
   yasld_arch_flags

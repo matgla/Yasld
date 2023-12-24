@@ -1,5 +1,7 @@
 #
-# CMakeLists.txt Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# CMakeLists.txt
+#
+# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -14,4 +16,19 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(armv6-m)
+add_executable(stm32f0_floating_point)
+
+target_sources(stm32f0_floating_point PRIVATE main.cpp)
+
+target_link_libraries(
+  stm32f0_floating_point
+  PRIVATE build_flags
+          stm32f0_with_pic
+          stm32f0_modules_common
+          yasld_executable_flags)
+
+include(ConvertElfToYasiff)
+convert_elf_to_yasiff(stm32f0_floating_point "executable")
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_floating_point.yaff
+        DESTINATION ${STM32F0_TEST_MODULES_DIR})
