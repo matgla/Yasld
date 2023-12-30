@@ -25,7 +25,7 @@ target_link_libraries(
   PRIVATE build_flags
           stm32f0_with_pic
           stm32f0_modules_common
-          yasld_executable_flags)
+          yasld_standalone_executable_flags)
 
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(stm32f0_hello_world "executable")

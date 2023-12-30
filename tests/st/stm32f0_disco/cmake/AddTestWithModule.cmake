@@ -80,6 +80,7 @@ macro(add_test_with_module)
 
   set(renode_test_binary ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}_test.bin)
 
+  message(FATAL_ERROR "WHATS GOING ON ${PROJECT_SOURCE_DIR}")
   configure_file(${PROJECT_SOURCE_DIR}/tests/execute.resc
                  ${CMAKE_CURRENT_BINARY_DIR}/execute.resc)
 

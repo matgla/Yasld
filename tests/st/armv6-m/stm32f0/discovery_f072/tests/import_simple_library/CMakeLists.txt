@@ -25,4 +25,6 @@ add_test_with_module(
   stm32f0_simple_library
   SOURCES
   main.cpp
-  test.cpp)
+  test.cpp
+  SCRIPTS
+  ${CMAKE_CURRENT_SOURCE_DIR}/..)

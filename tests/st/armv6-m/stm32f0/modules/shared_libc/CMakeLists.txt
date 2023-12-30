@@ -16,7 +16,6 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-
 # Note: Shared library enforces PLT generation on arm-none-eabi which is not
 # supported for cortex-m0
 #
@@ -25,9 +24,14 @@ add_executable(stm32f0_shared_libc)
 
 target_sources(stm32f0_shared_libc PRIVATE empty.cpp)
 
-target_link_libraries(stm32f0_shared_libc PRIVATE build_flags_for_shared
-                                                     yasld_shared_flags 
-                                                     -Wl,--whole-archive c_nano -Wl,--no-whole-archive gcc)
+target_link_libraries(
+  stm32f0_shared_libc
+  PRIVATE build_flags_for_shared
+          yasld_shared_flags
+          -Wl,--whole-archive
+          c_nano
+          -Wl,--no-whole-archive
+          gcc)
 
 target_include_directories(stm32f0_shared_libc
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

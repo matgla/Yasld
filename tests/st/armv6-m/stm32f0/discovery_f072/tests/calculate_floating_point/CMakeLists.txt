@@ -19,7 +19,11 @@
 include(AddTestWithModule)
 
 add_test_with_module(
-  NAME stm32f0_calculate_floating_point
-  MODULE stm32f0_floating_point
-  SOURCES main.cpp
-  SCRIPTS ${CMAKE_CURRENT_SOURCE_DIR}/..)
+  NAME
+  stm32f0_calculate_floating_point
+  MODULE
+  stm32f0_floating_point
+  SOURCES
+  main.cpp
+  SCRIPTS
+  ${CMAKE_CURRENT_SOURCE_DIR}/..)

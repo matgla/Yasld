@@ -20,5 +20,5 @@ add_library(stm32f0_modules_common)
 
 target_sources(stm32f0_modules_common PUBLIC system_stubs.cpp)
 
-target_link_libraries(stm32f0_modules_common PUBLIC yasld_standalone_executable_flags
-                                                    stm32f0_with_pic)
+target_link_libraries(stm32f0_modules_common
+                      PUBLIC yasld_standalone_executable_flags stm32f0_with_pic)

@@ -36,7 +36,6 @@ target_link_options(
   -fno-plt
   -fomit-frame-pointer)
 
-
 target_compile_options(
   yasld_common_flags
   INTERFACE -fomit-frame-pointer
@@ -52,22 +51,27 @@ target_compile_options(
             -fno-plt
             -fPIC)
 
-target_link_options(yasld_standalone_executable_flags INTERFACE -fvisibility=hidden)
-target_link_libraries(yasld_standalone_executable_flags INTERFACE yasld_common_flags)
+target_link_options(yasld_standalone_executable_flags INTERFACE
+                    -fvisibility=hidden)
+target_link_libraries(yasld_standalone_executable_flags
+                      INTERFACE yasld_common_flags)
 
 target_link_options(
   yasld_shared_flags
   INTERFACE
   -nodefaultlibs
-  -Wl,--unresolved-symbols=ignore-in-object-files
   -nostdlib)
 target_link_libraries(yasld_shared_flags INTERFACE yasld_common_flags)
 
 target_link_libraries(yasld_executable_flags
                       INTERFACE yasld_standalone_executable_flags)
-target_link_options(yasld_executable_flags INTERFACE 
-  -nodefaultlibs 
-  -Wl,--unresolved-symbols=ignore-in-object-files 
+
+target_link_libraries(yasld_common_flags
+                      INTERFACE -Wl,--unresolved-symbols=ignore-in-object-files)
+target_link_options(
+  yasld_executable_flags
+  INTERFACE
+  -nodefaultlibs
   -nostdlib)
 
 if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
@@ -78,8 +82,8 @@ if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
                       -T${CMAKE_CURRENT_LIST_DIR}/library.ld)
 
   set_target_properties(
-    yasld_standalone_executable_flags PROPERTIES INTERFACE_LINK_DEPENDS
-                                      ${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+    yasld_standalone_executable_flags
+    PROPERTIES INTERFACE_LINK_DEPENDS ${CMAKE_CURRENT_LIST_DIR}/executable.ld)
 
   set_target_properties(
     yasld_shared_flags PROPERTIES INTERFACE_LINK_DEPENDS
@@ -87,7 +91,6 @@ if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
 endif()
 
 target_link_libraries(yasld_common_flags INTERFACE yasld_arch_flags)
-
 
 target_compile_options(
   yasld_arch_flags

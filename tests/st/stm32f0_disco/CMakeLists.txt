@@ -79,18 +79,5 @@ set(YASLD_ENABLE_LOGGER ON)
 set(YASLD_ARCH armv6-m)
 
 add_subdirectory(${yasld_root} ${CMAKE_CURRENT_BINARY_DIR}/yasld)
-include(ConfigureWithToolchain)
-configure_with_toolchain(
-  NAME
-  modules
-  TOOLCHAIN
-  ${PROJECT_SOURCE_DIR}/../toolchains/arm-none-eabi-toolchain-with-pic.cmake
-  ARGS
-  -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH}
-  -DSTM32F0_TEST_MODULES_DIR=${STM32F0_TEST_MODULES_DIR}
-  -DYASLD_ARCH_DIR=${YASLD_ARCH_DIR}
-  INSTALL
-  ${STM32F0_TEST_MODULES_DIR})
-
 add_subdirectory(common)
 add_subdirectory(tests)

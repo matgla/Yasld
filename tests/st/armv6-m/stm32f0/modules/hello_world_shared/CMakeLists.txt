@@ -20,9 +20,8 @@ add_executable(stm32f0_hello_world_shared)
 
 target_sources(stm32f0_hello_world_shared PRIVATE main.cpp)
 
-target_link_libraries(
-  stm32f0_hello_world_shared PRIVATE build_flags_for_shared
-                                     yasld_executable_flags_shared)
+target_link_libraries(stm32f0_hello_world_shared PRIVATE build_flags_for_shared
+                                                         yasld_executable_flags)
 
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(stm32f0_hello_world_shared "executable")

@@ -19,6 +19,11 @@
 include(AddTestWithModule)
 
 add_test_with_module(
-  NAME stm32f0_return_value
-  MODULE stm32f0_sum
-  SOURCES main.cpp)
+  NAME
+  stm32f0_return_value
+  MODULE
+  stm32f0_sum
+  SOURCES
+  main.cpp
+  SCRIPTS
+  ${CMAKE_CURRENT_SOURCE_DIR}/..)

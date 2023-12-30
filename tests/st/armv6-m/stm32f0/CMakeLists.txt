@@ -46,7 +46,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(yaspem)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
 
-include(yaspem) 
+include(yaspem)
 message(
   STATUS
     "--------------------------------------------------- ${yaspem_SOURCE_DIR}")
@@ -80,8 +80,6 @@ set(YASLD_ARCH armv6-m)
 
 add_subdirectory(${yasld_root} ${CMAKE_CURRENT_BINARY_DIR}/yasld)
 
-add_subdirectory(discovery_f072)
-
 include(ConfigureWithToolchain)
 configure_with_toolchain(
   NAME
@@ -95,3 +93,4 @@ configure_with_toolchain(
   INSTALL
   ${STM32F0_TEST_MODULES_DIR})
 
+add_subdirectory(discovery_f072)

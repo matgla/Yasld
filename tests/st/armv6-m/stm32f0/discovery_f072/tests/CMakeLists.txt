@@ -17,10 +17,10 @@
 #
 
 add_subdirectory(calculate_floating_point)
-# add_subdirectory(calculate_of_sine_of_extern_values)
-# add_subdirectory(print_hello_world)
-# add_subdirectory(print_hello_world_using_external_symbols)
-# add_subdirectory(report_failure_for_wrong_file) 
-# add_subdirectory(return_value)
-# add_subdirectory(support_for_cpp_classes)
-# add_subdirectory(import_simple_library)
+add_subdirectory(calculate_of_sine_of_extern_values)
+add_subdirectory(print_hello_world)
+add_subdirectory(print_hello_world_using_external_symbols)
+add_subdirectory(report_failure_for_wrong_file)
+add_subdirectory(return_value)
+add_subdirectory(support_for_cpp_classes)
+add_subdirectory(import_simple_library)

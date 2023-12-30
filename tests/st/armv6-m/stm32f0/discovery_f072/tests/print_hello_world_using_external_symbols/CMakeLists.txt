@@ -24,4 +24,6 @@ add_test_with_module(
   MODULE
   stm32f0_hello_world_shared
   SOURCES
-  main.cpp)
+  main.cpp
+  SCRIPTS
+  ${CMAKE_CURRENT_SOURCE_DIR}/..)
