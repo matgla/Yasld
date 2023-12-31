@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 3.24)
 
 project(stm32f0_tests LANGUAGES CXX C ASM)
 
-message(STATUS "Stm32F0 Discovery Board Testing Project configuration started")
+message(STATUS "STM32F0 Boards Project Configuration Started")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 23)
@@ -29,11 +29,11 @@ message(STATUS "Yaspem directory is: ${YASPEM_PATH}")
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
-    ${CMAKE_CURRENT_SOURCE_DIR}/cmake
-    ${CMAKE_CURRENT_SOURCE_DIR}/../cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/cmake
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake
     ${MODULES_PATH})
 
-set(yasld_root "../../../")
+set(yasld_root "../../../../")
 get_filename_component(yasld_root ${yasld_root} ABSOLUTE)
 
 include(FetchContent)
@@ -56,7 +56,7 @@ setup_yaspem(
   OUTPUT_DIRECTORY
   ${CMAKE_BINARY_DIR}/packages
   PACKAGE_FILES
-  ${CMAKE_CURRENT_SOURCE_DIR}/packages.json
+  ${CMAKE_CURRENT_SOURCE_DIR}/common/packages.json
   ${yasld_root}/packages.json)
 
 find_package(CMakeUtils REQUIRED)
@@ -67,6 +67,7 @@ list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
 include(CreateLibOpenCM3)
 
 create_libopencm3(stm32/f0)
+add_library(test::st::cortex_m0_plus::stm32f0 ALIAS stm32f0)
 
 set(ST_TESTS_FILE ${PROJECT_BINARY_DIR}/stm32f0_tests.yaml)
 set(STM32F0_TEST_MODULES_DIR ${CMAKE_CURRENT_BINARY_DIR}/modules)
@@ -77,5 +78,18 @@ set(YASLD_ENABLE_LOGGER ON)
 set(YASLD_ARCH armv6-m)
 
 add_subdirectory(${yasld_root} ${CMAKE_CURRENT_BINARY_DIR}/yasld)
+
+include(ConfigureWithToolchain)
+configure_with_toolchain(
+  NAME
+  modules
+  TOOLCHAIN
+  ${PROJECT_SOURCE_DIR}/../../toolchains/arm-none-eabi-toolchain-with-pic.cmake
+  ARGS
+  -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH}
+  -DSTM32F0_TEST_MODULES_DIR=${STM32F0_TEST_MODULES_DIR}
+  -DYASLD_ARCH_DIR=${YASLD_ARCH_DIR}
+  INSTALL
+  ${STM32F0_TEST_MODULES_DIR})
 add_subdirectory(common)
-add_subdirectory(tests)
+add_subdirectory(discovery_f072)

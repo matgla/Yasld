@@ -1,5 +1,7 @@
 #
-# CMakeLists.txt Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# CMakeLists.txt
+#
+# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -14,4 +16,10 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(cortex-m0plus)
+add_library(test_st_cortex_m0_plus_stm32f0_modules_common)
+add_library(test::st::cortex_m0_plus::stm32f0::modules_common ALIAS test_st_cortex_m0_plus_stm32f0_modules_common)
+
+target_sources(test_st_cortex_m0_plus_stm32f0_modules_common PUBLIC system_stubs.cpp)
+
+target_link_libraries(test_st_cortex_m0_plus_stm32f0_modules_common
+                      PUBLIC yasld_standalone_executable_flags test::st::cortex_m0_plus::stm32f0_with_pic)

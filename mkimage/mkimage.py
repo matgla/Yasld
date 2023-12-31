@@ -555,13 +555,16 @@ class Application:
                     break
                 else:
                     symbol_table_index += 1
-            # todo: reprocude in test
-            for s in exported_symbol_table:
-                if s["name"] == rel["name"]:
-                    symbol = s
-                    break
-                else:
-                    symbol_table_index += 1
+            
+            # todo: reproduce in test
+            if symbol is None: 
+                symbol_table_index = 0 
+                for s in exported_symbol_table:
+                    if s["name"] == rel["name"]:
+                        symbol = s
+                        break
+                    else:
+                        symbol_table_index += 1
 
             if not symbol:
                 raise RuntimeError(

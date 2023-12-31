@@ -1,5 +1,7 @@
 #
-# CMakeLists.txt Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# CMakeLists.txt
+#
+# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -14,4 +16,6 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_subdirectory(cortex-m0plus)
+set(TEST_ST_CORTEX_M0_PLUS_HOST_LINKER_SCRIPT ${CMAKE_CURRENT_LIST_DIR}/stm32f0_discovery.ld)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../../common ${CMAKE_CURRENT_BINARY_DIR}/arch_common)
+add_subdirectory(tests)
