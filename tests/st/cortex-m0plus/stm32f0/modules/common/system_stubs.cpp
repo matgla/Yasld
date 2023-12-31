@@ -21,10 +21,12 @@
 
 #include <array>
 #include <cstdint>
+#include <cstdio>
+#include <cstring>
 
 #include <libopencm3/stm32/usart.h>
 
-static std::array<uint8_t, 3 * 1024> heap;
+static std::array<uint8_t, 4 * 1024> heap;
 
 extern "C"
 {
@@ -85,6 +87,15 @@ extern "C"
   {
     if (current_heap_end + incr > heap.size())
     {
+      char msg[100];
+      snprintf(
+        msg,
+        sizeof(msg),
+        "[TEST FAILED] Not enough memory\n  Current pointer: %x, allocated "
+        "bytes: %d\n",
+        current_heap_end,
+        incr);
+      _write(0, msg, strlen(msg));
       return nullptr;
     }
 

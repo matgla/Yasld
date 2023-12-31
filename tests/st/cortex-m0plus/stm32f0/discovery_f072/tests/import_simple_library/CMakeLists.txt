@@ -20,11 +20,13 @@ include(AddTestWithModule)
 
 add_test_with_module(
   NAME
-  stm32f0_import_simple_library
+  stm32f0_discovery_f072_import_simple_library
   MODULE
   stm32f0_simple_library
   SOURCES
   main.cpp
   test.cpp
   SCRIPTS
-  ${CMAKE_CURRENT_SOURCE_DIR}/..)
+  ${CMAKE_CURRENT_SOURCE_DIR}/..
+  LIBRARIES
+  test::st::cortex_m0_plus::discovery_f072)

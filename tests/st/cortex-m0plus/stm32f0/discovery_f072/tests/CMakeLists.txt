@@ -17,19 +17,19 @@
 #
 
 add_library(test_st_cortex_m0_plus_discovery_f072 INTERFACE)
-add_library(test::st::cortex_m0_plus::discovery_f072 ALIAS test_st_cortex_m0_plus_discovery_f072)
+add_library(test::st::cortex_m0_plus::discovery_f072 ALIAS
+            test_st_cortex_m0_plus_discovery_f072)
 
-target_link_libraries(test_st_cortex_m0_plus_discovery_f072 
-  INTERFACE 
-    test::st::cortex_m0_plus::stm32f0
-    test::st::cortex_m0_plus::host_common
-)
+target_link_libraries(
+  test_st_cortex_m0_plus_discovery_f072
+  INTERFACE test::st::cortex_m0_plus::stm32f0
+            test::st::cortex_m0_plus::host_common)
 
 add_subdirectory(calculate_floating_point)
-#add_subdirectory(calculate_of_sine_of_extern_values)
+add_subdirectory(calculate_of_sine_of_extern_values)
 add_subdirectory(print_hello_world)
 add_subdirectory(print_hello_world_using_external_symbols)
-#add_subdirectory(report_failure_for_wrong_file)
-#add_subdirectory(return_value)
-#add_subdirectory(support_for_cpp_classes)
-#add_subdirectory(import_simple_library)
+add_subdirectory(report_failure_for_wrong_file)
+add_subdirectory(return_value)
+add_subdirectory(support_for_cpp_classes)
+add_subdirectory(import_simple_library)

@@ -26,8 +26,8 @@ target_sources(stm32f0_shared_libc PRIVATE empty.cpp)
 
 target_link_libraries(
   stm32f0_shared_libc
-  PRIVATE build_flags_for_shared
-          yasld_shared_flags
+  PRIVATE test::st::cortex_m0_plus::module_flags
+          yasld_shared_library_flags
           -Wl,--whole-archive
           c_nano
           -Wl,--no-whole-archive

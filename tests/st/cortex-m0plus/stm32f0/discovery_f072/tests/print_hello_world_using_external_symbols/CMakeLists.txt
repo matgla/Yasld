@@ -20,12 +20,12 @@ include(AddTestWithModule)
 
 add_test_with_module(
   NAME
-  stm32f0_print_hello_world_using_external_symbols
+  stm32f0_discovery_f072_print_hello_world_using_external_symbols
   MODULE
   stm32f0_hello_world_shared
   SOURCES
   main.cpp
   SCRIPTS
   ${CMAKE_CURRENT_SOURCE_DIR}/..
-  LIBRARIES 
+  LIBRARIES
   test::st::cortex_m0_plus::discovery_f072)

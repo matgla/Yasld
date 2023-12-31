@@ -20,10 +20,12 @@ include(AddTestWithModule)
 
 add_test_with_module(
   NAME
-  stm32f0_report_failure_for_wrong_file
+  stm32f0_discovery_f072_report_failure_for_wrong_file
   MODULE
   stm32f0_hello_world
   SOURCES
   main.cpp
   SCRIPTS
-  ${CMAKE_CURRENT_SOURCE_DIR}/..)
+  ${CMAKE_CURRENT_SOURCE_DIR}/..
+  LIBRARIES
+  test::st::cortex_m0_plus::discovery_f072)

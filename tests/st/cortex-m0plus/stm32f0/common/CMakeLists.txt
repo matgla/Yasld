@@ -17,15 +17,17 @@
 #
 
 add_library(test_st_cortex_m0_plus_host_common)
-add_library(test::st::cortex_m0_plus::host_common ALIAS test_st_cortex_m0_plus_host_common)
+add_library(test::st::cortex_m0_plus::host_common ALIAS
+            test_st_cortex_m0_plus_host_common)
 
 target_sources(
   test_st_cortex_m0_plus_host_common
   PUBLIC include/board_init.hpp system_stubs.cpp
   PRIVATE board_init.cpp)
 
-target_link_libraries(test_st_cortex_m0_plus_host_common
-  PRIVATE test::st::cortex_m0_plus::host_flags test::st::cortex_m0_plus::stm32f0)
+target_link_libraries(
+  test_st_cortex_m0_plus_host_common PUBLIC test::st::cortex_m0_plus::host_flags
+                                            test::st::cortex_m0_plus::stm32f0)
 
 target_include_directories(test_st_cortex_m0_plus_host_common
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

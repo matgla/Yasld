@@ -20,10 +20,12 @@ include(AddTestWithModule)
 
 add_test_with_module(
   NAME
-  stm32f0_report_if_symbol_not_exists
+  stm32f0_discovery_f072_report_if_symbol_not_exists
   MODULE
   stm32f0_sum_shared
   SOURCES
   main.cpp
   SCRIPTS
-  ${CMAKE_CURRENT_SOURCE_DIR}/..)
+  ${CMAKE_CURRENT_SOURCE_DIR}/..
+  LIBRARIES
+  test::st::cortex_m0_plus::discovery_f072)

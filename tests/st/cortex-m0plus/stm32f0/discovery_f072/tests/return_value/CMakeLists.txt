@@ -20,10 +20,12 @@ include(AddTestWithModule)
 
 add_test_with_module(
   NAME
-  stm32f0_return_value
+  stm32f0_discovery_f072_return_value
   MODULE
   stm32f0_sum
   SOURCES
   main.cpp
   SCRIPTS
-  ${CMAKE_CURRENT_SOURCE_DIR}/..)
+  ${CMAKE_CURRENT_SOURCE_DIR}/..
+  LIBRARIES
+  test::st::cortex_m0_plus::discovery_f072)

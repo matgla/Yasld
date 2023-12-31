@@ -20,8 +20,9 @@ add_executable(stm32f0_classes_shared)
 
 target_sources(stm32f0_classes_shared PRIVATE main.cpp)
 
-target_link_libraries(stm32f0_classes_shared PRIVATE test::st::cortex_m0_plus::stm32f0::module_flags 
-                                                     yasld_executable_flags)
+target_link_libraries(
+  stm32f0_classes_shared PRIVATE test::st::cortex_m0_plus::module_flags
+                                 yasld_executable_flags)
 
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(stm32f0_classes_shared "executable")

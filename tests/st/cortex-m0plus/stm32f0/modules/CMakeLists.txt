@@ -54,8 +54,9 @@ set(yasld_root_path "../../../../..")
 get_filename_component(YASLD_CMAKE_MODULE_PATH ${yasld_root_path}/cmake
                        ABSOLUTE)
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../common/cmake
-                      ${YASLD_CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH
+    ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/../common/cmake
+    ${YASLD_CMAKE_MODULE_PATH})
 
 set(YASLD_ARCH armv6-m)
 
@@ -68,10 +69,11 @@ create_libopencm3_with_pic(stm32/f0)
 add_library(test::st::cortex_m0_plus::stm32f0_with_pic ALIAS stm32f0_with_pic)
 
 add_library(test_st_cortex_m0_plus_module_flags INTERFACE)
-add_library(test::st::cortex_m0_plus::module_flags ALIAS test_st_cortex_m0_plus_module_flags)
+add_library(test::st::cortex_m0_plus::module_flags ALIAS
+            test_st_cortex_m0_plus_module_flags)
 
 target_compile_options(
-  test_st_cortex_m0_plus_module_flags 
+  test_st_cortex_m0_plus_module_flags
   INTERFACE -nostartfiles
             -mthumb
             -mfloat-abi=soft
@@ -81,30 +83,35 @@ target_compile_options(
             -Wextra
             -fno-plt
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
-            -fno-rtti>)
+            -fno-rtti>
+            --specs=nano.specs)
 
 target_link_options(
-  test_st_cortex_m0_plus_module_flags 
+  test_st_cortex_m0_plus_module_flags
   INTERFACE
   -nostartfiles
   -fno-plt
   --specs=nano.specs)
 
-target_link_libraries(test_st_cortex_m0_plus_module_flags INTERFACE yasld_arch_flags test::st::cortex_m0_plus::stm32f0_with_pic)
+target_link_libraries(
+  test_st_cortex_m0_plus_module_flags
+  INTERFACE yasld_arch_flags test::st::cortex_m0_plus::stm32f0_with_pic)
 
 add_library(test_st_cortex_m0_plus_standalone_module_flags INTERFACE)
-add_library(test::st::cortex_m0_plus::standalone_module_flags ALIAS test_st_cortex_m0_plus_standalone_module_flags)
+add_library(test::st::cortex_m0_plus::standalone_module_flags ALIAS
+            test_st_cortex_m0_plus_standalone_module_flags)
 
-target_link_options(test_st_cortex_m0_plus_standalone_module_flags INTERFACE -Wl,--undefined,_printf_float)
-target_link_libraries(test_st_cortex_m0_plus_standalone_module_flags INTERFACE test::st::cortex_m0_plus::module_flags)
+target_link_options(test_st_cortex_m0_plus_standalone_module_flags INTERFACE
+                    -Wl,--undefined,_printf_float)
+target_link_libraries(test_st_cortex_m0_plus_standalone_module_flags
+                      INTERFACE test::st::cortex_m0_plus::module_flags)
 
 add_subdirectory(common)
-add_subdirectory(hello_world) 
+add_subdirectory(hello_world)
 add_subdirectory(sum)
-add_subdirectory(floating_point) 
+add_subdirectory(floating_point)
 add_subdirectory(hello_world_shared)
-add_subdirectory(sum_of_sine_of_extern_values) 
+add_subdirectory(sum_of_sine_of_extern_values)
 add_subdirectory(classes)
 add_subdirectory(simple_library)
 add_subdirectory(shared_libc)
-

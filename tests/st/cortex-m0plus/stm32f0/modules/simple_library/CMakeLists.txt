@@ -30,8 +30,9 @@ target_sources(
   PUBLIC ${include_dir}/simple_library.hpp
   PRIVATE simple_library.cpp other_file.cpp)
 
-target_link_libraries(stm32f0_simple_library PRIVATE build_flags_for_shared
-                                                     yasld_shared_flags)
+target_link_libraries(
+  stm32f0_simple_library PRIVATE test::st::cortex_m0_plus::module_flags
+                                 yasld_shared_library_flags)
 
 target_include_directories(stm32f0_simple_library
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

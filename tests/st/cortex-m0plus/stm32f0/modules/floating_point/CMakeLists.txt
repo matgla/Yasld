@@ -20,12 +20,8 @@ add_executable(stm32f0_floating_point)
 
 target_sources(stm32f0_floating_point PRIVATE main.cpp)
 
-target_link_libraries(
-  stm32f0_floating_point
-  PRIVATE build_flags
-          stm32f0_with_pic
-          stm32f0_modules_common
-          yasld_standalone_executable_flags)
+target_link_libraries(stm32f0_floating_point
+                      PUBLIC test::st::cortex_m0_plus::stm32f0::modules_common)
 
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(stm32f0_floating_point "executable")
