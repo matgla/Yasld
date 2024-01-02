@@ -91,5 +91,10 @@ configure_with_toolchain(
   -DYASLD_ARCH_DIR=${YASLD_ARCH_DIR}
   INSTALL
   ${STM32F0_TEST_MODULES_DIR})
+
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../common
+                 ${CMAKE_CURRENT_BINARY_DIR}/arch_common)
+
 add_subdirectory(common)
 add_subdirectory(discovery_f072)
+add_subdirectory(nucleo_f091c)

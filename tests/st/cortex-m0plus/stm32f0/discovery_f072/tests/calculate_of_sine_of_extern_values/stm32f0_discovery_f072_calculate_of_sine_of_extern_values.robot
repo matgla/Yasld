@@ -1,5 +1,5 @@
 *** Settings ***
-Resource            stm32f0_common.robot
+Resource            stm32f0_discovery_f072_common.robot
 
 Suite Setup         Setup
 Suite Teardown      Teardown

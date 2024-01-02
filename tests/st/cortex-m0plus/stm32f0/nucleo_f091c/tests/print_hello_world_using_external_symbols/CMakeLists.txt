@@ -20,14 +20,16 @@ include(AddTestWithModule)
 
 add_test_with_module(
   NAME
-  stm32f0_discovery_f072_report_failure_for_wrong_file
+  stm32f0_nucleo_f091_rc_print_hello_world_using_external_symbols
   MODULE
-  stm32f0_hello_world
+  stm32f0_hello_world_shared
   SOURCES
   main.cpp
   SCRIPTS
   ${CMAKE_CURRENT_SOURCE_DIR}/..
   LIBRARIES
-  test::st::cortex_m0_plus::discovery_f072
+  test::st::cortex_m0_plus::nucleo_f091rc
   ROBOT_COMMON_FILE
-  stm32f0_discovery_f072_common.robot)
+  stm32f0_nucleo_f091rc_common.robot
+  BOARD_FILE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../nucleo_f091rc.repl)

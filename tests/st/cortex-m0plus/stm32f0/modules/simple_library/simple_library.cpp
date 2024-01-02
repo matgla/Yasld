@@ -22,9 +22,9 @@
 
 #include <cstdio>
 
-int counter = 0;
+static int counter = 0;
 
-int sum(int a, int b)
+int        sum(int a, int b)
 {
   printf("[simple_library] Calculating sum %d + %d\n", a, b);
   printf("[simple_library] Call count: %d\n", counter++);

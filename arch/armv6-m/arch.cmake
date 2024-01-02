@@ -39,8 +39,7 @@ target_link_options(
 target_compile_options(
   yasld_common_flags
   INTERFACE -fomit-frame-pointer
-            -fvisibility=hidden
-            $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden
+            $<$<COMPILE_LANGUAGE:CXX>:
             -fno-rtti
             -fno-exceptions>
             -fno-inline

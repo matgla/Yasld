@@ -22,19 +22,36 @@
 # Workaround is to treat executable as library
 add_executable(stm32f0_shared_libc)
 
-target_sources(stm32f0_shared_libc PRIVATE empty.cpp)
+find_package(baselibc REQUIRED)
+
+file(GLOB sources ${baselibc_SOURCE_DIR}/src/*.c)
+file(GLOB includes ${baselibc_SOURCE_DIR}/include/**)
+
+target_sources(
+  stm32f0_shared_libc
+  PUBLIC ${includes}
+  PRIVATE ${sources})
 
 target_link_libraries(
-  stm32f0_shared_libc
-  PRIVATE test::st::cortex_m0_plus::module_flags
-          yasld_shared_library_flags
-          -Wl,--whole-archive
-          c_nano
-          -Wl,--no-whole-archive
-          gcc)
+  stm32f0_shared_libc PRIVATE test::st::cortex_m0_plus::module_flags
+                              yasld_shared_library_flags gcc)
+
+target_include_directories(stm32f0_shared_libc SYSTEM BEFORE
+                           PUBLIC ${baselibc_SOURCE_DIR}/include)
 
 target_include_directories(stm32f0_shared_libc
-                           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+                           PUBLIC ${baselibc_SOURCE_DIR}/src/templates)
+
+target_compile_options(
+  stm32f0_shared_libc
+  PUBLIC -fvisibility=default
+         -Wl,--export-dynamic
+         -Wno-array-parameter
+         -Wno-unused-parameter)
+
+set_target_properties(stm32f0_shared_libc PROPERTIES C_VISIBILITY_PRESET
+                                                     default)
+target_link_libraries(stm32f0_shared_libc PUBLIC -fvisibility=default)
 
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(stm32f0_shared_libc "shared_library")

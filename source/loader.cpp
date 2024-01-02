@@ -175,7 +175,7 @@ bool Loader::process_symbol_table_relocations(
   for (const auto &rel : relocations)
   {
     const auto &symbol  = symbols[rel.symbol_index()];
-    const auto  address = find_symbol(symbol.name());
+    const auto  address = find_symbol(module, symbol.name());
     if (!address)
     {
       log("Can't find symbol: %s\n", symbol.name().data());
@@ -239,6 +239,7 @@ void Loader::process_data_relocations(const Parser &parser, Module &module)
 }
 
 std::optional<std::size_t> Loader::find_symbol(
+  Module                 &module,
   const std::string_view &name) const
 {
   log("Searching symbol: %s\n", name.data());
@@ -253,7 +254,13 @@ std::optional<std::size_t> Loader::find_symbol(
     }
   }
 
-  // And symbols imported from other libraries at end
+  // Followed by symbols imported from other libraries
+  const auto symbol = module.find_symbol(name);
+  if (symbol)
+  {
+    return *symbol;
+  }
+  // And own symbols at end
   return std::nullopt;
 }
 

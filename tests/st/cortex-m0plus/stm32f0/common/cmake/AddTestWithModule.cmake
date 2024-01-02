@@ -19,7 +19,12 @@
 macro(add_test_with_module)
   set(prefix TEST)
   set(optionArgs "")
-  set(singleValueArgs NAME MODULE SCRIPTS)
+  set(singleValueArgs
+      NAME
+      MODULE
+      SCRIPTS
+      ROBOT_COMMON_FILE
+      BOARD_FILE)
   set(multiValueArgs SOURCES LIBRARIES)
 
   include(CMakeParseArguments)
@@ -39,16 +44,15 @@ macro(add_test_with_module)
     message(FATAL_ERROR "SOURCES must be defined")
   endif()
 
+  if(NOT DEFINED TEST_ROBOT_COMMON_FILE)
+    message(FATAL_ERROR "ROBOT_COMMON_FILE must be defined")
+  endif()
+
   add_executable(${TEST_NAME})
 
   target_sources(${TEST_NAME} PRIVATE ${TEST_SOURCES})
 
-  target_link_libraries(
-    ${TEST_NAME}
-    PRIVATE 
-            ${TEST_LIBRARIES}
-            yasld
-            yasld_arch)
+  target_link_libraries(${TEST_NAME} PRIVATE ${TEST_LIBRARIES} yasld yasld_arch)
 
   add_custom_command(
     TARGET ${TEST_NAME}
@@ -77,6 +81,7 @@ macro(add_test_with_module)
     DEPENDS ${TEST_NAME} modules)
 
   set(renode_test_binary ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}_test.bin)
+  set(renode_board_file ${TEST_BOARD_FILE})
 
   configure_file(${TEST_SCRIPTS}/execute.resc
                  ${CMAKE_CURRENT_BINARY_DIR}/execute.resc)
@@ -87,8 +92,8 @@ macro(add_test_with_module)
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.robot
                  ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.robot @ONLY)
 
-  configure_file(${TEST_SCRIPTS}/stm32f0_common.robot
-                 ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_common.robot @ONLY)
+  configure_file(${TEST_SCRIPTS}/${TEST_ROBOT_COMMON_FILE}
+                 ${CMAKE_CURRENT_BINARY_DIR}/${TEST_ROBOT_COMMON_FILE} @ONLY)
 
   include(RegisterTest)
 

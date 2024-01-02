@@ -1,7 +1,7 @@
 /**
- * stm32f0_discovery.ld
+ * globals.hpp
  *
- * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+ * Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,24 +18,18 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-MEMORY
-{
-  rom(rx) : ORIGIN = 0x08000000, LENGTH = 128K
-  ram(rwx) : ORIGIN = 0x20000000, LENGTH = 16K
-}
+#pragma once
 
-_heap_size = 0x2000;
+#include "stdio.h"
 
-INCLUDE ./cortex-m-generic.ld
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-SECTIONS 
-{
-.heap :
-{
-  . = ALIGN(8);
-  PROVIDE(_heap_start = .);
-  . = . + _heap_size;
-  . = ALIGN(8);
-  PROVIDE(_heap_end = .);
-} >ram
-}
+  void         init_baselibc_stdout();
+  extern FILE *stdout_file;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif

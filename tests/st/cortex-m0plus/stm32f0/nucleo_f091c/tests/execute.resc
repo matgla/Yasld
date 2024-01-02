@@ -1,5 +1,6 @@
+
 #
-# CMakeLists.txt
+# execute.resc
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
 #
@@ -16,18 +17,15 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-include(AddTestWithModule)
+$bin=@${renode_test_binary}
+$board_file=@${renode_board_file}
 
-add_test_with_module(
-  NAME
-  stm32f0_discovery_f072_report_failure_for_wrong_file
-  MODULE
-  stm32f0_hello_world
-  SOURCES
-  main.cpp
-  SCRIPTS
-  ${CMAKE_CURRENT_SOURCE_DIR}/..
-  LIBRARIES
-  test::st::cortex_m0_plus::discovery_f072
-  ROBOT_COMMON_FILE
-  stm32f0_discovery_f072_common.robot)
+mach create
+machine LoadPlatformDescription $board_file 
+showAnalyzer sysbus.usart1
+
+sysbus LoadBinary $bin 0x08000000
+sysbus.cpu VectorTableOffset 0x08000000
+ 
+start
+

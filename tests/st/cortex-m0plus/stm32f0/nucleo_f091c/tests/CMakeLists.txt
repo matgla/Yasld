@@ -16,18 +16,18 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-include(AddTestWithModule)
+add_library(test_st_cortex_m0_plus_nucleo_f091rc INTERFACE)
+add_library(test::st::cortex_m0_plus::nucleo_f091rc ALIAS
+            test_st_cortex_m0_plus_nucleo_f091rc)
 
-add_test_with_module(
-  NAME
-  stm32f0_discovery_f072_report_failure_for_wrong_file
-  MODULE
-  stm32f0_hello_world
-  SOURCES
-  main.cpp
-  SCRIPTS
-  ${CMAKE_CURRENT_SOURCE_DIR}/..
-  LIBRARIES
-  test::st::cortex_m0_plus::discovery_f072
-  ROBOT_COMMON_FILE
-  stm32f0_discovery_f072_common.robot)
+target_link_libraries(
+  test_st_cortex_m0_plus_nucleo_f091rc
+  INTERFACE test::st::cortex_m0_plus::stm32f0
+            test::st::cortex_m0_plus::host_common)
+
+target_link_options(test_st_cortex_m0_plus_nucleo_f091rc INTERFACE
+                    -T${CMAKE_CURRENT_SOURCE_DIR}/../stm32f0_nucleo_f091rc.ld)
+
+add_subdirectory(import_libc_symbols)
+add_subdirectory(print_hello_world)
+add_subdirectory(print_hello_world_using_external_symbols)

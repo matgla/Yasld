@@ -1,7 +1,7 @@
 #
 # CMakeLists.txt
 #
-# Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+# Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
@@ -16,18 +16,17 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-include(AddTestWithModule)
+add_library(baselibc_variables STATIC)
 
-add_test_with_module(
-  NAME
-  stm32f0_discovery_f072_report_failure_for_wrong_file
-  MODULE
-  stm32f0_hello_world
-  SOURCES
-  main.cpp
-  SCRIPTS
-  ${CMAKE_CURRENT_SOURCE_DIR}/..
-  LIBRARIES
-  test::st::cortex_m0_plus::discovery_f072
-  ROBOT_COMMON_FILE
-  stm32f0_discovery_f072_common.robot)
+target_sources(
+  baselibc_variables
+  PUBLIC globals.h
+  PRIVATE globals.c)
+
+target_link_libraries(baselibc_variables
+                      PRIVATE test::st::cortex_m0_plus::nucleo_f091rc)
+
+find_package(baselibc REQUIRED)
+
+target_include_directories(baselibc_variables
+                           PRIVATE ${baselibc_SOURCE_DIR}/include)

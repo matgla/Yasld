@@ -65,7 +65,9 @@ private:
   void process_data_relocations(const Parser &parser, Module &module);
   bool process_symbol_table_relocations(const Parser &parser, Module &module);
   bool load_module(const void *module_address, Module &module);
-  std::optional<std::size_t> find_symbol(const std::string_view &name) const;
+  std::optional<std::size_t> find_symbol(
+    Module                 &module,
+    const std::string_view &name) const;
   bool is_fragment_of_module(const Module *module, std::size_t program_counter)
     const;
   AllocatorType      allocator_;

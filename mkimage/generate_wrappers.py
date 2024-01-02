@@ -70,9 +70,11 @@ template = env.get_template("call_wrapped.s.tmpl")
 generated_file = ""
 for file in files:
     symbols = []
+    print("File: ", file)
     wrapped_symbols = []
     parser = ElfParser(file)
     for name, data in parser.symbols.items():
+        print("Processing: ", name)
         if name.endswith("_yasld_original"):
             wrapped_symbols.append(
                 name.removeprefix("__").removesuffix("_yasld_original")
@@ -123,5 +125,3 @@ print(output.stdout)
 print(output.stderr)
 if output.returncode != 0:
     sys.exit(output.returncode)
-
-

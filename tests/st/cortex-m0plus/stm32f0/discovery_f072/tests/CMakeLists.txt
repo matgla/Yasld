@@ -25,6 +25,9 @@ target_link_libraries(
   INTERFACE test::st::cortex_m0_plus::stm32f0
             test::st::cortex_m0_plus::host_common)
 
+target_link_options(test_st_cortex_m0_plus_discovery_f072 INTERFACE
+                    -T${CMAKE_CURRENT_SOURCE_DIR}/../stm32f0_discovery.ld)
+
 add_subdirectory(calculate_floating_point)
 add_subdirectory(calculate_of_sine_of_extern_values)
 add_subdirectory(print_hello_world)

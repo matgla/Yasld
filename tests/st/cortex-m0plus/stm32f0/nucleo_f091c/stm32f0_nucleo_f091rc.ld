@@ -1,5 +1,5 @@
 /**
- * stm32f0_discovery.ld
+ * stm32f0_nucleo_f091rc.ld
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -20,15 +20,15 @@
 
 MEMORY
 {
-  rom(rx) : ORIGIN = 0x08000000, LENGTH = 128K
-  ram(rwx) : ORIGIN = 0x20000000, LENGTH = 16K
+  rom(rx) : ORIGIN = 0x08000000, LENGTH = 256K
+  ram(rwx) : ORIGIN = 0x20000000, LENGTH = 32K
 }
 
-_heap_size = 0x2000;
+_heap_size = 0x4000;
 
 INCLUDE ./cortex-m-generic.ld
 
-SECTIONS 
+SECTIONS
 {
 .heap :
 {

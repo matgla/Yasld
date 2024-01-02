@@ -25,8 +25,6 @@
 
 #include <libopencm3/stm32/usart.h>
 
-static std::array<uint8_t, 8 * 1024> heap;
-
 extern "C"
 {
   int _kill(pid_t, int)
@@ -81,16 +79,18 @@ extern "C"
     return count;
   }
 
-  static std::size_t current_heap_end = 0;
-  void              *_sbrk(intptr_t incr)
+  extern char  _heap_start;
+  extern char  _heap_end;
+  static char *current_heap_end = &_heap_start;
+  void        *_sbrk(intptr_t incr)
   {
-    if (current_heap_end + incr > heap.size())
+    if (current_heap_end + incr > &_heap_end)
     {
       return nullptr;
     }
 
-    std::size_t prev  = current_heap_end;
+    char *prev        = current_heap_end;
     current_heap_end += incr;
-    return &heap[prev];
+    return prev;
   }
 }

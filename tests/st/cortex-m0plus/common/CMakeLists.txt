@@ -16,36 +16,29 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-if (NOT DEFINED TEST_ST_CORTEX_M0_PLUS_HOST_LINKER_SCRIPT OR ${TEST_ST_CORTEX_M0_PLUS_HOST_LINKER_SCRIPT} STREQUAL "")
-  message(FATAL_ERROR "Tests host linker script is not defined")
-endif ()
-
 add_library(test_st_cortex_m0_plus_host_flags INTERFACE)
-add_library(test::st::cortex_m0_plus::host_flags ALIAS test_st_cortex_m0_plus_host_flags)
+add_library(test::st::cortex_m0_plus::host_flags ALIAS
+            test_st_cortex_m0_plus_host_flags)
 
 target_compile_options(
-  test_st_cortex_m0_plus_host_flags 
-  INTERFACE 
-    -mcpu=cortex-m0plus
-    -nostartfiles
-    -mthumb
-    -mfloat-abi=soft
-    -Wall 
-    -Wpedantic
-    -Werror
-    -Wextra
-    $<$<COMPILE_LANGUAGE:CXX>:
-     -fno-exceptions
-     -fno-rtti>
-)
+  test_st_cortex_m0_plus_host_flags
+  INTERFACE -mcpu=cortex-m0plus
+            -nostartfiles
+            -mthumb
+            -mfloat-abi=soft
+            -Wall
+            -Wpedantic
+            -Werror
+            -Wextra
+            $<$<COMPILE_LANGUAGE:CXX>:
+            -fno-exceptions
+            -fno-rtti>)
 
-target_link_options(test_st_cortex_m0_plus_host_flags
-  INTERFACE 
-    -mcpu=cortex-m0plus
-    -nostartfiles
-    -mthumb
-    -Wl,--undefined,_printf_float
-    --specs=nano.specs
-    -T${TEST_ST_CORTEX_M0_PLUS_HOST_LINKER_SCRIPT}
-)
-
+target_link_options(
+  test_st_cortex_m0_plus_host_flags
+  INTERFACE
+  -mcpu=cortex-m0plus
+  -nostartfiles
+  -mthumb
+  -Wl,--undefined,_printf_float
+  --specs=nano.specs)
