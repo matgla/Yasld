@@ -40,11 +40,17 @@ find_package(eul REQUIRED)
 
 target_sources(
   yasld
-  PUBLIC ${include_dir}/align.hpp
+  PUBLIC ${include_dir}/allocator.hpp
+         ${include_dir}/align.hpp
          ${include_dir}/data_relocation.hpp
+         ${include_dir}/dependency.hpp
+         ${include_dir}/dependency_iterator.hpp
+         ${include_dir}/dependency_list.hpp
          ${include_dir}/environment.hpp
          ${include_dir}/executable.hpp
          ${include_dir}/header.hpp
+         ${include_dir}/item_iterator.hpp
+         ${include_dir}/item_table.hpp
          ${include_dir}/library.hpp
          ${include_dir}/loader.hpp
          ${include_dir}/local_relocation.hpp
@@ -57,7 +63,9 @@ target_sources(
          ${include_dir}/symbol.hpp
          ${include_dir}/symbol_iterator.hpp
          ${include_dir}/symbol_table.hpp
-  PRIVATE data_relocation.cpp
+  PRIVATE allocator.cpp
+          data_relocation.cpp
+          dependency.cpp
           executable.cpp
           header.cpp
           library.cpp
@@ -67,9 +75,7 @@ target_sources(
           parser.cpp
           relocation.cpp
           section.cpp
-          symbol.cpp
-          symbol_iterator.cpp
-          symbol_table.cpp)
+          symbol.cpp)
 
 target_include_directories(yasld PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 

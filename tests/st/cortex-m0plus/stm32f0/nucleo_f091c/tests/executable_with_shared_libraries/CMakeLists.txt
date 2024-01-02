@@ -16,20 +16,23 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_executable(stm32f0_classes_shared)
+include(AddTestWithModule)
 
-target_sources(stm32f0_classes_shared PRIVATE main.cpp)
-
-target_link_libraries(
-  stm32f0_classes_shared PRIVATE test::st::cortex_m0_plus::module_flags
-                                 yasld_executable_flags)
-
-include(ConvertElfToYasiff)
-convert_elf_to_yasiff(
-  TARGET
-  stm32f0_classes_shared
-  TYPE
-  "executable")
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_classes_shared.yaff
-        DESTINATION ${STM32F0_TEST_MODULES_DIR})
+add_test_with_module(
+  NAME
+  stm32f0_nucleo_f091_rc_executable_with_shared_libraries
+  SOURCES
+  main.cpp
+  SCRIPTS
+  ${CMAKE_CURRENT_SOURCE_DIR}/..
+  LIBRARIES
+  test::st::cortex_m0_plus::nucleo_f091rc
+  baselibc_variables
+  ROBOT_COMMON_FILE
+  stm32f0_nucleo_f091rc_common.robot
+  BOARD_FILE
+  ${CMAKE_CURRENT_SOURCE_DIR}/../../nucleo_f091rc.repl
+  LAYOUT
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_nucleo_f091_rc_executable_with_shared_libraries.bin:0x11000
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_hello_world_shared_libc.yaff:0x1000
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_shared_libc.yaff:0x10000)

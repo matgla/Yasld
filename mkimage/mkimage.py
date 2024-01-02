@@ -32,6 +32,8 @@ from elf_parser import ElfParser
 from relocation_set import RelocationSet
 from enum import Enum
 
+from pathlib import Path
+
 
 class SectionCode(Enum):
     Code = 0
@@ -75,6 +77,13 @@ def parse_cli_arguments():
         dest="quiet",
         action="store_true",
         help="Disable stdout output",
+    )
+    parser.add_argument(
+        "-s",
+        "--libraries",
+        nargs="*",
+        action="store",
+        help="Dependant shared libraries, necessary for i.e cortex-m0 where shared libraries must be build as executables. Separated by , or ;.",
     )
     parser.add_argument(
         "-d", "--dryrun", dest="dryrun", action="store_true", help="Dry run"
@@ -555,10 +564,10 @@ class Application:
                     break
                 else:
                     symbol_table_index += 1
-            
+
             # todo: reproduce in test
-            if symbol is None: 
-                symbol_table_index = 0 
+            if symbol is None:
+                symbol_table_index = 0
                 for s in exported_symbol_table:
                     if s["name"] == rel["name"]:
                         symbol = s
@@ -594,9 +603,16 @@ class Application:
     def __build_image(self):
         self.logger.step("Building Yasiff image")
         image = bytearray("YAFF", "ascii")
-        image += struct.pack("<BHB", 1, 1, 1)  # dummy values for now
+        alignment = 4
+
+        if self.is_executable:
+            module_type = 1
+        else:
+            module_type = 2
+
+        image += struct.pack("<BHB", module_type, 1, 1)  # dummy values for now
         image += struct.pack("<III", len(self.text), len(self.data), len(self.bss))
-        image += struct.pack("<HBB", 0, 4, 0)
+        image += struct.pack("<HBB", len(self.dependant_libraries), alignment, 0)
         image += struct.pack("<HH", 0, 0)
 
         symbol_table_relocations = self.__filter_relocations("symbol_table", True)
@@ -630,6 +646,14 @@ class Application:
         image += struct.pack(
             "<HH", len(self.exported_symbol_table), len(self.imported_symbol_table)
         )
+        image += Application.__align_bytes(
+            bytearray(Path(self.args.input).stem + "\0", "ascii"), alignment
+        )
+
+        for lib in self.dependant_libraries:
+            image += Application.__align_bytes(
+                bytearray(lib + "\0", "ascii"), alignment
+            )
 
         for rel in relocations:
             image += struct.pack("<II", rel["index"], rel["offset"])
@@ -646,11 +670,24 @@ class Application:
             with open(self.args.output, "wb") as file:
                 file.write(image)
 
+    def __resolve_dependant_libraries(self):
+        self.dependant_libraries = []
+        if args.libraries is None:
+            return
+
+        for line in args.libraries:
+            self.dependant_libraries += line.replace(",", ";").split(";")
+
+        self.logger.info("Module depends on:")
+        for lib in self.dependant_libraries:
+            self.logger.info("  - " + lib)
+
     def execute(self):
         self.__print_header()
         self.__process_elf_file()
         self.__fix_offsets_in_code()
         self.__build_symbol_tables()
+        self.__resolve_dependant_libraries()
         self.__build_image()
 
 

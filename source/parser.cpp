@@ -24,17 +24,20 @@
 #include "yasld/header.hpp"
 #include "yasld/logger.hpp"
 
-#include "yasld/symbol.hpp"
-
 namespace yasld
 {
 
 Parser::Parser(const Header *header)
   : header_{ header }
-  , symbol_table_relocation_table_{ align<std::uintptr_t>(
-                                      reinterpret_cast<std::uintptr_t>(header) +
-                                        sizeof(Header),
-                                      header->alignment),
+  , name_{ reinterpret_cast<const char *>(header) + sizeof(Header) }
+  , imported_libaries_{ align<std::uintptr_t>(
+                          reinterpret_cast<std::uintptr_t>(header) +
+                            sizeof(Header) + name_.size(),
+                          header->alignment),
+                        header->external_libraries_amount,
+                        header->alignment }
+  , symbol_table_relocation_table_{ imported_libaries_.address() +
+                                      imported_libaries_.size(),
                                     header->symbol_table_relocations_amount }
   , local_relocation_table_{ symbol_table_relocation_table_.address() +
                                symbol_table_relocation_table_.size(),
@@ -56,6 +59,7 @@ Parser::Parser(const Header *header)
   , data_address_{ text_address_ + header->code_length }
 
 {
+  log("Module name: %s\n", name_.data());
   log("Header starts at       : %p\n", header);
   log(
     "Symbol table relocations at : 0x%lx, size: 0x%lx\n",
@@ -90,6 +94,12 @@ Parser::Parser(const Header *header)
   for (const auto &e : exported_symbol_table_)
   {
     log("%s\n", e.name().data());
+  }
+
+  log("Imported libraries (%d):\n", header->external_libraries_amount);
+  for (const auto &l : imported_libaries_)
+  {
+    log("  %s\n", l.name().data());
   }
 }
 
@@ -128,6 +138,16 @@ std::span<const std::byte> Parser::get_text() const
 {
   return std::span<const std::byte>(
     reinterpret_cast<const std::byte *>(text_address_), header_->code_length);
+}
+
+const std::string_view &Parser::name() const
+{
+  return name_;
+}
+
+const DependencyList &Parser::get_imported_libraries() const
+{
+  return imported_libaries_;
 }
 
 } // namespace yasld

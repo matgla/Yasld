@@ -20,11 +20,16 @@ add_executable(stm32f0_hello_world_shared)
 
 target_sources(stm32f0_hello_world_shared PRIVATE main.cpp)
 
-target_link_libraries(stm32f0_hello_world_shared PRIVATE test::st::cortex_m0_plus::module_flags 
-                                                         yasld_executable_flags)
+target_link_libraries(
+  stm32f0_hello_world_shared PRIVATE test::st::cortex_m0_plus::module_flags
+                                     yasld_executable_flags)
 
 include(ConvertElfToYasiff)
-convert_elf_to_yasiff(stm32f0_hello_world_shared "executable")
+convert_elf_to_yasiff(
+  TARGET
+  stm32f0_hello_world_shared
+  TYPE
+  "executable")
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_hello_world_shared.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})

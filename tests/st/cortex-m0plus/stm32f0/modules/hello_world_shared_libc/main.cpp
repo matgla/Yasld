@@ -1,7 +1,7 @@
 /**
- * symbol_table.hpp
+ * main.cpp
  *
- * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+ * Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,13 +18,10 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include <stdio.h>
 
-#include "yasld/item_table.hpp"
-#include "yasld/symbol.hpp"
-namespace yasld
+int main()
 {
-
-using SymbolTable = ItemTable<Symbol>;
-
-} // namespace yasld
+  printf("Hello using shared libc\n");
+  printf("Some values %d, %f\n", 1234, -123.234f);
+}

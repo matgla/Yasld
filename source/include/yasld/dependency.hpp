@@ -1,7 +1,7 @@
 /**
- * symbol_table.hpp
+ * dependency.hpp
  *
- * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+ * Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,11 +20,19 @@
 
 #pragma once
 
-#include "yasld/item_table.hpp"
-#include "yasld/symbol.hpp"
+#include <string_view>
+
 namespace yasld
 {
 
-using SymbolTable = ItemTable<Symbol>;
+class Dependency
+{
+public:
+  Dependency(const Dependency &item) = delete;
+
+  [[nodiscard]] std::string_view  name() const;
+  [[nodiscard]] const Dependency *next(std::size_t alignment) const;
+  [[nodiscard]] std::size_t       size(std::size_t alignment) const;
+};
 
 } // namespace yasld

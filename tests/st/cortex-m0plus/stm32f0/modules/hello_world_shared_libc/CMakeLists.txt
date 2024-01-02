@@ -16,20 +16,22 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_executable(stm32f0_classes_shared)
+add_executable(stm32f0_hello_world_shared_libc)
 
-target_sources(stm32f0_classes_shared PRIVATE main.cpp)
+target_sources(stm32f0_hello_world_shared_libc PRIVATE main.cpp)
 
 target_link_libraries(
-  stm32f0_classes_shared PRIVATE test::st::cortex_m0_plus::module_flags
-                                 yasld_executable_flags)
+  stm32f0_hello_world_shared_libc PRIVATE test::st::cortex_m0_plus::module_flags
+                                          yasld_executable_flags)
 
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(
   TARGET
-  stm32f0_classes_shared
+  stm32f0_hello_world_shared_libc
   TYPE
-  "executable")
+  "executable"
+  LIBRARIES
+  stm32f0_shared_libc)
 
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_classes_shared.yaff
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_hello_world_shared_libc.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})

@@ -35,6 +35,7 @@ public:
 
   bool initialize_main();
   int  execute(int argc, char *argv[]) const;
+  int  execute() const;
 
 private:
   std::optional<std::size_t> main_address_;

@@ -1,7 +1,7 @@
 /**
- * symbol_table.hpp
+ * allocator.cpp
  *
- * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+ * Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,13 +18,29 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "yasld/allocator.hpp"
 
-#include "yasld/item_table.hpp"
-#include "yasld/symbol.hpp"
 namespace yasld
 {
 
-using SymbolTable = ItemTable<Symbol>;
+void YasldAllocatorHolder::set_allocator(const AllocatorType &allocator)
+{
+  allocator_ = allocator;
+}
+
+void YasldAllocatorHolder::set_release(const ReleaseType &release)
+{
+  release_ = release;
+}
+
+AllocatorType &YasldAllocatorHolder::get_allocator()
+{
+  return allocator_;
+}
+
+ReleaseType &YasldAllocatorHolder::get_release()
+{
+  return release_;
+}
 
 } // namespace yasld

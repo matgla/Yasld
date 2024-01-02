@@ -32,9 +32,14 @@ namespace yasld
 {
 
 Loader::Loader(const AllocatorType &allocator, const ReleaseType &release)
-  : allocator_{ allocator }
-  , release_{ release }
-  , environment_{ nullptr }
+  : environment_{ nullptr }
+{
+  YasldAllocatorHolder::get().set_allocator(allocator);
+  YasldAllocatorHolder::get().set_release(release);
+}
+
+Loader::Loader()
+  : environment_{ nullptr }
 {
 }
 
@@ -56,17 +61,73 @@ bool Loader::load_module(const void *module_address, Module &module)
   const Parser      parser(header);
   const std::size_t lot_size =
     header->symbol_table_relocations_amount + header->local_relocations_amount;
-  void *lot_memory = allocator_(sizeof(std::size_t) * lot_size);
-  if (!lot_memory)
+
+  module.set_name(parser.name());
+  if (!module.allocate_lot(lot_size))
   {
     log("LOT allocation failure\n");
     return false;
   }
 
-  module.set_lot(
-    std::span<std::size_t>(static_cast<std::size_t *>(lot_memory), lot_size));
+  log("LOT allocated with %d entries.\n", module.get_lot().size());
 
   module.set_text(parser.get_text());
+
+  // import modules
+  if (header->external_libraries_amount)
+  {
+    if (!module.allocate_modules(header->external_libraries_amount))
+    {
+      log("Modules allocation failed\n");
+      return false;
+    }
+    if (!file_resolver_)
+    {
+      log("Module has imported libraries, but file resolver not "
+          "set!\n");
+      return false;
+    }
+
+    auto &modules = module.get_modules();
+    for (const auto &dependency : parser.get_imported_libraries())
+    {
+      const auto address = file_resolver_(dependency.name());
+      if (!address)
+      {
+        return false;
+      }
+      const yasld::Header *dependent_header =
+        reinterpret_cast<const yasld::Header *>(*address);
+      if (std::string_view(dependent_header->cookie, 4) != "YAFF")
+      {
+        log("Module %s is not YAFF file\n", dependency.name().data());
+        return false;
+      }
+      if (dependent_header->type == Header::Type::Executable)
+      {
+        modules.emplace_back(
+          static_cast<Module *>(
+            YasldAllocatorHolder::get().get_allocator()(sizeof(Executable))),
+          YasldDeleter<Module>());
+      }
+      else if (dependent_header->type == Header::Type::Library)
+      {
+        modules.emplace_back(
+          static_cast<Module *>(
+            YasldAllocatorHolder::get().get_allocator()(sizeof(Library))),
+          YasldDeleter<Module>());
+      }
+      else
+      {
+        log("Unknown module type for: %s\n", dependency.name().data());
+        return false;
+      }
+      if (!load_module(*address, *modules.back().get()))
+      {
+        return false;
+      }
+    }
+  }
 
   if (!process_data(*header, parser, module))
   {
@@ -135,27 +196,20 @@ bool Loader::process_data(
   const auto        data_initializer = parser.get_data();
   const std::size_t data_size        = header.data_length + header.bss_length;
 
-  void             *data_memory      = allocator_(data_size);
-  if (!data_memory)
+  if (!module.allocate_data(header.data_length, header.bss_length))
   {
     log("Data allocation failure\n");
     return false;
   }
 
-  module.set_data(
-    std::span<std::byte>(static_cast<std::byte *>(data_memory), data_size));
-
   log(
     "Copying data from: %p, to: %p, size: 0x%x\n",
     data_initializer.data(),
-    data_memory,
+    module.get_data().data(),
     data_size);
 
   std::memcpy(
     module.get_data().data(), data_initializer.data(), header.data_length);
-
-  module.set_bss(
-    module.get_data().subspan(header.data_length, header.bss_length));
 
   log(
     "Initializing .bss at: %p, size: 0x%x\n",
@@ -264,59 +318,32 @@ std::optional<std::size_t> Loader::find_symbol(
   return std::nullopt;
 }
 
-bool Loader::is_fragment_of_module(
-  const Module *module,
-  std::size_t   program_counter) const
-{
-  {
-    const std::size_t text_start =
-      reinterpret_cast<std::size_t>(module->get_text().data());
-    const std::size_t text_end = text_start + module->get_text().size();
-    if (program_counter >= text_start && program_counter < text_end)
-    {
-      return true;
-    }
-  }
-  {
-    const std::size_t data_start =
-      reinterpret_cast<std::size_t>(module->get_data().data());
-    const std::size_t data_end = data_start + module->get_data().size();
-    if (program_counter >= data_start && program_counter < data_end)
-    {
-      return true;
-    }
-  }
-  {
-    const std::size_t bss_start =
-      reinterpret_cast<std::size_t>(module->get_bss().data());
-    const std::size_t bss_end = bss_start + module->get_bss().size();
-    if (program_counter >= bss_start && program_counter < bss_end)
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
 Module *Loader::find_module(std::size_t program_counter)
 {
   for (auto &e : executables_)
   {
-    if (is_fragment_of_module(&(*e), program_counter))
+    auto ptr = e->find_module_for_program_counter(program_counter);
+    if (ptr)
     {
-      return &(*e);
+      return *ptr;
     }
   }
 
   for (auto &l : libraries_)
   {
-    if (is_fragment_of_module(&(*l), program_counter))
+    auto ptr = l->find_module_for_program_counter(program_counter);
+    if (ptr)
     {
-      return &(*l);
+      return *ptr;
     }
   }
 
   return nullptr;
+}
+
+void Loader::register_file_resolver(const FileResolverType &resolver)
+{
+  file_resolver_ = resolver;
 }
 
 } // namespace yasld

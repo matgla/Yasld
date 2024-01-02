@@ -98,7 +98,8 @@ target_compile_options(
             -fno-plt
             -mthumb
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
-            -fno-rtti>)
+            -fno-rtti
+            -fno-use-cxa-atexit>)
 
 target_link_options(
   yasld_arch_flags

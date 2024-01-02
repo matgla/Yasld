@@ -24,7 +24,7 @@
 
 extern "C"
 {
-  int call_main(int argc, char *argv[], std::size_t address, void *lot);
+  int call_main(int argc, char *argv[], std::size_t address, const void *lot);
 } // extern "C"
 
 namespace yasld
@@ -38,12 +38,22 @@ bool Executable::initialize_main()
 
 int Executable::execute(int argc, char *argv[]) const
 {
-  log("Executing 'main' inside module\n");
+  log("Executing 'main' inside module, lot: %p\n", lot_.data());
   if (!main_address_)
   {
     return -1;
   }
   return call_main(argc, argv, *main_address_, lot_.data());
+}
+
+int Executable::execute() const
+{
+  log("Executing 'main' inside module, lot: %p\n", lot_.data());
+  if (!main_address_)
+  {
+    return -1;
+  }
+  return call_main(0, nullptr, *main_address_, lot_.data());
 }
 
 } // namespace yasld

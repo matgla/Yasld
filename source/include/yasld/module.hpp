@@ -20,10 +20,15 @@
 
 #pragma once
 
+#include <memory>
 #include <optional>
 #include <span>
 #include <string_view>
+#include <vector>
 
+#include <eul/functional/function.hpp>
+
+#include "yasld/allocator.hpp"
 #include "yasld/arch.hpp"
 #include "yasld/symbol_table.hpp"
 
@@ -34,16 +39,20 @@ namespace yasld
 class Module
 {
 public:
-  virtual ~Module() = default;
+  virtual ~Module()      = default;
+
+  Module(const Module &) = delete;
+  Module(Module &&)      = default;
   Module();
 
-  void                    set_lot(const std::span<std::size_t> &lot);
-  void                    set_text(const std::span<const std::byte> &text);
-  void                    set_data(const std::span<std::byte> &data);
-  void                    set_bss(const std::span<std::byte> &bss);
-  void                    set_exported_symbol_table(const SymbolTable &table);
+  bool allocate_lot(std::size_t size);
+  bool allocate_data(std::size_t data_size, std::size_t bss_size);
+  bool allocate_modules(std::size_t number_of_modules);
 
-  std::span<std::size_t> &get_lot();
+  void set_text(const std::span<const std::byte> &text);
+  void set_exported_symbol_table(const SymbolTable &table);
+
+  std::span<std::size_t>            get_lot();
   std::span<const std::byte>        get_text() const;
   std::span<std::byte>              get_data();
   std::span<std::byte>              get_bss();
@@ -59,13 +68,28 @@ public:
   void                       save_caller_state(ForeignCallContext ctx);
   ForeignCallContext         restore_caller_state();
 
+  using ModuleHolder = std::unique_ptr<Module, YasldDeleter<Module>>;
+  using ModulesContainer =
+    std::vector<ModuleHolder, YasldAllocator<ModuleHolder>>;
+
+  ModulesContainer       &get_modules();
+
+  void                    set_name(const std::string_view &name);
+  const std::string_view &get_name() const;
+
+  std::optional<Module *> find_module_for_program_counter(
+    std::size_t program_counter);
+
 protected:
-  std::span<std::size_t>     lot_;
-  std::span<const std::byte> text_;
-  std::span<std::byte>       data_;
-  std::span<std::byte>       bss_;
-  std::optional<SymbolTable> exported_symbols_;
-  ForeignCallContext         foreignCallContext_;
+  std::vector<std::size_t, YasldAllocator<std::size_t>> lot_;
+  std::vector<std::byte>                                data_memory_;
+  std::span<const std::byte>                            text_;
+  std::span<std::byte>                                  data_;
+  std::span<std::byte>                                  bss_;
+  std::optional<SymbolTable>                            exported_symbols_;
+  ForeignCallContext                                    foreign_call_context_;
+  ModulesContainer                                      imported_modules_;
+  std::string_view                                      name_;
 };
 
 } // namespace yasld

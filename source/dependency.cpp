@@ -1,7 +1,7 @@
 /**
- * symbol_table.hpp
+ * dependency.cpp
  *
- * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+ * Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,13 +18,29 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "yasld/dependency.hpp"
 
-#include "yasld/item_table.hpp"
-#include "yasld/symbol.hpp"
+#include <cstdint>
+
+#include "yasld/align.hpp"
+
 namespace yasld
 {
 
-using SymbolTable = ItemTable<Symbol>;
+std::string_view Dependency::name() const
+{
+  return { reinterpret_cast<const char *>(this) };
+}
+
+std::size_t Dependency::size(std::size_t alignment) const
+{
+  return align<std::size_t>(name().size() + 1, alignment);
+}
+
+const Dependency *Dependency::next(std::size_t alignment) const
+{
+  const uint8_t *ptr = reinterpret_cast<const uint8_t *>(this);
+  return reinterpret_cast<const Dependency *>(ptr + size(alignment));
+}
 
 } // namespace yasld

@@ -38,7 +38,11 @@ target_include_directories(stm32f0_simple_library
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 include(ConvertElfToYasiff)
-convert_elf_to_yasiff(stm32f0_simple_library "shared_library")
+convert_elf_to_yasiff(
+  TARGET
+  stm32f0_simple_library
+  TYPE
+  shared_library)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_simple_library.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})

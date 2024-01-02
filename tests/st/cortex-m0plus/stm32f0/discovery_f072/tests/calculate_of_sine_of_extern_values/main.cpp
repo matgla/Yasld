@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
   };
   loader.set_environment(environment);
 
-  void *module     = reinterpret_cast<void *>(0x08010000);
+  void *module     = reinterpret_cast<void *>(0x08012000);
   auto  executable = loader.load_executable(module);
 
   if (executable)

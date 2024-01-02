@@ -54,7 +54,11 @@ set_target_properties(stm32f0_shared_libc PROPERTIES C_VISIBILITY_PRESET
 target_link_libraries(stm32f0_shared_libc PUBLIC -fvisibility=default)
 
 include(ConvertElfToYasiff)
-convert_elf_to_yasiff(stm32f0_shared_libc "shared_library")
+convert_elf_to_yasiff(
+  TARGET
+  stm32f0_shared_libc
+  TYPE
+  "shared_library")
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_shared_libc.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})

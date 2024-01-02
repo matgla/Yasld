@@ -28,12 +28,12 @@
 #include <eul/container/observable/observing_node.hpp>
 #include <eul/functional/function.hpp>
 
+#include "yasld/allocator.hpp"
 #include "yasld/executable.hpp"
 #include "yasld/library.hpp"
 #include "yasld/symbol_table.hpp"
 
 #include "yasld/arch.hpp"
-
 namespace yasld
 {
 
@@ -44,9 +44,10 @@ class Environment;
 class Loader
 {
 public:
-  using AllocatorType = eul::function<void *(std::size_t size), sizeof(void *)>;
-  using ReleaseType   = eul::function<void(void *data), sizeof(void *)>;
-
+  using FileResolverType = eul::function<
+    std::optional<const void *>(const std::string_view &filename),
+    sizeof(void *)>;
+  Loader();
   Loader(const AllocatorType &allocator, const ReleaseType &release);
 
   void set_environment(const Environment &environment);
@@ -57,6 +58,7 @@ public:
   std::optional<ObservedLibrary> load_library(const void *module_address);
 
   Module                        *find_module(std::size_t program_counter);
+  void register_file_resolver(const FileResolverType &resolver);
 
 private:
   const Header *process_header(const void *module_address) const;
@@ -70,8 +72,7 @@ private:
     const std::string_view &name) const;
   bool is_fragment_of_module(const Module *module, std::size_t program_counter)
     const;
-  AllocatorType      allocator_;
-  ReleaseType        release_;
+  FileResolverType   file_resolver_;
 
   const Environment *environment_;
   // Loaded executables observer

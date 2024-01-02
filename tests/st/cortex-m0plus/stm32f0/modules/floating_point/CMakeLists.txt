@@ -24,7 +24,11 @@ target_link_libraries(stm32f0_floating_point
                       PUBLIC test::st::cortex_m0_plus::stm32f0::modules_common)
 
 include(ConvertElfToYasiff)
-convert_elf_to_yasiff(stm32f0_floating_point "executable")
+convert_elf_to_yasiff(
+  TARGET
+  stm32f0_floating_point
+  TYPE
+  "executable")
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_floating_point.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})

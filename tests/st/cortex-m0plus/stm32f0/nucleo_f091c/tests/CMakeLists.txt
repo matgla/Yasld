@@ -31,3 +31,4 @@ target_link_options(test_st_cortex_m0_plus_nucleo_f091rc INTERFACE
 add_subdirectory(import_libc_symbols)
 add_subdirectory(print_hello_world)
 add_subdirectory(print_hello_world_using_external_symbols)
+add_subdirectory(executable_with_shared_libraries)

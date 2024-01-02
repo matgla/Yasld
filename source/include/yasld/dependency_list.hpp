@@ -1,7 +1,7 @@
 /**
- * symbol_table.hpp
+ * dependency_list.hpp
  *
- * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+ * Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
  *
  * This program is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,10 +21,12 @@
 #pragma once
 
 #include "yasld/item_table.hpp"
-#include "yasld/symbol.hpp"
+
+#include "yasld/dependency.hpp"
+
 namespace yasld
 {
 
-using SymbolTable = ItemTable<Symbol>;
+using DependencyList = ItemTable<Dependency>;
 
 } // namespace yasld
