@@ -57,8 +57,13 @@ public:
   using ObservedLibrary = eul::container::observing_node<Library>;
   std::optional<ObservedLibrary> load_library(const void *module_address);
 
-  Module                        *find_module(std::size_t program_counter);
-  void register_file_resolver(const FileResolverType &resolver);
+  Module                        *find_module(
+                           std::size_t program_counter,
+                           bool        only_active = false,
+                           bool        recursive   = true);
+  Module *find_module(std::size_t program_counter, std::size_t return_address);
+
+  void    register_file_resolver(const FileResolverType &resolver);
 
 private:
   const Header *process_header(const void *module_address) const;

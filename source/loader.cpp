@@ -63,13 +63,18 @@ bool Loader::load_module(const void *module_address, Module &module)
     header->symbol_table_relocations_amount + header->local_relocations_amount;
 
   module.set_name(parser.name());
+
+  log("Allocation of LOT with size: %d\n", lot_size);
   if (!module.allocate_lot(lot_size))
   {
     log("LOT allocation failure\n");
     return false;
   }
 
-  log("LOT allocated with %d entries.\n", module.get_lot().size());
+  log(
+    "LOT allocated at %p with %d entries.\n",
+    module.get_lot().data(),
+    module.get_lot().size());
 
   module.set_text(parser.get_text());
 
@@ -109,6 +114,7 @@ bool Loader::load_module(const void *module_address, Module &module)
           static_cast<Module *>(
             YasldAllocatorHolder::get().get_allocator()(sizeof(Executable))),
           YasldDeleter<Module>());
+        new (modules.back().get()) Executable;
       }
       else if (dependent_header->type == Header::Type::Library)
       {
@@ -116,12 +122,14 @@ bool Loader::load_module(const void *module_address, Module &module)
           static_cast<Module *>(
             YasldAllocatorHolder::get().get_allocator()(sizeof(Library))),
           YasldDeleter<Module>());
+        new (modules.back().get()) Library;
       }
       else
       {
         log("Unknown module type for: %s\n", dependency.name().data());
         return false;
       }
+
       if (!load_module(*address, *modules.back().get()))
       {
         return false;
@@ -318,27 +326,74 @@ std::optional<std::size_t> Loader::find_symbol(
   return std::nullopt;
 }
 
-Module *Loader::find_module(std::size_t program_counter)
+Module *Loader::find_module(
+  std::size_t program_counter,
+  bool        only_active,
+  bool        recursive)
 {
   for (auto &e : executables_)
   {
-    auto ptr = e->find_module_for_program_counter(program_counter);
-    if (ptr)
+    if (recursive)
     {
-      return *ptr;
+      auto ptr =
+        e->find_module_for_program_counter(program_counter, only_active);
+      if (ptr)
+      {
+        return *ptr;
+      }
+    }
+    else
+    {
+      if (e->is_module_for_program_counter(program_counter, only_active))
+      {
+        return &(*e);
+      }
     }
   }
 
   for (auto &l : libraries_)
   {
-    auto ptr = l->find_module_for_program_counter(program_counter);
-    if (ptr)
+    if (recursive)
     {
-      return *ptr;
+      auto ptr =
+        l->find_module_for_program_counter(program_counter, only_active);
+      if (ptr)
+      {
+        return *ptr;
+      }
+    }
+    else
+    {
+      if (l->is_module_for_program_counter(program_counter, only_active))
+      {
+        return &(*l);
+      }
     }
   }
 
   return nullptr;
+}
+
+Module *Loader::find_module(
+  std::size_t program_counter,
+  std::size_t return_address)
+{
+  Module        *parent = find_module(return_address);
+  yasld::Module *m      = nullptr;
+  // if has no parent it was called from runtime system
+  if (parent == nullptr)
+  {
+    m = find_module(program_counter, false, false);
+  }
+  else
+  {
+    auto module = parent->find_module_for_program_counter(program_counter);
+    if (module)
+    {
+      m = *module;
+    }
+  }
+  return m;
 }
 
 void Loader::register_file_resolver(const FileResolverType &resolver)

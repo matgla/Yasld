@@ -18,10 +18,33 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
+#include <cstdio>
+#include <cstdlib>
+#include <unistd.h>
 
-int main()
+#include "rule_world.hpp"
+#include "spawn_cat.hpp"
+extern "C"
 {
-  printf("Hello using shared libc\n");
-  printf("Some values %ld, %s\n", 1234l, "Float is not supported by baselibc");
+  void do_stupid_things(const char *prefix);
+  void greet_youtube_fans(const char *prefix);
+} // extern "C"
+
+int main(int argc, char *argv[])
+{
+  if (argc < 2)
+  {
+    return -1;
+  }
+  const char *prefix = "[floppy]";
+  printf("[floppy] starts execution\n");
+  int loops = std::atoi(argv[1]);
+  for (int i = 0; i < loops; ++i)
+  {
+    do_stupid_things(prefix);
+    greet_youtube_fans(prefix);
+    rule_world(prefix);
+    spawn_cat(i, prefix);
+    // sleep(1);
+  }
 }

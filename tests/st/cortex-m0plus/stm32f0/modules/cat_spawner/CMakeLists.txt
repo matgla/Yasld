@@ -16,24 +16,29 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-include(AddTestWithModule)
+# Created for Youtube EP #11
+add_executable(stm32f0_cat_spawner)
 
-add_subdirectory(baselibc_variables)
+target_sources(
+  stm32f0_cat_spawner
+  PUBLIC spawn_cat.hpp
+  PRIVATE spawn_cat.cpp)
 
-add_test_with_module(
-  NAME
-  stm32f0_nucleo_f091_rc_import_libc_symbols
-  SOURCES
-  main.cpp
-  SCRIPTS
-  ${CMAKE_CURRENT_SOURCE_DIR}/..
+target_link_libraries(
+  stm32f0_cat_spawner PRIVATE test::st::cortex_m0_plus::module_flags
+                              yasld_executable_flags gcc)
+
+include(ConvertElfToYasiff)
+convert_elf_to_yasiff(
+  TARGET
+  stm32f0_cat_spawner
+  TYPE
+  "shared_library"
   LIBRARIES
-  test::st::cortex_m0_plus::nucleo_f091rc
-  baselibc_variables
-  ROBOT_COMMON_FILE
-  stm32f0_nucleo_f091rc_common.robot
-  BOARD_FILE
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../nucleo_f091rc.repl
-  LAYOUT
-  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_nucleo_f091_rc_import_libc_symbols.bin:0x11000
-  ${STM32F0_TEST_MODULES_DIR}/stm32f0_shared_libc.yaff:0x10000)
+  stm32f0_shared_libc)
+
+target_include_directories(stm32f0_cat_spawner
+                           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_cat_spawner.yaff
+        DESTINATION ${STM32F0_TEST_MODULES_DIR})

@@ -13,9 +13,8 @@ ${BOARD_FILE}       @renode_board_file@
 
 
 *** Test Cases ***
-Print 'Hello World' on USART from relocated module
+Run executable that uses shared libc
     Prepare Machine
-
     Wait For Line On Uart    [host] STM32F0 Nucleo Board started!    timeout=1
-    Wait For Line On Uart    [host][strcpy]: this is test string    timeout=1
-    Wait For Line On Uart    [host][puts] Used puts from shared libc    timeout=1
+    Wait For Line On Uart    Hello using shared libc    timeout=1
+    Wait For Line On Uart    Some values 1234, Float is not supported by baselibc    timeout=1

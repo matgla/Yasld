@@ -21,8 +21,6 @@ include(AddTestWithModule)
 add_test_with_module(
   NAME
   stm32f0_discovery_f072_import_simple_library
-  MODULE
-  stm32f0_simple_library
   SOURCES
   main.cpp
   test.cpp
@@ -31,4 +29,7 @@ add_test_with_module(
   LIBRARIES
   test::st::cortex_m0_plus::discovery_f072
   ROBOT_COMMON_FILE
-  stm32f0_discovery_f072_common.robot)
+  stm32f0_discovery_f072_common.robot
+  LAYOUT
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_discovery_f072_import_simple_library.bin:0x11000
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_simple_library.yaff:0x1000)

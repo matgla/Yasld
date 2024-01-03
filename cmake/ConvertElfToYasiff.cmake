@@ -53,7 +53,7 @@ macro(convert_elf_to_yasiff)
       --output=${CMAKE_CURRENT_BINARY_DIR}/${YASIFF_TARGET}.yaff --libraries
       ${YASIFF_LIBRARIES} --verbose
     VERBATIM
-    DEPENDS ${MKIMAGE_DIR}/mkimage.py ${YASIFF_TARGET}
+    DEPENDS ${MKIMAGE_DIR}/mkimage.py ${YASIFF_TARGET} ${YASIFF_LIBRARIES}
     COMMENT "Generating YASIFF image for module ${YASIFF_TARGET}")
 
   add_custom_target(generate_${YASIFF_TARGET}.yaff ALL

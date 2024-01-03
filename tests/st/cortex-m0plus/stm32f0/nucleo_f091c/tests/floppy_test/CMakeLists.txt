@@ -18,11 +18,9 @@
 
 include(AddTestWithModule)
 
-add_subdirectory(baselibc_variables)
-
 add_test_with_module(
   NAME
-  stm32f0_nucleo_f091_rc_import_libc_symbols
+  stm32f0_nucleo_f091_rc_floppy_test
   SOURCES
   main.cpp
   SCRIPTS
@@ -35,5 +33,8 @@ add_test_with_module(
   BOARD_FILE
   ${CMAKE_CURRENT_SOURCE_DIR}/../../nucleo_f091rc.repl
   LAYOUT
-  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_nucleo_f091_rc_import_libc_symbols.bin:0x11000
-  ${STM32F0_TEST_MODULES_DIR}/stm32f0_shared_libc.yaff:0x10000)
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_nucleo_f091_rc_floppy_test.bin:0x11000
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_floppy.yaff:0x1000
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_shared_libc.yaff:0x10000
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_cat_spawner.yaff:0x1000
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_rule_world.yaff:0x1000)

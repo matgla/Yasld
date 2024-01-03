@@ -34,27 +34,28 @@ void process_entry_service_call(Loader *loader, std::size_t *args)
   if (m == nullptr)
   {
     log("Can't find module at 0x%x\n", args[2]);
-    // TODO: implement panic
-    return;
+    while (true)
+    {
+    };
   }
-
   m->save_caller_state({
     .r9 = args[0], .lr = args[1], .tmpReg = {args[3], args[4]}
   });
-  m->set_active(true);
+  if (m->get_parent())
+  {
+    m->set_call_id(m->get_parent()->get_call_id());
+  }
   args[0] = reinterpret_cast<std::size_t>(m->get_lot().data());
 }
 
 void process_exit_service_call(Loader *loader, std::size_t *args)
 {
-  yasld::Module *m = loader->find_module(args[0], true);
+  yasld::Module *m = loader->find_module_with_highest_callid(args[0]);
   if (m == nullptr)
   {
     log("Danger module destroyed during work, system state is unknown\n");
-    // TODO: implement panic
     return;
   }
-  m->set_active(false);
   const auto s = m->restore_caller_state();
   args[0]      = s.lr;
   args[1]      = s.r9;

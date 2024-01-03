@@ -18,10 +18,4 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
-
-int main()
-{
-  printf("Hello using shared libc\n");
-  printf("Some values %ld, %s\n", 1234l, "Float is not supported by baselibc");
-}
+void spawn_cat(int id, const char *prefix);

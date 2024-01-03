@@ -13,7 +13,7 @@ ${BOARD_FILE}       @renode_board_file@
 
 
 *** Test Cases ***
-Print 'Hello World' on USART from relocated module
+Load shared libc as library module
     Prepare Machine
 
     Wait For Line On Uart    [host] STM32F0 Nucleo Board started!    timeout=1

@@ -1,5 +1,5 @@
 /**
- * main.cpp
+ * spawn_cat.cpp
  *
  * Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,10 +18,15 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include <stdio.h>
+#include "rule_world.hpp"
 
-int main()
+#include <cstdio>
+
+extern "C"
 {
-  printf("Hello using shared libc\n");
-  printf("Some values %ld, %s\n", 1234l, "Float is not supported by baselibc");
+  void rule_world(const char *prefix)
+  {
+    static int times = 0;
+    printf("%s rules the world %d time\n", prefix, times++);
+  }
 }

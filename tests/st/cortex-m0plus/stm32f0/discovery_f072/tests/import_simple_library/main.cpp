@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 
   loader.set_environment(environment);
 
-  void *module  = reinterpret_cast<void *>(0x08010000);
+  void *module  = reinterpret_cast<void *>(0x08011000);
   auto  library = loader.load_library(module);
   if (library)
   {

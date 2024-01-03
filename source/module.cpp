@@ -32,6 +32,8 @@ Module::Module()
   , data_{}
   , bss_{}
   , exported_symbols_{}
+  , imported_modules_{}
+  , active_{ false }
 {
 }
 
@@ -89,7 +91,6 @@ std::optional<std::size_t> Module::find_symbol(
 
   for (const auto &module : imported_modules_)
   {
-    printf("Searching in dependant module %s\n", module->get_name().data());
     auto symbol = module->find_symbol(name);
     if (symbol)
     {
@@ -161,15 +162,25 @@ const std::string_view &Module::get_name() const
   return name_;
 }
 
-std::optional<Module *> Module::find_module_for_program_counter(
-  std::size_t program_counter)
+bool Module::is_module_for_program_counter(
+  std::size_t program_counter,
+  bool        only_active)
 {
+  // since circular dependency can't exists childs can be skipped if match
+  // occured
   {
     const std::size_t text_start = reinterpret_cast<std::size_t>(text_.data());
     const std::size_t text_end   = text_start + text_.size();
     if (program_counter >= text_start && program_counter < text_end)
     {
-      return this;
+      if (active_ || !only_active)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
     }
   }
   {
@@ -177,7 +188,14 @@ std::optional<Module *> Module::find_module_for_program_counter(
     const std::size_t data_end   = data_start + data_.size();
     if (program_counter >= data_start && program_counter < data_end)
     {
-      return this;
+      if (active_ || !only_active)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
     }
   }
   {
@@ -185,16 +203,50 @@ std::optional<Module *> Module::find_module_for_program_counter(
     const std::size_t bss_end   = bss_start + bss_.size();
     if (program_counter >= bss_start && program_counter < bss_end)
     {
-      return this;
+      if (active_ || !only_active)
+      {
+        return true;
+      }
+      else
+      {
+        return false;
+      }
     }
+  }
+  return false;
+}
+
+std::optional<Module *> Module::find_module_for_program_counter(
+  std::size_t program_counter,
+  bool        only_active)
+{
+  // since circular dependency can't exists childs can be skipped if match
+  // occured
+  if (is_module_for_program_counter(program_counter, only_active))
+  {
+    return this;
   }
 
   for (auto &module : imported_modules_)
   {
-    auto ptr = module->find_module_for_program_counter(program_counter);
-    return ptr;
+    auto m =
+      module->find_module_for_program_counter(program_counter, only_active);
+    if (m)
+    {
+      return *m;
+    }
   }
   return std::nullopt;
+}
+
+bool Module::get_active() const
+{
+  return active_;
+}
+
+void Module::set_active(bool active)
+{
+  active_ = active;
 }
 
 } // namespace yasld

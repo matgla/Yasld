@@ -12,7 +12,7 @@ ${TEST_FILE}    @renode_test_binary@
 
 
 *** Test Cases ***
-Print 'Hello World' on USART from relocated module using imported symbols
+Import library using loader
     Prepare Machine
 
     Wait For Line On Uart    [host] STM32F0 Discovery Board started!    timeout=1

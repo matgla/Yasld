@@ -77,8 +77,15 @@ public:
   void                    set_name(const std::string_view &name);
   const std::string_view &get_name() const;
 
+  bool                    is_module_for_program_counter(
+                       std::size_t program_counter,
+                       bool        only_active);
   std::optional<Module *> find_module_for_program_counter(
-    std::size_t program_counter);
+    std::size_t program_counter,
+    bool        only_active = false);
+
+  bool get_active() const;
+  void set_active(bool active);
 
 protected:
   std::vector<std::size_t, YasldAllocator<std::size_t>> lot_;
@@ -90,6 +97,11 @@ protected:
   ForeignCallContext                                    foreign_call_context_;
   ModulesContainer                                      imported_modules_;
   std::string_view                                      name_;
+  // In single threaded only one instance of library is active
+  // for multithreaded it has to be connected to thread info,
+  // thread info may point currently used module, to determine which
+  // tree needs to be searched
+  bool                                                  active_;
 };
 
 } // namespace yasld
