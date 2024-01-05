@@ -25,21 +25,12 @@ target_link_libraries(
   stm32f0_floppy PRIVATE test::st::cortex_m0_plus::module_flags
                          yasld_executable_flags gcc)
 
-target_include_directories(
-  stm32f0_floppy
-  PRIVATE $<TARGET_PROPERTY:stm32f0_cat_spawner,INCLUDE_DIRECTORIES>
-          $<TARGET_PROPERTY:stm32f0_rule_world,INCLUDE_DIRECTORIES>)
-
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(
   TARGET
   stm32f0_floppy
   TYPE
-  "executable"
-  LIBRARIES
-  stm32f0_shared_libc
-  stm32f0_cat_spawner
-  stm32f0_rule_world)
+  "executable")
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_floppy.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})

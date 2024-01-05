@@ -111,39 +111,20 @@ void systick_setup()
   systick_interrupt_enable();
 }
 
-std::optional<const void *> resolver(const std::string_view &name)
+int main()
 {
-  printf("[host] Resolving module: %s\n", name.data());
-  if (name == "stm32f0_shared_libc")
-  {
-    return reinterpret_cast<const void *>(0x08012000);
-  }
-  if (name == "stm32f0_cat_spawner")
-  {
-    return reinterpret_cast<const void *>(0x08022000);
-  }
-  if (name == "stm32f0_rule_world")
-  {
-    return reinterpret_cast<const void *>(0x08023000);
-  }
-
-  return std::nullopt;
-}
-
-int main(int argc, char *argv[])
-{
-  static_cast<void>(argc);
-  static_cast<void>(argv);
   board_init();
   systick_setup();
-  init_baselibc_stdout();
-  puts("[host] STM32F0 Nucleo Board started!");
+  puts("[host] Runtime System was started!");
 
   const yasld::StaticEnvironment environment{
     yasld::SymbolEntry{"stdout",              &stdout_file       },
     yasld::SymbolEntry{ "do_stupid_things",   &do_stupid_things  },
     yasld::SymbolEntry{ "greet_youtube_fans", &greet_youtube_fans},
-    yasld::SymbolEntry{ "sleep",              &sleep             }
+    yasld::SymbolEntry{ "sleep",              &sleep             },
+    yasld::SymbolEntry{ "printf",             &printf            },
+    yasld::SymbolEntry{ "puts",               &puts              },
+    yasld::SymbolEntry{ "atoi",               &atoi              },
   };
 
   yasld::Loader loader(
@@ -157,37 +138,20 @@ int main(int argc, char *argv[])
     });
   l = &loader;
 
-  loader.register_file_resolver(&resolver);
   loader.set_environment(environment);
 
   void *module   = reinterpret_cast<void *>(0x08011000);
   auto  exec     = loader.load_executable(module);
 
-  void *rule_lib = reinterpret_cast<void *>(0x08023000);
-  auto  lib      = loader.load_library(rule_lib);
-
-  if (exec && lib)
+  if (exec)
   {
     printf("[host] Module loaded\n");
     char  name[] = { "floopy" };
     char  arg[]  = { "5" };
     char *args[] = { name, arg };
     (*exec)->execute(2, args);
-    auto rule =
-      yasld::SymbolGet<void(const char *)>::get_symbol(**lib, "rule_world");
-    rule("[HOST");
-    rule("[HOST");
-    rule("[HOST");
-    arg[0] = '2';
-    (*exec)->execute(2, args);
-    rule("[HOST]");
-  }
-  else
-  {
-    printf("[host] Loading failed\n");
   }
 
-  printf("[host] TEST SUCCESS\n");
   while (true)
   {
   }

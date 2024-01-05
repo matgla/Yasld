@@ -22,13 +22,17 @@
 #include <cstdlib>
 #include <unistd.h>
 
-#include "rule_world.hpp"
-#include "spawn_cat.hpp"
 extern "C"
 {
   void do_stupid_things(const char *prefix);
   void greet_youtube_fans(const char *prefix);
 } // extern "C"
+
+void rule_world()
+{
+  static int times = 0;
+  printf("[floppy] rules the world %d time\n", times++);
+}
 
 int main(int argc, char *argv[])
 {
@@ -43,8 +47,7 @@ int main(int argc, char *argv[])
   {
     do_stupid_things(prefix);
     greet_youtube_fans(prefix);
-    rule_world(prefix);
-    spawn_cat(i, prefix);
-    // sleep(1);
+    rule_world();
+    sleep(1);
   }
 }
