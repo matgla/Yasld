@@ -101,7 +101,7 @@ protected:
                        bool only_active = false);
 
   std::vector<std::size_t, YasldAllocator<std::size_t>> lot_;
-  std::vector<std::byte>                                data_memory_;
+  std::vector<std::byte,  YasldAllocator<std::byte>>    data_memory_;
   std::span<const std::byte>                            text_;
   std::span<std::byte>                                  data_;
   std::span<std::byte>                                  bss_;

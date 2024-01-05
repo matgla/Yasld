@@ -30,7 +30,7 @@ function(generate_wrappers_for target)
       ${CMAKE_OBJCOPY} --verbose --template ${YASLD_ARCH_DIR}/${YASLD_ARCH}
       --compiler=${CMAKE_C_COMPILER} --ar ${CMAKE_AR}
       --compiler_flags=${yasld_arch_flags_str}
-      ${MKIMAGE_DIR}/generate_wrappers.py
+    DEPENDS ${MKIMAGE_DIR}/generate_wrappers.py ${YASLD_ARCH_DIR}/${YASLD_ARCH}/call_wrapped.s.tmpl
     VERBATIM)
 
   add_custom_command(
