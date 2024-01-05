@@ -326,74 +326,83 @@ std::optional<std::size_t> Loader::find_symbol(
   return std::nullopt;
 }
 
-Module *Loader::find_module(
-  std::size_t program_counter,
-  bool        only_active,
-  bool        recursive)
+Module *Loader::find_active_module(std::size_t program_counter)
 {
   for (auto &e : executables_)
   {
-    if (recursive)
+    auto ptr =
+      e->find_active_module_for_program_counter(program_counter);
+    if (ptr)
     {
-      auto ptr =
-        e->find_module_for_program_counter(program_counter, only_active);
-      if (ptr)
-      {
-        return *ptr;
-      }
-    }
-    else
-    {
-      if (e->is_module_for_program_counter(program_counter, only_active))
-      {
-        return &(*e);
-      }
+      return *ptr;
     }
   }
 
   for (auto &l : libraries_)
   {
-    if (recursive)
+    auto ptr =
+      l->find_active_module_for_program_counter(program_counter);
+    if (ptr)
     {
-      auto ptr =
-        l->find_module_for_program_counter(program_counter, only_active);
-      if (ptr)
-      {
-        return *ptr;
-      }
-    }
-    else
-    {
-      if (l->is_module_for_program_counter(program_counter, only_active))
-      {
-        return &(*l);
-      }
+      return *ptr;
     }
   }
 
   return nullptr;
 }
 
-Module *Loader::find_module(
-  std::size_t program_counter,
-  std::size_t return_address)
+Module *Loader::find_module_with_lot(std::size_t lot_address)
 {
-  Module        *parent = find_module(return_address);
-  yasld::Module *m      = nullptr;
+  for (auto& e : executables_)
+  {
+    auto ptr = e->find_module_with_lot(lot_address);
+    if (ptr)
+    {
+      return *ptr;
+    }
+  }
+  for (auto& l : libraries_)
+  {
+    auto ptr = l->find_module_with_lot(lot_address);
+    if (ptr)
+    {
+      return *ptr;
+    }
+  }
+  return nullptr;
+}
+
+Module *Loader::find_module_for_pc_and_lot(
+  std::size_t program_counter,
+  std::size_t lot_address)
+{
+  Module        *parent = find_module_with_lot(lot_address);
   // if has no parent it was called from runtime system
   if (parent == nullptr)
   {
-    m = find_module(program_counter, false, false);
-  }
-  else
-  {
-    auto module = parent->find_module_for_program_counter(program_counter);
-    if (module)
+    for (auto& module : executables_)
     {
-      m = *module;
+      if (module->is_module_for_program_counter(program_counter))
+      {
+        return &(*module);
+      }
+    }
+    for (auto& module : libraries_)
+    {
+      if (module->is_module_for_program_counter(program_counter))
+      {
+        return &(*module);
+      }
     }
   }
-  return m;
+  
+  auto module = parent->find_module_for_program_counter(program_counter);
+  if (module)
+  {
+    return *module;
+  }
+  
+  return nullptr;
 }
 
 void Loader::register_file_resolver(const FileResolverType &resolver)

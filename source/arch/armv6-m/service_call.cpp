@@ -29,17 +29,23 @@ namespace yasld
 
 void process_entry_service_call(Loader *loader, std::size_t *args)
 {
+  const std::size_t r4 = args[2];
+  const std::size_t r9 = args[1];
+  const std::size_t lr = args[3];
+  const std::size_t pc = args[0];
+
   // find parent module
-  Module *m = loader->find_module(args[2], args[1]);
+  Module *m = loader->find_module_for_pc_and_lot(pc, r9);
+
   if (m == nullptr)
   {
-    log("Can't find module at 0x%x\n", args[2]);
+    log("Can't find module at 0x%x\n", pc);
     // TODO: implement panic
     return;
   }
 
   m->save_caller_state({
-    .r9 = args[0], .lr = args[1], .tmpReg = {args[3], args[4]}
+    .r9 = r9, .lr = lr, .tmpReg = {r4}
   });
   m->set_active(true);
   args[0] = reinterpret_cast<std::size_t>(m->get_lot().data());
@@ -47,7 +53,8 @@ void process_entry_service_call(Loader *loader, std::size_t *args)
 
 void process_exit_service_call(Loader *loader, std::size_t *args)
 {
-  yasld::Module *m = loader->find_module(args[0], true);
+  const std::size_t pc = args[0];
+  yasld::Module *m = loader->find_active_module(pc);
   if (m == nullptr)
   {
     log("Danger module destroyed during work, system state is unknown\n");
@@ -59,7 +66,6 @@ void process_exit_service_call(Loader *loader, std::size_t *args)
   args[0]      = s.lr;
   args[1]      = s.r9;
   args[2]      = s.tmpReg[0];
-  args[3]      = s.tmpReg[1];
 }
 
 } // namespace yasld

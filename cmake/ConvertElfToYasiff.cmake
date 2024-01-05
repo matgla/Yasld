@@ -23,7 +23,7 @@ include(GenerateWrappers)
 
 macro(convert_elf_to_yasiff)
   set(prefix YASIFF)
-  set(optionArgs "")
+  set(optionArgs "") 
   set(singleValueArgs TARGET TYPE)
   set(multiValueArgs LIBRARIES)
 

@@ -162,7 +162,26 @@ const std::string_view &Module::get_name() const
   return name_;
 }
 
+std::optional<Module *> Module::find_active_module_for_program_counter(
+  std::size_t program_counter)
+{
+  return find_module_for_program_counter_impl(program_counter, true);
+}
+
+std::optional<Module *> Module::find_module_for_program_counter(
+  std::size_t program_counter)
+{
+  return find_module_for_program_counter_impl(program_counter, false);
+}
+
+
 bool Module::is_module_for_program_counter(
+  std::size_t program_counter)
+{
+  return is_module_for_program_counter_impl(program_counter, false);
+}
+
+bool Module::is_module_for_program_counter_impl(
   std::size_t program_counter,
   bool        only_active)
 {
@@ -216,13 +235,13 @@ bool Module::is_module_for_program_counter(
   return false;
 }
 
-std::optional<Module *> Module::find_module_for_program_counter(
+std::optional<Module *> Module::find_module_for_program_counter_impl(
   std::size_t program_counter,
   bool        only_active)
 {
   // since circular dependency can't exists childs can be skipped if match
   // occured
-  if (is_module_for_program_counter(program_counter, only_active))
+  if (is_module_for_program_counter_impl(program_counter, only_active))
   {
     return this;
   }
@@ -230,7 +249,7 @@ std::optional<Module *> Module::find_module_for_program_counter(
   for (auto &module : imported_modules_)
   {
     auto m =
-      module->find_module_for_program_counter(program_counter, only_active);
+      module->find_module_for_program_counter_impl(program_counter, only_active);
     if (m)
     {
       return *m;
@@ -238,6 +257,25 @@ std::optional<Module *> Module::find_module_for_program_counter(
   }
   return std::nullopt;
 }
+
+std::optional<Module *> Module::find_module_with_lot(std::size_t lot_address)
+{
+  if (lot_address == reinterpret_cast<std::size_t>(lot_.data()))
+  {
+    return this;
+  }
+
+  for (auto &module : imported_modules_)
+  {
+    auto m = module->find_module_with_lot(lot_address);
+    if (m)
+    {
+      return *m;
+    }
+  }
+  return std::nullopt;
+}
+
 
 bool Module::get_active() const
 {

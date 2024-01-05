@@ -78,16 +78,28 @@ public:
   const std::string_view &get_name() const;
 
   bool                    is_module_for_program_counter(
-                       std::size_t program_counter,
-                       bool        only_active);
+                       std::size_t program_counter);
+
   std::optional<Module *> find_module_for_program_counter(
-    std::size_t program_counter,
-    bool        only_active = false);
+    std::size_t program_counter);
+
+  std::optional<Module *> find_active_module_for_program_counter(
+    std::size_t program_counter);
+
+  std::optional<Module *> find_module_with_lot(std::size_t lot_address);
 
   bool get_active() const;
   void set_active(bool active);
 
 protected:
+  std::optional<Module *> find_module_for_program_counter_impl(
+    std::size_t program_counter,
+    bool        only_active = false);
+
+  bool                    is_module_for_program_counter_impl(
+                       std::size_t program_counter,
+                       bool only_active = false);
+
   std::vector<std::size_t, YasldAllocator<std::size_t>> lot_;
   std::vector<std::byte>                                data_memory_;
   std::span<const std::byte>                            text_;
