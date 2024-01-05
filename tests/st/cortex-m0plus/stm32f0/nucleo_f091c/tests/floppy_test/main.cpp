@@ -122,10 +122,6 @@ std::optional<const void *> resolver(const std::string_view &name)
   {
     return reinterpret_cast<const void *>(0x08022000);
   }
-  if (name == "stm32f0_rule_world")
-  {
-    return reinterpret_cast<const void *>(0x08023000);
-  }
 
   return std::nullopt;
 }
@@ -137,7 +133,7 @@ int main(int argc, char *argv[])
   board_init();
   systick_setup();
   init_baselibc_stdout();
-  puts("[host] STM32F0 Nucleo Board started!");
+  puts("Runtime system was started!");
 
   const yasld::StaticEnvironment environment{
     yasld::SymbolEntry{"stdout",              &stdout_file       },
@@ -163,31 +159,15 @@ int main(int argc, char *argv[])
   void *module   = reinterpret_cast<void *>(0x08011000);
   auto  exec     = loader.load_executable(module);
 
-  void *rule_lib = reinterpret_cast<void *>(0x08023000);
-  auto  lib      = loader.load_library(rule_lib);
-
-  if (exec && lib)
+  if (exec)
   {
     printf("[host] Module loaded\n");
     char  name[] = { "floopy" };
     char  arg[]  = { "5" };
     char *args[] = { name, arg };
     (*exec)->execute(2, args);
-    auto rule =
-      yasld::SymbolGet<void(const char *)>::get_symbol(**lib, "rule_world");
-    rule("[HOST");
-    rule("[HOST");
-    rule("[HOST");
-    arg[0] = '2';
-    (*exec)->execute(2, args);
-    rule("[HOST]");
-  }
-  else
-  {
-    printf("[host] Loading failed\n");
   }
 
-  printf("[host] TEST SUCCESS\n");
   while (true)
   {
   }

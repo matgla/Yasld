@@ -27,8 +27,7 @@ target_link_libraries(
 
 target_include_directories(
   stm32f0_floppy
-  PRIVATE $<TARGET_PROPERTY:stm32f0_cat_spawner,INCLUDE_DIRECTORIES>
-          $<TARGET_PROPERTY:stm32f0_rule_world,INCLUDE_DIRECTORIES>)
+  PRIVATE $<TARGET_PROPERTY:stm32f0_cat_spawner,INCLUDE_DIRECTORIES>)
 
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(
@@ -38,8 +37,7 @@ convert_elf_to_yasiff(
   "executable"
   LIBRARIES
   stm32f0_shared_libc
-  stm32f0_cat_spawner
-  stm32f0_rule_world)
+  stm32f0_cat_spawner)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_floppy.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})
