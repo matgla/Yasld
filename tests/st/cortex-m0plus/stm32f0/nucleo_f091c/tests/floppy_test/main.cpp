@@ -173,6 +173,9 @@ int main(int argc, char *argv[])
     char  arg[]  = { "5" };
     char *args[] = { name, arg };
     (*exec)->execute(2, args);
+    printf("/*******************************************/\n");
+    printf("/*     NOW IT'S TIME FOR RUNTIME SYSTEM    */\n");
+    printf("/*******************************************/\n");
     auto rule =
       yasld::SymbolGet<void(const char *)>::get_symbol(**lib, "rule_world");
     rule("[HOST");
