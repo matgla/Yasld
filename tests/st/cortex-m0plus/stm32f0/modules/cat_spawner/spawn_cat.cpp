@@ -37,6 +37,8 @@ static const char *cat2 = "    |\\__/,|   (`\\\n"
                           "  _.|o o  |_   ) )\n"
                           "-(((---(((--------\n";
 
+extern "C"
+{
 void               spawn_cat(int id, const char *prefix)
 {
   id = id % 3;
@@ -65,3 +67,4 @@ void               spawn_cat(int id, const char *prefix)
   printf("%s", cat);
   printf("------------------------------------\n");
 }
+} // extern "C"

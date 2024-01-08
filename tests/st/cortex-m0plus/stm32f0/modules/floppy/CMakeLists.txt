@@ -35,11 +35,7 @@ convert_elf_to_yasiff(
   TARGET
   stm32f0_floppy
   TYPE
-  "executable"
-  LIBRARIES
-  stm32f0_shared_libc
-  stm32f0_cat_spawner
-  stm32f0_rule_world)
+  executable)
 
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_floppy.yaff
         DESTINATION ${STM32F0_TEST_MODULES_DIR})

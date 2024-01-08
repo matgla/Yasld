@@ -33,9 +33,7 @@ convert_elf_to_yasiff(
   TARGET
   stm32f0_cat_spawner
   TYPE
-  "shared_library"
-  LIBRARIES
-  stm32f0_shared_libc)
+  shared_library)
 
 target_include_directories(stm32f0_cat_spawner
                            PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

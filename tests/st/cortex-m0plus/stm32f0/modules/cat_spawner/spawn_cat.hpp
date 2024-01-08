@@ -18,4 +18,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
+extern "C"
+{
 void spawn_cat(int id, const char *prefix);
+} // extern "C"
