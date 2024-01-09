@@ -51,7 +51,7 @@ void process_entry_supervisor_call(Loader *loader, std::size_t *args)
   args[0] = reinterpret_cast<std::size_t>(m->get_lot().data());
 }
 
-void process_exit_service_call(Loader *loader, std::size_t *args)
+void process_exit_supervisor_call(Loader *loader, std::size_t *args)
 {
   const std::size_t pc = args[0];
   yasld::Module *m = loader->find_active_module(pc);
