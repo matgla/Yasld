@@ -1,5 +1,5 @@
 /**
- * service_call.hpp
+ * supervisor_call.hpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -26,6 +26,6 @@
 
 namespace yasld
 {
-void process_entry_service_call(Loader *loader, std::size_t *args);
-void process_exit_service_call(Loader *loader, std::size_t *args);
+void process_entry_supervisor_call(Loader *loader, std::size_t *args);
+void process_exit_supervisor_call(Loader *loader, std::size_t *args);
 } // namespace yasld

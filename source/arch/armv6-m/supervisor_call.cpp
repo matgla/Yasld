@@ -1,5 +1,5 @@
 /**
- * service_call.cpp
+ * supervisor_call.cpp
  *
  * Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
  *
@@ -18,7 +18,7 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include "yasld/service_call.hpp"
+#include "yasld/supervisor_call.hpp"
 
 #include <cstdlib>
 
@@ -27,7 +27,7 @@
 namespace yasld
 {
 
-void process_entry_service_call(Loader *loader, std::size_t *args)
+void process_entry_supervisor_call(Loader *loader, std::size_t *args)
 {
   const std::size_t r4 = args[2];
   const std::size_t r9 = args[1];

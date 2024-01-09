@@ -31,7 +31,7 @@
 #include <string_view>
 
 #include "yasld/arch.hpp"
-#include "yasld/service_call.hpp"
+#include "yasld/supervisor_call.hpp"
 
 #include <libopencm3/cm3/systick.h>
 
@@ -48,12 +48,12 @@ extern "C"
     {
     case 10:
     {
-      yasld::process_entry_service_call(l, args);
+      yasld::process_entry_supervisor_call(l, args);
     }
     break;
     case 11:
     {
-      yasld::process_exit_service_call(l, args);
+      yasld::process_exit_supervisor_call(l, args);
     }
     break;
     };
