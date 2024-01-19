@@ -202,7 +202,6 @@ bool Loader::process_data(
   Module       &module)
 {
   const auto        data_initializer = parser.get_data();
-  const std::size_t data_size        = header.data_length + header.bss_length;
 
   if (!module.allocate_data(header.data_length, header.bss_length))
   {
@@ -211,10 +210,9 @@ bool Loader::process_data(
   }
 
   log(
-    "Copying data from: %p, to: %p, size: 0x%x\n",
+    "Copying data from: %p, to: %p\n",
     data_initializer.data(),
-    module.get_data().data(),
-    data_size);
+    module.get_data().data());
 
   std::memcpy(
     module.get_data().data(), data_initializer.data(), header.data_length);

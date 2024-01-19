@@ -90,16 +90,24 @@ Parser::Parser(const Header *header)
     data_address_,
     header->data_length);
 
-  log("Exported symbol table\n");
-  for (const auto &e : exported_symbol_table_)
+  if constexpr (yasld::logger_enabled)
   {
-    log("%s\n", e.name().data());
+    log("Exported symbol table\n");
+    for (const auto &e : exported_symbol_table_)
+    {
+      static_cast<void>(e);
+      log("%s\n", e.name().data());
+    }
   }
 
-  log("Imported libraries (%d):\n", header->external_libraries_amount);
-  for (const auto &l : imported_libaries_)
+  if constexpr (yasld::logger_enabled)
   {
-    log("  %s\n", l.name().data());
+    log("Imported libraries (%d):\n", header->external_libraries_amount);
+    for (const auto &l : imported_libaries_)
+    {
+      static_cast<void>(l);
+      log("  %s\n", l.name().data());
+    }
   }
 }
 

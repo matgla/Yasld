@@ -37,28 +37,8 @@
 
 #include "globals.h"
 
-yasld::Loader *l;
-
 extern "C"
 {
-  void __attribute__((noinline))
-  sv_call_handler(std::size_t svc_id, std::size_t *args)
-  {
-    switch (svc_id)
-    {
-    case 10:
-    {
-      yasld::process_entry_service_call(l, args);
-    }
-    break;
-    case 11:
-    {
-      yasld::process_exit_service_call(l, args);
-    }
-    break;
-    };
-  }
-
   void do_stupid_things(const char *prefix)
   {
     printf("%s: is doing stupid things\n", prefix);
@@ -118,7 +98,6 @@ int main()
   puts("[host] Runtime System was started!");
 
   const yasld::StaticEnvironment environment{
-    yasld::SymbolEntry{"stdout",              &stdout_file       },
     yasld::SymbolEntry{ "do_stupid_things",   &do_stupid_things  },
     yasld::SymbolEntry{ "greet_youtube_fans", &greet_youtube_fans},
     yasld::SymbolEntry{ "sleep",              &sleep             },
@@ -136,7 +115,6 @@ int main()
     {
       free(ptr);
     });
-  l = &loader;
 
   loader.set_environment(environment);
 

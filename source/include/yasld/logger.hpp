@@ -27,6 +27,14 @@
 #if (LOGGER_ENABLED == 1)
 #include <cstdio>
 #define log(...) printf("[YASLD] " __VA_ARGS__)
+namespace yasld
+{
+    constexpr bool logger_enabled = true;
+} // namespace yasld
 #else
 #define log(...)
+namespace yasld
+{
+    constexpr bool logger_enabled = false;
+} // namespace yasld
 #endif
