@@ -174,28 +174,14 @@ class Application:
                 data["binding"] == "STB_GLOBAL" and data["visibility"] != "STV_HIDDEN"
             )
 
-            if self.is_executable:
-                self.symbols[name] = data
-            else:
-                if name != "main":
-                    self.symbols[name] = data
-                else:
-                    continue
+            self.symbols[name] = data
 
-            print(
-                "Name: ",
-                name,
-                " global:",
-                is_global_and_visible,
-                data["binding"],
-                data["visibility"],
-            )
             if is_global_and_visible or is_main:
                 if data["section_index"] == "SHN_UNDEF":
                     self.symbols[name]["localization"] = "imported"
                 else:
                     # only main can be exported in executable
-                    if self.elf.is_executable() and self.is_executable:
+                    if self.is_executable:
                         if is_main:
                             self.symbols[name]["localization"] = "exported"
                         else:
