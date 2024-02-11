@@ -40,7 +40,7 @@ static const char *cat2 = "    |\\__/,|   (`\\\n"
 void               spawn_cat(int id, const char *prefix)
 {
   id = id % 3;
-  const char *cat;
+  const char *cat = cat0;
   switch (id)
   {
   case 0:
