@@ -24,11 +24,16 @@
 
 #include <optional>
 
+#include <eul/container/observable/observing_list.hpp>
+#include <eul/container/observable/observing_node.hpp>
 #include <eul/functional/function.hpp>
 
+#include "yasld/allocator.hpp"
 #include "yasld/executable.hpp"
+#include "yasld/library.hpp"
 #include "yasld/symbol_table.hpp"
 
+#include "yasld/arch.hpp"
 namespace yasld
 {
 
@@ -39,33 +44,48 @@ class Environment;
 class Loader
 {
 public:
-  using AllocatorType = eul::function<void *(std::size_t size), sizeof(void *)>;
-  using ReleaseType   = eul::function<void(void *data), sizeof(void *)>;
-
+  using FileResolverType = eul::function<
+    std::optional<const void *>(const std::string_view &filename),
+    sizeof(void *)>;
+  Loader();
   Loader(const AllocatorType &allocator, const ReleaseType &release);
 
-  void                      set_environment(const Environment &environment);
+  void set_environment(const Environment &environment);
 
-  std::optional<Executable> load_executable(const void *module_address);
+  using ObservedExecutable = eul::container::observing_node<Executable>;
+  std::optional<ObservedExecutable> load_executable(const void *module_address);
+  using ObservedLibrary = eul::container::observing_node<Library>;
+  std::optional<ObservedLibrary> load_library(const void *module_address);
+
+  Module *find_module(std::size_t program_counter, bool only_active = false);
+  Module *find_module_for_pc_and_lot(std::size_t program_counter, std::size_t lot_address);
+  Module *find_module_with_lot(std::size_t lot_address);
+  Module *find_active_module(std::size_t program_counter);
+
+  void    register_file_resolver(const FileResolverType &resolver);
 
 private:
   const Header *process_header(const void *module_address) const;
-  bool          process_data(const Header &header, const Parser &parser);
-  void          process_local_relocations(const Parser &parser);
-  void          process_data_relocations(const Parser &parser);
-  bool          process_symbol_table_relocations(const Parser &parser);
+  bool process_data(const Header &header, const Parser &parser, Module &module);
+  void process_local_relocations(const Parser &parser, Module &module);
+  void process_data_relocations(const Parser &parser, Module &module);
+  bool process_symbol_table_relocations(const Parser &parser, Module &module);
+  bool load_module(const void *module_address, Module &module);
+  std::optional<std::size_t> find_symbol(
+    Module                 &module,
+    const std::string_view &name) const;
+  bool is_fragment_of_module(const Module *module, std::size_t program_counter)
+    const;
+  FileResolverType   file_resolver_;
 
-  std::optional<std::size_t> find_symbol(const std::string_view &name) const;
-
-  AllocatorType              allocator_;
-  ReleaseType                release_;
-
-  std::span<std::size_t>     lot_;
-  std::span<const std::byte> text_;
-  std::span<std::byte>       data_;
-  std::span<std::byte>       bss_;
-  std::optional<SymbolTable> exported_symbols_;
-  const Environment         *environment_;
+  const Environment *environment_;
+  // Loaded executables observer
+  using ExecutableList = eul::container::observing_list<ObservedExecutable>;
+  ExecutableList executables_;
+  // Loaded standalone libaries observer,
+  // loaded by runtime system not loader as dependency
+  using LibrariesList = eul::container::observing_list<ObservedLibrary>;
+  LibrariesList libraries_;
 };
 
 } // namespace yasld

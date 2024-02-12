@@ -81,4 +81,18 @@ SECTIONS
     *(.got*)
   } > image
 
+  .dynsym :
+  {
+    *(.dynsym*)
+  } > image 
+
+  .dynstr :
+  {
+    *(.dynstr*)
+  } > image
+
+  .dynamic : 
+  {
+    *(.dynamic*)
+  } > image
 }

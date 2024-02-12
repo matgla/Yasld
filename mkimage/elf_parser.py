@@ -91,6 +91,8 @@ class ElfParser:
             for section in elf.iter_sections():
                 if not isinstance(section, RelocationSection):
                     continue
+                if section.name.endswith(".dyn"):
+                    continue
                 symbols = elf.get_section(section["sh_link"])
                 for relocation in section.iter_relocations():
                     if relocation["r_info_sym"] == 0:

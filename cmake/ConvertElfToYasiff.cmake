@@ -19,21 +19,43 @@
 set(CURRENT_FILE_DIR ${CMAKE_CURRENT_LIST_DIR})
 set(MKIMAGE_DIR ${CURRENT_FILE_DIR}/../mkimage)
 
-function(convert_elf_to_yasiff target)
+include(GenerateWrappers)
+
+macro(convert_elf_to_yasiff)
+  set(prefix YASIFF)
+  set(optionArgs "") 
+  set(singleValueArgs TARGET TYPE)
+  set(multiValueArgs LIBRARIES)
+
+  include(CMakeParseArguments)
+  cmake_parse_arguments(
+    ${prefix}
+    "${optionArgs}"
+    "${singleValueArgs}"
+    "${multiValueArgs}"
+    ${ARGN})
+
+  if(${YASIFF_TYPE} STREQUAL "shared_library")
+    generate_wrappers_for(${YASIFF_TARGET})
+  endif()
+
   get_filename_component(MKIMAGE_DIR ${MKIMAGE_DIR} ABSOLUTE)
 
   add_custom_command(
-    OUTPUT ${target}.yaff
-    COMMAND ${CMAKE_OBJCOPY} --localize-hidden $<TARGET_FILE:${target}>
-    COMMAND cmake -E copy $<TARGET_FILE:${target}> $<TARGET_FILE:${target}>.bak
-    COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${target}>
+    OUTPUT ${YASIFF_TARGET}.yaff
+    COMMAND ${CMAKE_OBJCOPY} --localize-hidden $<TARGET_FILE:${YASIFF_TARGET}>
+    COMMAND cmake -E copy $<TARGET_FILE:${YASIFF_TARGET}>
+            $<TARGET_FILE:${YASIFF_TARGET}>.bak
+    COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${YASIFF_TARGET}>
     COMMAND
       ${mkimage_python_executable} ${MKIMAGE_DIR}/mkimage.py
-      --input=$<TARGET_FILE:${target}>
-      --output=${CMAKE_CURRENT_BINARY_DIR}/${target}.yaff --verbose
+      --type=${YASIFF_TYPE} --input=$<TARGET_FILE:${YASIFF_TARGET}>
+      --output=${CMAKE_CURRENT_BINARY_DIR}/${YASIFF_TARGET}.yaff --libraries
+      ${YASIFF_LIBRARIES} --verbose
     VERBATIM
-    DEPENDS ${MKIMAGE_DIR}/mkimage.py ${target}
-    COMMENT "Generating YASIFF image for module ${target}")
+    DEPENDS ${MKIMAGE_DIR}/mkimage.py ${YASIFF_TARGET} ${YASIFF_LIBRARIES}
+    COMMENT "Generating YASIFF image for module ${YASIFF_TARGET}")
 
-  add_custom_target(generate_${target}.yaff ALL DEPENDS ${target}.yaff)
-endfunction()
+  add_custom_target(generate_${YASIFF_TARGET}.yaff ALL
+                    DEPENDS ${YASIFF_TARGET}.yaff)
+endmacro()

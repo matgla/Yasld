@@ -20,35 +20,11 @@
 
 #pragma once
 
-#include <cstdint>
-
-#include "yasld/symbol_iterator.hpp"
-
+#include "yasld/item_table.hpp"
+#include "yasld/symbol.hpp"
 namespace yasld
 {
 
-class Symbol;
-
-class SymbolTable
-{
-public:
-  SymbolTable(
-    std::uintptr_t address,
-    uint16_t       number_of_symbols,
-    uint8_t        alignment);
-
-  [[nodiscard]] std::uintptr_t address() const;
-  [[nodiscard]] std::size_t    size() const;
-
-  SymbolIterator               begin() const;
-  SymbolIterator               end() const;
-
-  const Symbol                &operator[](uint32_t position) const;
-
-private:
-  uint8_t       alignment_;
-  uint16_t      number_of_symbols_;
-  const Symbol *root_;
-};
+using SymbolTable = ItemTable<Symbol>;
 
 } // namespace yasld

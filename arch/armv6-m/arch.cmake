@@ -16,10 +16,14 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
+add_library(yasld_standalone_executable_flags INTERFACE)
 add_library(yasld_executable_flags INTERFACE)
+add_library(yasld_shared_library_flags INTERFACE)
+add_library(yasld_common_flags INTERFACE)
+add_library(yasld_arch_flags INTERFACE)
 
 target_link_options(
-  yasld_executable_flags
+  yasld_common_flags
   INTERFACE
   -Wl,--emit-relocs
   -Wl,--no-warn-rwx-segments
@@ -29,34 +33,13 @@ target_link_options(
   -mno-pic-data-is-text-relative
   -msingle-pic-base
   -mpic-register=r9
-  -fomit-frame-pointer
-  -fvisibility=hidden)
-
-add_library(yasld_executable_flags_shared INTERFACE)
-
-target_link_libraries(yasld_executable_flags_shared
-                      INTERFACE yasld_executable_flags)
-target_link_options(
-  yasld_executable_flags_shared
-  INTERFACE
-  -nodefaultlibs
-  -nostdlib
-  -Wl,--unresolved-symbols=ignore-in-object-files)
-
-if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
-  target_link_options(yasld_executable_flags INTERFACE
-                      -T${CMAKE_CURRENT_LIST_DIR}/executable.ld)
-endif()
-
-set_target_properties(
-  yasld_executable_flags PROPERTIES INTERFACE_LINK_DEPENDS
-                                    ${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+  -fno-plt
+  -fomit-frame-pointer)
 
 target_compile_options(
-  yasld_executable_flags
+  yasld_common_flags
   INTERFACE -fomit-frame-pointer
-            -fvisibility=hidden
-            $<$<COMPILE_LANGUAGE:CXX>:-fvisibility-inlines-hidden
+            $<$<COMPILE_LANGUAGE:CXX>:
             -fno-rtti
             -fno-exceptions>
             -fno-inline
@@ -64,21 +47,67 @@ target_compile_options(
             -mpic-register=r9
             -msingle-pic-base
             -mno-pic-data-is-text-relative
+            -fno-plt
             -fPIC)
 
-add_library(yasld_arch_flags INTERFACE)
+target_link_options(yasld_standalone_executable_flags INTERFACE
+                    -fvisibility=hidden)
+target_link_libraries(yasld_standalone_executable_flags
+                      INTERFACE yasld_common_flags)
+
+target_link_options(
+  yasld_shared_library_flags
+  INTERFACE
+  -nodefaultlibs
+  -nostdlib)
+target_link_libraries(yasld_shared_library_flags INTERFACE yasld_common_flags)
+
+target_link_libraries(yasld_executable_flags
+                      INTERFACE yasld_standalone_executable_flags)
+
+target_link_libraries(yasld_common_flags
+                      INTERFACE -Wl,--unresolved-symbols=ignore-in-object-files)
+target_link_options(
+  yasld_executable_flags
+  INTERFACE
+  -nodefaultlibs
+  -nostdlib)
+
+if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
+  target_link_options(yasld_standalone_executable_flags INTERFACE
+                      -T${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+
+  target_link_options(yasld_shared_library_flags INTERFACE
+                      -T${CMAKE_CURRENT_LIST_DIR}/library.ld)
+
+  set_target_properties(
+    yasld_standalone_executable_flags
+    PROPERTIES INTERFACE_LINK_DEPENDS ${CMAKE_CURRENT_LIST_DIR}/executable.ld)
+
+  set_target_properties(
+    yasld_shared_library_flags PROPERTIES INTERFACE_LINK_DEPENDS
+                                          ${CMAKE_CURRENT_LIST_DIR}/library.ld)
+endif()
+
+target_link_libraries(yasld_common_flags INTERFACE yasld_arch_flags)
 
 target_compile_options(
   yasld_arch_flags
-  INTERFACE -mcpu=cortex-m0
+  INTERFACE -mcpu=cortex-m0plus
             -mfloat-abi=soft
+            -fno-plt
             -mthumb
             $<$<COMPILE_LANGUAGE:CXX>:-fno-exceptions
-            -fno-rtti>)
+            -fno-rtti
+            -fno-use-cxa-atexit>)
 
 target_link_options(
   yasld_arch_flags
   INTERFACE
-  -mcpu=cortex-m0
+  -mcpu=cortex-m0plus
   -mfloat-abi=soft
   -mthumb)
+
+set(yasld_arch_flags_str
+    "-fomit-frame-pointer -mlong-calls -fPIC -nostartfiles -msingle-pic-base -mno-pic-data-is-text-relative -mcpu=cortex-m0plus -mfloat-abi=soft -mthumb -fno-section-anchors -fno-inline"
+    CACHE INTERNAL "" FORCE)

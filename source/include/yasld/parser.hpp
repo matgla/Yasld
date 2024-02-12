@@ -22,8 +22,10 @@
 
 #include <cstdint>
 #include <span>
+#include <string_view>
 
 #include "yasld/data_relocation.hpp"
+#include "yasld/dependency_list.hpp"
 #include "yasld/local_relocation.hpp"
 #include "yasld/relocation.hpp"
 #include "yasld/relocation_table.hpp"
@@ -49,9 +51,15 @@ public:
   std::span<const std::byte>             get_data() const;
   std::span<const std::byte>             get_text() const;
 
+  const std::string_view                &name() const;
+
+  const DependencyList                  &get_imported_libraries() const;
+
 private:
   const Header                          *header_;
 
+  std::string_view                       name_;
+  const DependencyList                   imported_libaries_;
   const RelocationTable<Relocation>      symbol_table_relocation_table_;
   const RelocationTable<LocalRelocation> local_relocation_table_;
   const RelocationTable<DataRelocation>  data_relocation_table_;

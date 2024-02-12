@@ -20,37 +20,13 @@
 
 #pragma once
 
-#include <cstdint>
-#include <iterator>
+#include "yasld/item_iterator.hpp"
 
 namespace yasld
 {
 
 class Symbol;
 
-class SymbolIterator
-{
-public:
-  using iterator_category = std::forward_iterator_tag;
-  using difference_type   = std::ptrdiff_t;
-  using value_type        = Symbol;
-  using pointer           = const Symbol *;
-  using reference         = const Symbol &;
-
-  SymbolIterator(const Symbol *symbol, uint8_t alignment);
-
-  reference       operator*() const;
-  pointer         operator->() const;
-
-  SymbolIterator &operator++();
-  SymbolIterator  operator++(int);
-
-  bool            operator==(const SymbolIterator &b) const;
-  bool            operator!=(const SymbolIterator &b) const;
-
-private:
-  const uint8_t alignment_;
-  const Symbol *symbol_;
-};
+using SymbolIterator = ItemIterator<Symbol>;
 
 } // namespace yasld

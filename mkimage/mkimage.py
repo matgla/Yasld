@@ -32,6 +32,8 @@ from elf_parser import ElfParser
 from relocation_set import RelocationSet
 from enum import Enum
 
+from pathlib import Path
+
 
 class SectionCode(Enum):
     Code = 0
@@ -77,10 +79,23 @@ def parse_cli_arguments():
         help="Disable stdout output",
     )
     parser.add_argument(
+        "-s",
+        "--libraries",
+        nargs="*",
+        action="store",
+        help="Dependant shared libraries, necessary for i.e cortex-m0 where shared libraries must be build as executables. Separated by , or ;.",
+    )
+    parser.add_argument(
         "-d", "--dryrun", dest="dryrun", action="store_true", help="Dry run"
     )
     parser.add_argument(
         "-l", "--log", dest="log", action="store", help="Path to log file"
+    )
+    parser.add_argument(
+        "-t",
+        "--type",
+        action="store",
+        help="Type of module: library/executable. Workaround for Cortex-M0 to create shared libraries from executables",
     )
 
     args, _ = parser.parse_known_args()
@@ -96,6 +111,11 @@ class Application:
             self.logger.register_logger(
                 FileLogger(self.args.verbose, True, self.args.log)
             )
+        if args.type:
+            if args.type == "shared_library":
+                self.is_executable = False
+            else:
+                self.is_executable = True
 
     def __print_header(self):
         self.logger.log(" ===========================================", Fore.YELLOW)
@@ -161,7 +181,7 @@ class Application:
                     self.symbols[name]["localization"] = "imported"
                 else:
                     # only main can be exported in executable
-                    if self.elf.is_executable():
+                    if self.is_executable:
                         if is_main:
                             self.symbols[name]["localization"] = "exported"
                         else:
@@ -220,6 +240,9 @@ class Application:
             "R_ARM_THM_CALL",  # PC Relative
             "R_ARM_ABS32",  # allowed for .data
             "R_ARM_PREL31",  # PC relative
+            "R_ARM_TARGET1",  # relative for dynamic version
+            "R_ARM_REL32",  # PC relative
+            "R_ARM_NONE",  # can be ignored, just marker
         ]
 
         self.relocations = RelocationSet()
@@ -304,13 +327,16 @@ class Application:
         )
 
         for rel in rels:
+            section = self.elf.get_section_name(rel["section"])
+            if section is None:
+                section = "none"
             self.logger.verbose(
                 "| {: <40s} | {: <7} | {: <18} | {: <15} | {: <7s} |".format(
                     rel["name"],
                     rel["index"],
                     hex(rel["offset"]),
                     hex(rel["symbol_value"]),
-                    self.elf.get_section_name(rel["section"]),
+                    section,
                 )
             )
         self.logger.verbose(
@@ -511,6 +537,7 @@ class Application:
         local_relocations,
         data_relocations,
         imported_symbol_table,
+        exported_symbol_table,
     ):
         table = []
 
@@ -524,6 +551,16 @@ class Application:
                 else:
                     symbol_table_index += 1
 
+            # todo: reproduce in test
+            if symbol is None:
+                symbol_table_index = 0
+                for s in exported_symbol_table:
+                    if s["name"] == rel["name"]:
+                        symbol = s
+                        break
+                    else:
+                        symbol_table_index += 1
+
             if not symbol:
                 raise RuntimeError(
                     "Symbol {} not found in symbol table.".format(rel["name"])
@@ -536,7 +573,7 @@ class Application:
             if section == SectionCode.Data:
                 value -= len(self.text)
 
-            if section == SectionCode.Unknown:
+            if section == SectionCode.Unknown or section is None:
                 raise RuntimeError(
                     "Unknown section for symbol '{}'".format(rel["name"])
                 )
@@ -552,9 +589,16 @@ class Application:
     def __build_image(self):
         self.logger.step("Building Yasiff image")
         image = bytearray("YAFF", "ascii")
-        image += struct.pack("<BHB", 1, 1, 1)  # dummy values for now
+        alignment = 4
+
+        if self.is_executable:
+            module_type = 1
+        else:
+            module_type = 2
+
+        image += struct.pack("<BHB", module_type, 1, 1)  # dummy values for now
         image += struct.pack("<III", len(self.text), len(self.data), len(self.bss))
-        image += struct.pack("<HBB", 0, 4, 0)
+        image += struct.pack("<HBB", len(self.dependant_libraries), alignment, 0)
         image += struct.pack("<HH", 0, 0)
 
         symbol_table_relocations = self.__filter_relocations("symbol_table", True)
@@ -582,11 +626,20 @@ class Application:
             local_relocations,
             data_relocations,
             self.imported_symbol_table,
+            self.exported_symbol_table,
         )
 
         image += struct.pack(
             "<HH", len(self.exported_symbol_table), len(self.imported_symbol_table)
         )
+        image += Application.__align_bytes(
+            bytearray(Path(self.args.input).stem + "\0", "ascii"), alignment
+        )
+
+        for lib in self.dependant_libraries:
+            image += Application.__align_bytes(
+                bytearray(lib + "\0", "ascii"), alignment
+            )
 
         for rel in relocations:
             image += struct.pack("<II", rel["index"], rel["offset"])
@@ -603,11 +656,24 @@ class Application:
             with open(self.args.output, "wb") as file:
                 file.write(image)
 
+    def __resolve_dependant_libraries(self):
+        self.dependant_libraries = []
+        if args.libraries is None:
+            return
+
+        for line in args.libraries:
+            self.dependant_libraries += line.replace(",", ";").split(";")
+
+        self.logger.info("Module depends on:")
+        for lib in self.dependant_libraries:
+            self.logger.info("  - " + lib)
+
     def execute(self):
         self.__print_header()
         self.__process_elf_file()
         self.__fix_offsets_in_code()
         self.__build_symbol_tables()
+        self.__resolve_dependant_libraries()
         self.__build_image()
 
 

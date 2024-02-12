@@ -14,39 +14,4 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-
-include(ConfigureWithToolchain)
-
-configure_with_toolchain(
-  NAME
-  stm32f0_disco
-  TOOLCHAIN
-  ${CMAKE_CURRENT_SOURCE_DIR}/toolchains/arm-none-eabi-toolchain.cmake
-  ARGS
-  -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH})
-
-add_custom_target(
-  run_stm32f0_st
-  COMMAND renode-test -t
-          ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_disco/stm32f0_tests.yaml
-  DEPENDS stm32f0_disco
-  VERBATIM)
-
-add_test(
-  build_tests
-  "${CMAKE_COMMAND}"
-  --build
-  "${CMAKE_BINARY_DIR}"
-  --config
-  "$<CONFIG>"
-  --target
-  stm32f0_disco)
-
-set_tests_properties(build_tests PROPERTIES FIXTURES_SETUP stm32f0_st_fixture)
-
-add_test(NAME Stm32F0SystemTests COMMAND ${CMAKE_COMMAND} --build
-                                         ${CMAKE_BINARY_DIR} -- run_stm32f0_st)
-
-set_tests_properties(Stm32F0SystemTests PROPERTIES FIXTURES_REQUIRED
-                                                   stm32f0_st_fixture)
+add_subdirectory(cortex-m0plus)

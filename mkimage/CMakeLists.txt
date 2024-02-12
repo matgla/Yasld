@@ -15,3 +15,19 @@
 # You should have received a copy of the GNU General Public License along with
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
+
+if (NOT EXISTS ${PROJECT_BINARY_DIR}/venvs/mkimage/python3)
+  find_package(CMakeUtils REQUIRED)
+
+  include(virtualenv)
+
+  create_virtualenv(
+    mkimage 
+    ${CMAKE_CURRENT_LIST_DIR}/requirements.txt
+    ${PROJECT_BINARY_DIR}/venvs)
+
+  message(STATUS "${mkimage_python_executable}")
+  set (mkimage_python_executable ${mkimage_python_executable} CACHE INTERNAL "" FORCE)
+else ()
+  set (mkimage_python_executable ${PROJECT_BINARY_DIR}/venvs/mkimage/python)
+endif ()

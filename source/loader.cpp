@@ -32,14 +32,14 @@ namespace yasld
 {
 
 Loader::Loader(const AllocatorType &allocator, const ReleaseType &release)
-  : allocator_{ allocator }
-  , release_{ release }
-  , lot_{}
-  , text_{}
-  , data_{}
-  , bss_{}
-  , exported_symbols_{ std::nullopt }
-  , environment_{ nullptr }
+  : environment_{ nullptr }
+{
+  YasldAllocatorHolder::get().set_allocator(allocator);
+  YasldAllocatorHolder::get().set_release(release);
+}
+
+Loader::Loader()
+  : environment_{ nullptr }
 {
 }
 
@@ -48,51 +48,141 @@ void Loader::set_environment(const Environment &environment)
   environment_ = &environment;
 }
 
-std::optional<Executable> Loader::load_executable(const void *module_address)
+bool Loader::load_module(const void *module_address, Module &module)
 {
-  log("Loading exectuable from address: %p\n", module_address);
+  log("Loading module from address: %p\n", module_address);
 
   const Header *header = process_header(module_address);
   if (!header)
   {
-    return std::nullopt;
+    return false;
   }
 
   const Parser      parser(header);
   const std::size_t lot_size =
     header->symbol_table_relocations_amount + header->local_relocations_amount;
-  void *lot = allocator_(sizeof(std::size_t) * lot_size);
-  if (!lot)
+
+  module.set_name(parser.name());
+
+  log("Allocation of LOT with size: %d\n", lot_size);
+  if (!module.allocate_lot(lot_size))
   {
     log("LOT allocation failure\n");
-    return std::nullopt;
+    return false;
   }
 
-  lot_  = std::span<std::size_t>(static_cast<std::size_t *>(lot), lot_size);
-  text_ = parser.get_text();
+  log(
+    "LOT allocated at %p with %d entries.\n",
+    module.get_lot().data(),
+    module.get_lot().size());
 
-  if (!process_data(*header, parser))
+  module.set_text(parser.get_text());
+
+  // import modules
+  if (header->external_libraries_amount)
+  {
+    if (!module.allocate_modules(header->external_libraries_amount))
+    {
+      log("Modules allocation failed\n");
+      return false;
+    }
+    if (!file_resolver_)
+    {
+      log("Module has imported libraries, but file resolver not "
+          "set!\n");
+      return false;
+    }
+
+    auto &modules = module.get_modules();
+    for (const auto &dependency : parser.get_imported_libraries())
+    {
+      const auto address = file_resolver_(dependency.name());
+      if (!address)
+      {
+        return false;
+      }
+      const yasld::Header *dependent_header =
+        reinterpret_cast<const yasld::Header *>(*address);
+      if (std::string_view(dependent_header->cookie, 4) != "YAFF")
+      {
+        log("Module %s is not YAFF file\n", dependency.name().data());
+        return false;
+      }
+      if (dependent_header->type == Header::Type::Executable)
+      {
+        modules.emplace_back(
+          static_cast<Module *>(
+            YasldAllocatorHolder::get().get_allocator()(sizeof(Executable))),
+          YasldDeleter<Module>());
+        new (modules.back().get()) Executable;
+      }
+      else if (dependent_header->type == Header::Type::Library)
+      {
+        modules.emplace_back(
+          static_cast<Module *>(
+            YasldAllocatorHolder::get().get_allocator()(sizeof(Library))),
+          YasldDeleter<Module>());
+        new (modules.back().get()) Library;
+      }
+      else
+      {
+        log("Unknown module type for: %s\n", dependency.name().data());
+        return false;
+      }
+
+      if (!load_module(*address, *modules.back().get()))
+      {
+        return false;
+      }
+    }
+  }
+
+  if (!process_data(*header, parser, module))
+  {
+    return false;
+  }
+
+  module.set_exported_symbol_table(parser.get_exported_symbol_table());
+
+  if (!process_symbol_table_relocations(parser, module))
+  {
+    return false;
+  }
+  process_local_relocations(parser, module);
+  process_data_relocations(parser, module);
+
+  return true;
+}
+
+std::optional<Loader::ObservedExecutable> Loader::load_executable(
+  const void *module_address)
+{
+  ObservedExecutable executable;
+  if (!load_module(module_address, *executable))
   {
     return std::nullopt;
   }
 
-  exported_symbols_ = parser.get_exported_symbol_table();
-
-  if (!process_symbol_table_relocations(parser))
+  if (!executable->initialize_main())
   {
     return std::nullopt;
   }
-  process_local_relocations(parser);
-  process_data_relocations(parser);
 
-  const std::optional<std::size_t> main_address = find_symbol("main");
+  executables_.push_back(executable);
+  return executable;
+}
 
-  if (main_address)
+std::optional<Loader::ObservedLibrary> Loader::load_library(
+  const void *module_address)
+{
+  ObservedLibrary library;
+  if (!load_module(module_address, *library))
   {
-    return Executable{ *main_address, lot_ };
+    return std::nullopt;
   }
 
-  return std::nullopt;
+  libraries_.push_back(library);
+  return library;
 }
 
 const Header *Loader::process_header(const void *module_address) const
@@ -106,35 +196,40 @@ const Header *Loader::process_header(const void *module_address) const
   return header;
 }
 
-bool Loader::process_data(const Header &header, const Parser &parser)
+bool Loader::process_data(
+  const Header &header,
+  const Parser &parser,
+  Module       &module)
 {
-  const auto        data        = parser.get_data();
-  const std::size_t data_size   = header.data_length + header.bss_length;
+  const auto        data_initializer = parser.get_data();
+  const std::size_t data_size        = header.data_length + header.bss_length;
 
-  void             *data_memory = allocator_(data_size);
-  if (!data_memory)
+  if (!module.allocate_data(header.data_length, header.bss_length))
   {
     log("Data allocation failure\n");
     return false;
   }
 
-  data_ =
-    std::span<std::byte>(static_cast<std::byte *>(data_memory), data_size);
-
   log(
     "Copying data from: %p, to: %p, size: 0x%x\n",
-    data.data(),
-    data_memory,
+    data_initializer.data(),
+    module.get_data().data(),
     data_size);
-  std::memcpy(data_.data(), data.data(), header.data_length);
-  bss_ = data_.subspan(header.data_length, header.bss_length);
 
-  log("Initializing .bss at: %p, size: 0x%x\n", bss_.data(), bss_.size_bytes());
-  std::fill(bss_.begin(), bss_.end(), std::byte(0));
+  std::memcpy(
+    module.get_data().data(), data_initializer.data(), header.data_length);
+
+  log(
+    "Initializing .bss at: %p, size: 0x%x\n",
+    module.get_bss().data(),
+    module.get_bss().size_bytes());
+  std::fill(module.get_bss().begin(), module.get_bss().end(), std::byte(0));
   return true;
 }
 
-bool Loader::process_symbol_table_relocations(const Parser &parser)
+bool Loader::process_symbol_table_relocations(
+  const Parser &parser,
+  Module       &module)
 {
   const auto relocations = parser.get_symbol_table_relocations().span();
   log("Processing symbol table relocations: %d\n", relocations.size());
@@ -142,20 +237,20 @@ bool Loader::process_symbol_table_relocations(const Parser &parser)
   for (const auto &rel : relocations)
   {
     const auto &symbol  = symbols[rel.symbol_index()];
-    const auto  address = find_symbol(symbol.name());
+    const auto  address = find_symbol(module, symbol.name());
     if (!address)
     {
       log("Can't find symbol: %s\n", symbol.name().data());
       return false;
     }
     log("LOT[%d]: 0x%x\n", rel.lot_index(), *address);
-    lot_[rel.lot_index()] = *address;
+    module.get_lot()[rel.lot_index()] = *address;
   }
 
   return true;
 }
 
-void Loader::process_local_relocations(const Parser &parser)
+void Loader::process_local_relocations(const Parser &parser, Module &module)
 {
   const auto relocations = parser.get_local_relocations().span();
 
@@ -164,8 +259,8 @@ void Loader::process_local_relocations(const Parser &parser)
   {
     const std::size_t relocated_start_address =
       rel.section() == Section::code
-        ? reinterpret_cast<std::size_t>(text_.data())
-        : reinterpret_cast<std::size_t>(data_.data());
+        ? reinterpret_cast<std::size_t>(module.get_text().data())
+        : reinterpret_cast<std::size_t>(module.get_data().data());
     const std::size_t relocated = relocated_start_address + rel.offset();
     log(
       "| local | lot: %d | base: 0x%lx | offset: 0x%lx | section: %s |\n",
@@ -173,11 +268,11 @@ void Loader::process_local_relocations(const Parser &parser)
       relocated_start_address,
       rel.offset(),
       to_string(rel.section()).data());
-    lot_[rel.lot_index()] = relocated;
+    module.get_lot()[rel.lot_index()] = relocated;
   }
 }
 
-void Loader::process_data_relocations(const Parser &parser)
+void Loader::process_data_relocations(const Parser &parser, Module &module)
 {
   const auto relocations = parser.get_data_relocations().span();
 
@@ -185,13 +280,13 @@ void Loader::process_data_relocations(const Parser &parser)
   for (const auto &rel : relocations)
   {
     const std::size_t address_to_change =
-      reinterpret_cast<std::size_t>(data_.data()) + rel.to();
+      reinterpret_cast<std::size_t>(module.get_data().data()) + rel.to();
     std::size_t *target = reinterpret_cast<std::size_t *>(address_to_change);
 
     const std::size_t base_address_from =
       rel.section() == Section::data
-        ? reinterpret_cast<std::size_t>(data_.data())
-        : reinterpret_cast<std::size_t>(text_.data());
+        ? reinterpret_cast<std::size_t>(module.get_data().data())
+        : reinterpret_cast<std::size_t>(module.get_text().data());
 
     const std::size_t address_from = base_address_from + rel.from();
     log(
@@ -206,6 +301,7 @@ void Loader::process_data_relocations(const Parser &parser)
 }
 
 std::optional<std::size_t> Loader::find_symbol(
+  Module                 &module,
   const std::string_view &name) const
 {
   log("Searching symbol: %s\n", name.data());
@@ -220,30 +316,98 @@ std::optional<std::size_t> Loader::find_symbol(
     }
   }
 
-  // then local symbols
-  if (!exported_symbols_)
+  // Followed by symbols imported from other libraries
+  const auto symbol = module.find_symbol(name);
+  if (symbol)
   {
-    log("Uninitialized exported symbol table\n");
-    return std::nullopt;
+    return *symbol;
   }
+  // And own symbols at end
+  return std::nullopt;
+}
 
-  for (const auto &symbol : *exported_symbols_)
+Module *Loader::find_active_module(std::size_t program_counter)
+{
+  for (auto &e : executables_)
   {
-    printf("Symbol address %p\n", &symbol);
-    if (symbol.name() == name)
+    auto ptr =
+      e->find_active_module_for_program_counter(program_counter);
+    if (ptr)
     {
-      const std::size_t base_address =
-        symbol.section() == Section::code
-          ? reinterpret_cast<std::size_t>(text_.data())
-          : reinterpret_cast<std::size_t>(data_.data());
-      const std::size_t address = base_address + symbol.offset();
-      log("Found symbol '%s' at: 0x%lx\n", symbol.name().data(), address);
-      return address;
+      return *ptr;
     }
   }
 
-  // And symbols imported from other libraries at end
-  return std::nullopt;
+  for (auto &l : libraries_)
+  {
+    auto ptr =
+      l->find_active_module_for_program_counter(program_counter);
+    if (ptr)
+    {
+      return *ptr;
+    }
+  }
+
+  return nullptr;
+}
+
+Module *Loader::find_module_with_lot(std::size_t lot_address)
+{
+  for (auto& e : executables_)
+  {
+    auto ptr = e->find_module_with_lot(lot_address);
+    if (ptr)
+    {
+      return *ptr;
+    }
+  }
+  for (auto& l : libraries_)
+  {
+    auto ptr = l->find_module_with_lot(lot_address);
+    if (ptr)
+    {
+      return *ptr;
+    }
+  }
+  return nullptr;
+}
+
+Module *Loader::find_module_for_pc_and_lot(
+  std::size_t program_counter,
+  std::size_t lot_address)
+{
+  Module        *parent = find_module_with_lot(lot_address);
+  // if has no parent it was called from runtime system
+  if (parent == nullptr)
+  {
+    for (auto& module : executables_)
+    {
+      if (module->is_module_for_program_counter(program_counter))
+      {
+        return &(*module);
+      }
+    }
+    for (auto& module : libraries_)
+    {
+      if (module->is_module_for_program_counter(program_counter))
+      {
+        return &(*module);
+      }
+    }
+  }
+  
+  auto module = parent->find_module_for_program_counter(program_counter);
+  if (module)
+  {
+    return *module;
+  }
+  
+  return nullptr;
+}
+
+void Loader::register_file_resolver(const FileResolverType &resolver)
+{
+  file_resolver_ = resolver;
 }
 
 } // namespace yasld

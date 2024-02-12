@@ -18,6 +18,12 @@
 
 add_library(yasld_arch)
 
-target_sources(yasld_arch PRIVATE call.S)
+set(include_dir ${CMAKE_CURRENT_SOURCE_DIR}/include/yasld)
+target_sources(
+  yasld_arch
+  PUBLIC ${include_dir}/arch.hpp ${include_dir}/supervisor_call.hpp
+  PRIVATE call.S supervisor_call.cpp)
 
-target_link_libraries(yasld_arch PRIVATE yasld_flags)
+target_link_libraries(yasld_arch PRIVATE yasld_flags yasld)
+target_include_directories(yasld_arch
+                           PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)

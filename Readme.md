@@ -50,6 +50,10 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 |  esa  |  xsa  | 2B esa - amount of exported symbols
 +---+---+-------+ 2B xsa - external symbols amount
 |               |
+.     name      . N bytes - name in ASCII with trailing \0 aligned to alignment
+|               |
++---+---+-------+
+|               |
 .  future arch  . CPU Arch section, unused yet
 |               |   needed for arch verification (0-N bytes)
 +---------------+

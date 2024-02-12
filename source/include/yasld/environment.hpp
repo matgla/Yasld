@@ -36,7 +36,6 @@ public:
     , address{ reinterpret_cast<std::uintptr_t>(
         reinterpret_cast<void *&>(symbol_address)) }
   {
-    printf("Pointer is: %p\n", reinterpret_cast<void *&>(symbol_address));
   }
 
   std::string_view name;
@@ -68,7 +67,6 @@ public:
     {
       if (symbol.name == name)
       {
-        printf("Address is: %x\n", symbol.address);
         return &symbol;
       }
     }

@@ -18,9 +18,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-if(NOT
-   DEFINED
-   YASLD_IS_NOT_PARENT)
+if(NOT DEFINED YASLD_IS_NOT_PARENT)
 
   message(STATUS "Yasld configuration started")
 
@@ -39,16 +37,14 @@ if(NOT
   include(yaspem)
 
   setup_yaspem(
-    YASPEM_SOURCE ${yaspem_SOURCE_DIR}
-    OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/packages
-    PACKAGE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
+    YASPEM_SOURCE
+    ${yaspem_SOURCE_DIR}
+    OUTPUT_DIRECTORY
+    ${CMAKE_BINARY_DIR}/packages
+    PACKAGE_FILES
+    ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
 
-  add_subdirectory(mkimage)
-
-  enable_language(
-    C
-    CXX
-    ASM)
+  enable_language(C CXX ASM)
 
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
@@ -56,9 +52,9 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 23)
 
-if(NOT
-   DEFINED
-   YASLD_ARCH)
+add_subdirectory(mkimage)
+
+if(NOT DEFINED YASLD_ARCH)
   set(YASLD_ARCH "host")
 endif()
 
@@ -94,16 +90,17 @@ if(NOT YASLD_ONLY_CMAKE)
     target_compile_definitions(yasld_flags INTERFACE -DLOGGER_ENABLED=1)
   endif()
 
-  if(NOT
-     DEFINED
-     YASLD_DISABLE_TESTS)
+  if(NOT DEFINED YASLD_DISABLE_TESTS)
     message(STATUS "Adding YASLD tests")
     enable_testing()
 
     setup_yaspem(
-      YASPEM_SOURCE ${yaspem_SOURCE_DIR}
-      OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/packages
-      PACKAGE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/tests/ut/packages.json)
+      YASPEM_SOURCE
+      ${yaspem_SOURCE_DIR}
+      OUTPUT_DIRECTORY
+      ${CMAKE_CURRENT_BINARY_DIR}/packages
+      PACKAGE_FILES
+      ${CMAKE_CURRENT_SOURCE_DIR}/tests/ut/packages.json)
 
     add_subdirectory(tests)
   endif()

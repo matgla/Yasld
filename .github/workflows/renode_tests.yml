@@ -27,10 +27,15 @@ jobs:
         working-directory: build
         run: |
           cmake ..
+     - name: Build project 
+        shell: bash
+        working-directory: build
+        run: |
+          make -j$(nproc)
       - name: Execute tests 
         shell: bash
         working-directory: build
         run: |
-          make -j$(nproc) test 
+          ctest --output-on-failure
 
 
