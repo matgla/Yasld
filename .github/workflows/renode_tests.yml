@@ -27,7 +27,7 @@ jobs:
         working-directory: build
         run: |
           cmake ..
-     - name: Build project 
+      - name: Build project 
         shell: bash
         working-directory: build
         run: |
