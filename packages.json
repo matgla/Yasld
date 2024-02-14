@@ -3,7 +3,7 @@
     {
       "link": "https://github.com/matgla/CMakeUtils.git",
       "type": "git",
-      "version": "master",
+      "version": "0.0.1",
       "target": "CMakeUtils",
       "options": {
         "is_cmake_library": true
@@ -12,7 +12,7 @@
     {
       "link": "https://github.com/matgla/EmbeddedUtilityLibraries.git",
       "type": "git",
-      "version": "master",
+      "version": "1.0.1",
       "target": "eul",
       "options": {
         "cmake_variables": {
