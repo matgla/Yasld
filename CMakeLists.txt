@@ -24,15 +24,25 @@ if(NOT DEFINED YASLD_IS_NOT_PARENT)
 
   project(yasld NONE)
 
-  include(FetchContent)
+  find_program(yaspem yaspem.py)
 
-  FetchContent_Declare(
-    yaspem
-    GIT_REPOSITORY https://github.com/matgla/Yaspem.git
-    GIT_TAG v1.4)
+  if (NOT yaspem OR $ENV{YASPEM_FETCH_FROM_GIT}})
+    include(FetchContent)
 
-  FetchContent_MakeAvailable(yaspem)
-  set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
+    FetchContent_Declare(
+      yaspem
+      GIT_REPOSITORY https://github.com/matgla/Yaspem.git
+      GIT_TAG master)
+
+    FetchContent_MakeAvailable(yaspem)
+
+  else ()
+    cmake_path(GET yaspem PARENT_PATH yaspem_dir)
+    message(STATUS "Populating locally available Yaspem: ${yaspem_dir}")
+    set (yaspem_SOURCE_DIR ${yaspem_dir})
+  endif ()
+      
+  list (APPEND CMAKE_MODULE_PATH ${yaspem_SOURCE_DIR}/cmake) 
 
   include(yaspem)
 

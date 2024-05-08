@@ -40,7 +40,7 @@ function(
   message(STATUS "Building ${target_name} in: ${path}")
 
   execute_process(COMMAND ${CMAKE_COMMAND} -E env "CFLAGS=${flags}" -- make
-                          TARGETS=${target} WORKING_DIRECTORY ${path})
+    TARGETS=${target} WORKING_DIRECTORY ${path} COMMAND_ECHO STDOUT)
 
   add_library(
     ${target_name}

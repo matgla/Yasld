@@ -27,7 +27,10 @@ configure_with_toolchain(
   ${CMAKE_CURRENT_SOURCE_DIR}/../toolchains/arm-none-eabi-toolchain.cmake
   ARGS
   -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH}
-  -DYASLD_ARCH_DIR=${PROJECT_SOURCE_DIR}/source/arch) 
+  -DYASLD_ARCH_DIR=${PROJECT_SOURCE_DIR}/source/arch
+  -Dyaspem_SOURCE_DIR=${yaspem_SOURCE_DIR}
+  -Dyaspem_PACKAGES_DIR=${PROJECT_BINARY_DIR}/packages
+)
 
 add_custom_target(run_stm32f0_st
   COMMAND renode-test -t

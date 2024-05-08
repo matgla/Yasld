@@ -74,7 +74,6 @@ for file in files:
     wrapped_symbols = []
     parser = ElfParser(file)
     for name, data in parser.symbols.items():
-        print("Processing: ", name)
         if name.endswith("_yasld_original"):
             wrapped_symbols.append(
                 name.removeprefix("__").removesuffix("_yasld_original")

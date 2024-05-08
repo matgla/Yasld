@@ -25,7 +25,7 @@ message(STATUS "STM32F0 Boards Project Configuration Started")
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_C_STANDARD 23)
 
-message(STATUS "Yaspem directory is: ${YASPEM_PATH}")
+message(STATUS "Yaspem directory is: ${yaspem_SOURCE_DIR}")
 
 set(CMAKE_MODULE_PATH
     ${CMAKE_MODULE_PATH}
@@ -36,17 +36,9 @@ set(CMAKE_MODULE_PATH
 set(yasld_root "../../../../")
 get_filename_component(yasld_root ${yasld_root} ABSOLUTE)
 
-include(FetchContent)
-
-FetchContent_Declare(
-  yaspem
-  GIT_REPOSITORY https://github.com/matgla/Yaspem.git
-  GIT_TAG v1.4)
-
-FetchContent_MakeAvailable(yaspem)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
-
+list(APPEND CMAKE_MODULE_PATH ${yaspem_SOURCE_DIR}/cmake)
 include(yaspem)
+
 message(
   STATUS
     "--------------------------------------------------- ${yaspem_SOURCE_DIR}")
@@ -54,7 +46,7 @@ setup_yaspem(
   YASPEM_SOURCE
   ${yaspem_SOURCE_DIR}
   OUTPUT_DIRECTORY
-  ${CMAKE_BINARY_DIR}/packages
+  ${PROJECT_BINARY_DIR}/packages
   PACKAGE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/common/packages.json
   ${yasld_root}/packages.json)
@@ -89,6 +81,8 @@ configure_with_toolchain(
   -DYASLD_TOOLCHAIN_PATH=${YASLD_TOOLCHAIN_PATH}
   -DSTM32F0_TEST_MODULES_DIR=${STM32F0_TEST_MODULES_DIR}
   -DYASLD_ARCH_DIR=${YASLD_ARCH_DIR}
+  -Dyaspem_SOURCE_DIR=${yaspem_SOURCE_DIR}
+  -Dyaspem_PACKAGES_DIR=${yaspem_PACKAGES_DIR}
   INSTALL
   ${STM32F0_TEST_MODULES_DIR})
 

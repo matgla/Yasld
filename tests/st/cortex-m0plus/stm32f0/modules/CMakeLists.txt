@@ -26,23 +26,14 @@ project(
 
 message(STATUS "STM32F0 Test Modules Configuration Started")
 
-include(FetchContent)
-
-FetchContent_Declare(
-  yaspem
-  GIT_REPOSITORY https://github.com/matgla/Yaspem.git
-  GIT_TAG v1.4)
-
-FetchContent_MakeAvailable(yaspem)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${yaspem_SOURCE_DIR}/cmake)
-
+list(APPEND CMAKE_MODULE_PATH ${yaspem_SOURCE_DIR}/cmake)
 include(yaspem)
 
 setup_yaspem(
   YASPEM_SOURCE
   ${yaspem_SOURCE_DIR}
   OUTPUT_DIRECTORY
-  ${CMAKE_BINARY_DIR}/packages
+  ${PROJECT_BINARY_DIR}/packages
   PACKAGE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/packages.json)
 
