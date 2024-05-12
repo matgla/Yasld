@@ -243,6 +243,7 @@ class Application:
             "R_ARM_TARGET1",  # relative for dynamic version
             "R_ARM_REL32",  # PC relative
             "R_ARM_NONE",  # can be ignored, just marker
+            "R_ARM_THM_JUMP8", # PC relative
         ]
 
         self.relocations = RelocationSet()

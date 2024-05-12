@@ -48,7 +48,7 @@ target_compile_options(
             -msingle-pic-base
             -mno-pic-data-is-text-relative
             -fno-plt
-            -fPIC)
+            -fpic)
 
 target_link_options(yasld_standalone_executable_flags INTERFACE
                     -fvisibility=hidden)
