@@ -244,6 +244,7 @@ class Application:
             "R_ARM_REL32",  # PC relative
             "R_ARM_NONE",  # can be ignored, just marker
             "R_ARM_THM_JUMP8", # PC relative
+            "R_ARM_THM_JUMP11", # PC relative
         ]
 
         self.relocations = RelocationSet()
@@ -433,7 +434,12 @@ class Application:
             if rel["type"] == "data":
                 continue
 
-            old = struct.unpack_from("<I", self.text, rel["offset"])[0]
+            try: 
+                old = struct.unpack_from("<I", self.text, rel["offset"])[0]
+            except struct.error as err: 
+                self.logger.error("Failure for symbol {} with offset {}, section: {}".format(rel["name"], rel["offset"], self.elf.get_section_name(rel["section"])))
+                raise err
+
             new = rel["index"] * 4
             struct.pack_into("<I", self.text, rel["offset"], new)
             self.logger.verbose(
