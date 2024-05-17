@@ -34,6 +34,7 @@ target_link_options(
   -msingle-pic-base
   -mpic-register=r9
   -fno-plt
+  -fpic
   -fomit-frame-pointer)
 
 target_compile_options(

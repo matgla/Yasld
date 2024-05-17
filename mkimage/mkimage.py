@@ -434,14 +434,25 @@ class Application:
             if rel["type"] == "data":
                 continue
 
+            data_base = self.text 
+            relative_offset = rel["offset"]
+
+            if rel["offset"] > len(self.text):
+                if rel["offset"] > len(self.text) + len(self.data):
+                    data_base = self.bss 
+                    relative_offset = rel["offset"] - len(self.text) - len(self.data)
+                else:
+                    data_base = self.data 
+                    relative_offset = rel["offset"] - len(self.text)
+
             try: 
-                old = struct.unpack_from("<I", self.text, rel["offset"])[0]
+                old = struct.unpack_from("<I", data_base, relative_offset)[0]
             except struct.error as err: 
-                self.logger.error("Failure for symbol {} with offset {}, section: {}".format(rel["name"], rel["offset"], self.elf.get_section_name(rel["section"])))
+                self.logger.error("Failure for symbol {} with offset {}, section: {}".format(rel["name"], hex(rel["offset"]), self.elf.get_section_name(rel["section"])))
                 raise err
 
             new = rel["index"] * 4
-            struct.pack_into("<I", self.text, rel["offset"], new)
+            struct.pack_into("<I", data_base, relative_offset, new)
             self.logger.verbose(
                 "| {: <17} | {: <17} | {: <17} | {}".format(
                     hex(rel["offset"]), hex(old), hex(new), rel["name"]
@@ -452,9 +463,19 @@ class Application:
             if rel["type"] == "data":
                 continue
 
-            old = struct.unpack_from("<I", self.text, rel["offset"])[0]
+            data_base = self.text 
+            relative_offset = rel["offset"]
+
+            if rel["offset"] > len(self.text):
+                if rel["offset"] > len(self.text) + len(self.data):
+                    data_base = self.bss 
+                    relative_offset = rel["offset"] - len(self.text) - len(self.data)
+                else:
+                    data_base = self.data 
+                    relative_offset = rel["offset"] - len(self.text)
+            old = struct.unpack_from("<I", data_base, relative_offset)[0]
             new = rel["index"] * 4
-            struct.pack_into("<I", self.text, rel["offset"], new)
+            struct.pack_into("<I", data_base, relative_offset, new)
             self.logger.verbose(
                 "| {: <17} | {: <17} | {: <17} | {}".format(
                     hex(rel["offset"]), hex(old), hex(new), rel["name"]

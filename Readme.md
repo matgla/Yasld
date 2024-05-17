@@ -52,6 +52,8 @@ Yasdl uses custom file format called yasiff (Yet Another Simple Image File Forma
 |               |
 .     name      . N bytes - name in ASCII with trailing \0 aligned to alignment
 |               |
++---------------+
+|  entry point  |
 +---+---+-------+
 |               |
 .  future arch  . CPU Arch section, unused yet
@@ -128,6 +130,16 @@ Symbol Table Entry
 .     name      . name - name encoded in ASCII with trailing \0, aligned to alignemnt from header
 |               |
 +---------------+
+
+ARM architecture section 
++---------------+
+| v | s |  res  | v - vector table usage enum, s - size in words (4 byte), res - reserved
++---------------+
+|               |
+.    vector     . 
+|    table      |
++---------------+
+
 
 
 ```
