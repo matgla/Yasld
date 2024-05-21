@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
   puts("[host] STM32F0 Discovery Board started!");
 
   yasld::Loader loader(
-    [](std::size_t size)
+    [](std::size_t size, yasld::AllocationType)
     {
       return malloc(size);
     },

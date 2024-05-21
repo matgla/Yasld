@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
   };
 
   yasld::Loader loader(
-    [](std::size_t size)
+    [](std::size_t size, yasld::AllocationType)
     {
       return malloc(size);
     },

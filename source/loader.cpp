@@ -111,16 +111,16 @@ bool Loader::load_module(const void *module_address, Module &module)
       if (dependent_header->type == Header::Type::Executable)
       {
         modules.emplace_back(
-          static_cast<Module *>(
-            YasldAllocatorHolder::get().get_allocator()(sizeof(Executable))),
+          static_cast<Module *>(YasldAllocatorHolder::get().get_allocator()(
+            sizeof(Executable), AllocationType::Module)),
           YasldDeleter<Module>());
         new (modules.back().get()) Executable;
       }
       else if (dependent_header->type == Header::Type::Library)
       {
         modules.emplace_back(
-          static_cast<Module *>(
-            YasldAllocatorHolder::get().get_allocator()(sizeof(Library))),
+          static_cast<Module *>(YasldAllocatorHolder::get().get_allocator()(
+            sizeof(Library), AllocationType::Module)),
           YasldDeleter<Module>());
         new (modules.back().get()) Library;
       }
@@ -330,8 +330,7 @@ Module *Loader::find_active_module(std::size_t program_counter)
 {
   for (auto &e : executables_)
   {
-    auto ptr =
-      e->find_active_module_for_program_counter(program_counter);
+    auto ptr = e->find_active_module_for_program_counter(program_counter);
     if (ptr)
     {
       return *ptr;
@@ -340,8 +339,7 @@ Module *Loader::find_active_module(std::size_t program_counter)
 
   for (auto &l : libraries_)
   {
-    auto ptr =
-      l->find_active_module_for_program_counter(program_counter);
+    auto ptr = l->find_active_module_for_program_counter(program_counter);
     if (ptr)
     {
       return *ptr;
@@ -353,7 +351,7 @@ Module *Loader::find_active_module(std::size_t program_counter)
 
 Module *Loader::find_module_with_lot(std::size_t lot_address)
 {
-  for (auto& e : executables_)
+  for (auto &e : executables_)
   {
     auto ptr = e->find_module_with_lot(lot_address);
     if (ptr)
@@ -361,7 +359,7 @@ Module *Loader::find_module_with_lot(std::size_t lot_address)
       return *ptr;
     }
   }
-  for (auto& l : libraries_)
+  for (auto &l : libraries_)
   {
     auto ptr = l->find_module_with_lot(lot_address);
     if (ptr)
@@ -376,18 +374,18 @@ Module *Loader::find_module_for_pc_and_lot(
   std::size_t program_counter,
   std::size_t lot_address)
 {
-  Module        *parent = find_module_with_lot(lot_address);
+  Module *parent = find_module_with_lot(lot_address);
   // if has no parent it was called from runtime system
   if (parent == nullptr)
   {
-    for (auto& module : executables_)
+    for (auto &module : executables_)
     {
       if (module->is_module_for_program_counter(program_counter))
       {
         return &(*module);
       }
     }
-    for (auto& module : libraries_)
+    for (auto &module : libraries_)
     {
       if (module->is_module_for_program_counter(program_counter))
       {
@@ -395,13 +393,13 @@ Module *Loader::find_module_for_pc_and_lot(
       }
     }
   }
-  
+
   auto module = parent->find_module_for_program_counter(program_counter);
   if (module)
   {
     return *module;
   }
-  
+
   return nullptr;
 }
 

@@ -174,9 +174,7 @@ std::optional<Module *> Module::find_module_for_program_counter(
   return find_module_for_program_counter_impl(program_counter, false);
 }
 
-
-bool Module::is_module_for_program_counter(
-  std::size_t program_counter)
+bool Module::is_module_for_program_counter(std::size_t program_counter)
 {
   return is_module_for_program_counter_impl(program_counter, false);
 }
@@ -248,8 +246,8 @@ std::optional<Module *> Module::find_module_for_program_counter_impl(
 
   for (auto &module : imported_modules_)
   {
-    auto m =
-      module->find_module_for_program_counter_impl(program_counter, only_active);
+    auto m = module->find_module_for_program_counter_impl(
+      program_counter, only_active);
     if (m)
     {
       return *m;
@@ -275,7 +273,6 @@ std::optional<Module *> Module::find_module_with_lot(std::size_t lot_address)
   }
   return std::nullopt;
 }
-
 
 bool Module::get_active() const
 {

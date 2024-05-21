@@ -26,8 +26,16 @@
 
 namespace yasld
 {
-using AllocatorType = eul::function<void *(std::size_t size), sizeof(void *)>;
-using ReleaseType   = eul::function<void(void *data), sizeof(void *)>;
+enum class AllocationType : uint8_t
+{
+  OffsetTable,
+  Data,
+  Module
+};
+
+using AllocatorType =
+  eul::function<void *(std::size_t size, AllocationType type), sizeof(void *)>;
+using ReleaseType = eul::function<void(void *data), sizeof(void *)>;
 
 class YasldAllocatorHolder
 {
@@ -55,12 +63,12 @@ class YasldAllocator
 public:
   using value_type = T;
 
-  T *allocate(std::size_t n) noexcept
+  T *allocate(std::size_t n, AllocationType alloc_type) noexcept
   {
     auto &alloc = YasldAllocatorHolder::get().get_allocator();
     if (alloc)
     {
-      return static_cast<T *>(alloc(n * sizeof(T)));
+      return static_cast<T *>(alloc(n * sizeof(T), alloc_type));
     }
     return nullptr;
   }
@@ -73,6 +81,42 @@ public:
     {
       return release(p);
     }
+  }
+};
+
+template <typename T>
+class ModuleAllocator : public YasldAllocator<T>
+{
+public:
+  using value_type = T;
+
+  T *allocate(std::size_t n) noexcept
+  {
+    return YasldAllocator<T>::allocate(n, AllocationType::Module);
+  }
+};
+
+template <typename T>
+class OffsetTableAllocator : public YasldAllocator<T>
+{
+public:
+  using value_type = T;
+
+  T *allocate(std::size_t n) noexcept
+  {
+    return YasldAllocator<T>::allocate(n, AllocationType::OffsetTable);
+  }
+};
+
+template <typename T>
+class DataAllocator : public YasldAllocator<T>
+{
+public:
+  using value_type = T;
+
+  T *allocate(std::size_t n) noexcept
+  {
+    return YasldAllocator<T>::allocate(n, AllocationType::Data);
   }
 };
 
