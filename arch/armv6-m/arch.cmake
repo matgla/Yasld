@@ -28,19 +28,15 @@ target_link_options(
   -Wl,--emit-relocs
   -Wl,--no-warn-rwx-segments
   -fvisibility-inlines-hidden
-  -nostartfiles
   -fno-inline
   -mno-pic-data-is-text-relative
   -msingle-pic-base
   -mpic-register=r9
-  -fno-plt
-  -fpic
-  -fomit-frame-pointer)
+  -fno-plt)
 
 target_compile_options(
   yasld_common_flags
-  INTERFACE -fomit-frame-pointer
-            $<$<COMPILE_LANGUAGE:CXX>:
+  INTERFACE $<$<COMPILE_LANGUAGE:CXX>:
             -fno-rtti
             -fno-exceptions>
             -fno-inline
@@ -49,30 +45,58 @@ target_compile_options(
             -msingle-pic-base
             -mno-pic-data-is-text-relative
             -fno-plt
-            -fpic)
+)
 
-target_link_options(yasld_standalone_executable_flags INTERFACE
-                    -fvisibility=hidden)
+target_compile_options(yasld_shared_library_flags 
+  INTERFACE 
+    -fpic
+)
+
+target_compile_options(yasld_standalone_executable_flags
+  INTERFACE 
+    -fpie
+)
+
+target_link_options(yasld_standalone_executable_flags 
+  INTERFACE
+    -fvisibility=hidden 
+    -fpic
+)
+
 target_link_libraries(yasld_standalone_executable_flags
-                      INTERFACE yasld_common_flags)
+  INTERFACE 
+    yasld_common_flags
+)
 
 target_link_options(
   yasld_shared_library_flags
   INTERFACE
-  -nodefaultlibs
-  -nostdlib)
-target_link_libraries(yasld_shared_library_flags INTERFACE yasld_common_flags)
+    -nodefaultlibs
+    -nostdlib
+    -fpic
+    -nostartfiles
+)
+
+target_link_libraries(yasld_shared_library_flags 
+  INTERFACE 
+    yasld_common_flags
+)
 
 target_link_libraries(yasld_executable_flags
-                      INTERFACE yasld_standalone_executable_flags)
+  INTERFACE 
+    yasld_standalone_executable_flags
+)
 
 target_link_libraries(yasld_common_flags
                       INTERFACE -Wl,--unresolved-symbols=ignore-in-object-files)
-target_link_options(
-  yasld_executable_flags
+
+target_link_options(yasld_executable_flags
   INTERFACE
-  -nodefaultlibs
-  -nostdlib)
+    -nodefaultlibs
+    -nostdlib
+    -nostartfiles
+
+)
 
 if(NOT DEFINED YASLD_USE_CUSTOM_LINKER_SCRIPT)
   target_link_options(yasld_standalone_executable_flags INTERFACE
