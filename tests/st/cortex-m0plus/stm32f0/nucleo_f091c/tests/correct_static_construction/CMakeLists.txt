@@ -34,5 +34,5 @@ add_test_with_module(
   ${CMAKE_CURRENT_SOURCE_DIR}/../../nucleo_f091rc.repl
   LAYOUT
   ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_nucleo_f091_correct_static_construction.bin:0x11000
-  ${STM32F0_TEST_MODULES_DIR}/stm32f0_static_constructors.yaff:0x1000
+  ${STM32F0_TEST_MODULES_DIR}/stm32f0_static_constructors.yaff:0x10000
   )

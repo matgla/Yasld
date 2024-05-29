@@ -19,7 +19,6 @@
  */
 
 #include <cstdio>
-#include <cstdlib>
 
 struct SomeStaticObject
 {
@@ -37,8 +36,15 @@ SomeStaticObject        generate()
 
 static SomeStaticObject o2 = generate();
 
-int                     main(int argc, char *argv[])
+extern "C"
 {
+  void __libc_init_array();
+}
+
+int main()
+{
+  __libc_init_array();
+
   printf("Object 1 contains: (%d, %d, %f)\n", o.a, o.b, o.c);
   printf("Object 2 contains: (%d, %d, %f)\n", o2.a, o2.b, o2.c);
 
