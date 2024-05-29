@@ -16,21 +16,20 @@
 # this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-add_library(test_st_cortex_m0_plus_nucleo_f091rc INTERFACE)
-add_library(test::st::cortex_m0_plus::nucleo_f091rc ALIAS
-            test_st_cortex_m0_plus_nucleo_f091rc)
+add_executable(stm32f0_static_constructors)
+
+target_sources(stm32f0_static_constructors PRIVATE main.cpp)
 
 target_link_libraries(
-  test_st_cortex_m0_plus_nucleo_f091rc
-  INTERFACE test::st::cortex_m0_plus::stm32f0
-            test::st::cortex_m0_plus::host_common)
+  stm32f0_static_constructors PRIVATE test::st::cortex_m0_plus::stm32f0::modules_common
+                      yasld_standalone_executable_flags)
 
-target_link_options(test_st_cortex_m0_plus_nucleo_f091rc INTERFACE
-                    -T${CMAKE_CURRENT_SOURCE_DIR}/../stm32f0_nucleo_f091rc.ld)
+include(ConvertElfToYasiff)
+convert_elf_to_yasiff(
+  TARGET
+  stm32f0_static_constructors
+  TYPE
+  "executable")
 
-add_subdirectory(import_libc_symbols)
-add_subdirectory(print_hello_world)
-add_subdirectory(print_hello_world_using_external_symbols)
-add_subdirectory(executable_with_shared_libraries)
-add_subdirectory(floppy_test)
-add_subdirectory(correct_static_construction)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_static_constructors.yaff
+        DESTINATION ${STM32F0_TEST_MODULES_DIR})

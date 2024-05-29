@@ -2,7 +2,6 @@
 # CMakeLists.txt
 #
 # Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
-#
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation, either version 3 of the License, or (at your option) any later
@@ -110,3 +109,4 @@ add_subdirectory(hello_world_shared_libc)
 add_subdirectory(floppy)
 add_subdirectory(cat_spawner)
 add_subdirectory(world_rule)
+add_subdirectory(static_constructors)

@@ -18,26 +18,29 @@
  * <https://www.gnu.org/licenses/>.
  */
 
-#include <array>
-#include <cmath>
 #include <cstdio>
 #include <cstdlib>
 
-std::array<float, 3> get_values_for_test();
-
-static float         sum;
-
-int                  main(int argc, char *argv[])
+struct SomeStaticObject
 {
-  static_cast<void>(argc);
-  auto values = get_values_for_test();
-  printf("Module '%s' got array size: %d\n", argv[0], values.size());
-  sum = 0;
-  for (const auto &data : values)
-  {
-    printf("%f\n", data);
-    sum += std::sin(data) * 10;
-  }
+  int   a;
+  int   b;
+  float c;
+};
 
-  return static_cast<int>(sum);
+static SomeStaticObject o = { 1, 2, 3.14 };
+
+SomeStaticObject        generate()
+{
+  return { 10, 20, 1234.12 };
+}
+
+static SomeStaticObject o2 = generate();
+
+int                     main(int argc, char *argv[])
+{
+  printf("Object 1 contains: (%d, %d, %f)\n", o.a, o.b, o.c);
+  printf("Object 2 contains: (%d, %d, %f)\n", o2.a, o2.b, o2.c);
+
+  return 0;
 }
