@@ -58,7 +58,9 @@ public:
   std::optional<ObservedLibrary> load_library(const void *module_address);
 
   Module *find_module(std::size_t program_counter, bool only_active = false);
-  Module *find_module_for_pc_and_lot(std::size_t program_counter, std::size_t lot_address);
+  Module *find_module_for_pc_and_lot(
+    std::size_t program_counter,
+    std::size_t lot_address);
   Module *find_module_with_lot(std::size_t lot_address);
   Module *find_active_module(std::size_t program_counter);
 
@@ -76,6 +78,8 @@ private:
     const std::string_view &name) const;
   bool is_fragment_of_module(const Module *module, std::size_t program_counter)
     const;
+  std::size_t        get_base_address(Section section, Module &module);
+
   FileResolverType   file_resolver_;
 
   const Environment *environment_;

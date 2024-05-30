@@ -31,7 +31,7 @@ LocalRelocation::LocalRelocation(uint32_t index, uint32_t target_offset)
 
 uint32_t LocalRelocation::lot_index() const
 {
-  return index_ >> 1;
+  return index_ >> 2;
 }
 
 const LocalRelocation &LocalRelocation::next() const
@@ -46,7 +46,7 @@ bool LocalRelocation::operator==(const LocalRelocation &other) const
 
 Section LocalRelocation::section() const
 {
-  return static_cast<Section>(index_ & 0x1);
+  return static_cast<Section>(index_ & 0x3);
 }
 
 uint32_t LocalRelocation::offset() const

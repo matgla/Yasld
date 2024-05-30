@@ -81,8 +81,8 @@ macro(add_test_with_module)
       COMMAND ${CMAKE_SIZE} $<TARGET_FILE:${TEST_NAME}>
       COMMAND ${CMAKE_OBJCOPY} -O binary $<TARGET_FILE:${TEST_NAME}>
               ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.bin)
-    set(TEST_LAYOUT "${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.bin:0x10000"
-                    "${STM32F0_TEST_MODULES_DIR}/${TEST_MODULE}.yaff:0x10000")
+    set(TEST_LAYOUT "${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.bin:0x13000"
+                    "${STM32F0_TEST_MODULES_DIR}/${TEST_MODULE}.yaff:0x9000")
   else()
     add_custom_command(
       TARGET ${TEST_NAME}

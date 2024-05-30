@@ -30,5 +30,5 @@ add_test_with_module(
   ROBOT_COMMON_FILE
   stm32f0_discovery_f072_common.robot
   LAYOUT
-  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_discovery_f072_calculate_of_sine_of_extern_values.bin:0x12000
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_discovery_f072_calculate_of_sine_of_extern_values.bin:0x13000
   ${STM32F0_TEST_MODULES_DIR}/stm32f0_sum_shared.yaff:0x4000)

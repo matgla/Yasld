@@ -22,6 +22,7 @@ add_library(yasld_shared_library_flags INTERFACE)
 add_library(yasld_common_flags INTERFACE)
 add_library(yasld_arch_flags INTERFACE)
 
+
 target_link_options(
   yasld_common_flags
   INTERFACE

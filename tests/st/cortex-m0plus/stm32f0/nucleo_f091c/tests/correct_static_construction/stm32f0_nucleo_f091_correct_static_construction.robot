@@ -15,6 +15,6 @@ ${BOARD_FILE}       @renode_board_file@
 *** Test Cases ***
 Run executable that uses shared libc
     Prepare Machine
-    Wait For Line On Uart    [host] STM32F0 Nucleo Board started!    timeout=1
-    Wait For Line On Uart    Hello using shared libc    timeout=1
-    Wait For Line On Uart    Some values 1234, Float is not supported by baselibc    timeout=1
+    Wait For Line On Uart    [host] STM32F0 Nucleo Board started!       timeout=1
+    Wait For Line On Uart    Object 1 contains: (1, 2, 3.140000)        timeout=1
+    Wait For Line On Uart    Object 2 contains: (10, 20, 1234.119995)  timeout=1

@@ -258,10 +258,8 @@ void Loader::process_local_relocations(const Parser &parser, Module &module)
   log("Processing local relocations: %d\n", relocations.size());
   for (const auto &rel : relocations)
   {
-    const std::size_t relocated_start_address =
-      rel.section() == Section::code
-        ? reinterpret_cast<std::size_t>(module.get_text().data())
-        : reinterpret_cast<std::size_t>(module.get_data().data());
+    std::size_t relocated_start_address =
+      get_base_address(rel.section(), module);
     const std::size_t relocated = relocated_start_address + rel.offset();
     log(
       "| local | lot: %d | base: 0x%lx | offset: 0x%lx | section: %s |\n",
@@ -271,6 +269,24 @@ void Loader::process_local_relocations(const Parser &parser, Module &module)
       to_string(rel.section()).data());
     module.get_lot()[rel.lot_index()] = relocated;
   }
+}
+
+std::size_t Loader::get_base_address(Section section, Module &module)
+{
+  switch (section)
+  {
+  case Section::code:
+    return reinterpret_cast<std::size_t>(module.get_text().data());
+  case Section::data:
+    return reinterpret_cast<std::size_t>(module.get_data().data());
+  case Section::init:
+    return reinterpret_cast<std::size_t>(module.get_init().data());
+  case Section::unknown:
+    // report error
+    return 0;
+  }
+  // report error
+  return 0;
 }
 
 void Loader::process_data_relocations(const Parser &parser, Module &module)
@@ -285,9 +301,7 @@ void Loader::process_data_relocations(const Parser &parser, Module &module)
     std::size_t *target = reinterpret_cast<std::size_t *>(address_to_change);
 
     const std::size_t base_address_from =
-      rel.section() == Section::data
-        ? reinterpret_cast<std::size_t>(module.get_data().data())
-        : reinterpret_cast<std::size_t>(module.get_text().data());
+      get_base_address(rel.section(), module);
 
     const std::size_t address_from = base_address_from + rel.from();
     log(

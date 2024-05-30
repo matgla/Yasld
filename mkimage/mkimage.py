@@ -322,9 +322,9 @@ class Application:
                     ]
 
                     if relocation["symbol_value"] <= data_offset:
-                        offset = original_offset << 1
+                        offset = original_offset << 2
                     else:
-                        offset = ((original_offset - data_offset) << 1) | 1
+                        offset = ((original_offset - data_offset) << 2) | SectionCode.Data.value 
 
                     self.relocations.add_data_relocation(
                         relocation, from_address, offset
@@ -410,11 +410,13 @@ class Application:
         )
 
         for rel in rels:
-            if rel["offset"] & 0x1:
+            if rel["offset"] == 1:
                 section = ".data"
+            elif rel["offset"] == 2:
+                section = ".init_arrays"
             else:
                 section = ".text"
-            from_offset = rel["offset"] >> 1
+            from_offset = rel["offset"] >> 2
 
             self.logger.verbose(
                 "| {: <40} | {: <16} | {: <16} | {: <9} |".format(
@@ -642,7 +644,7 @@ class Application:
                     "Unknown section for symbol '{}'".format(rel["name"])
                 )
 
-            index_with_section = rel["index"] << 1 | section.value
+            index_with_section = rel["index"] << 2 | section.value
             table.append({"index": index_with_section, "offset": value})
 
         for rel in data_relocations:

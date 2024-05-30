@@ -58,6 +58,11 @@ std::span<const std::byte> Module::get_text() const
   return text_;
 }
 
+std::span<std::size_t> Module::get_init()
+{
+  return init_;
+}
+
 std::span<std::byte> Module::get_data()
 {
   return data_;

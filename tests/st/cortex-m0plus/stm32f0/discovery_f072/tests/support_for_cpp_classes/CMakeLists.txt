@@ -30,5 +30,5 @@ add_test_with_module(
   ROBOT_COMMON_FILE
   stm32f0_discovery_f072_common.robot
   LAYOUT
-  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_discovery_f072_support_for_cpp_classes.bin:0x11000
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_discovery_f072_support_for_cpp_classes.bin:0x13000
   ${STM32F0_TEST_MODULES_DIR}/stm32f0_classes_shared.yaff:0x2000)

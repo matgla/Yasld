@@ -38,13 +38,29 @@ static SomeStaticObject o2 = generate();
 
 extern "C"
 {
-  void __libc_init_array();
-}
 
+  void init()
+  {
+    extern void (*__preinit_array_start)(void);
+    extern void (*__preinit_array_end)(void);
+    for (void (**p)(void) = &__preinit_array_start; p < &__preinit_array_end;
+         ++p)
+    {
+      (*p)();
+    }
+
+    extern void (*__init_array_start)(void);
+    extern void (*__init_array_end)(void);
+
+    for (void (**p)(void) = &__init_array_start; p < &__init_array_end; ++p)
+    {
+      (*p)();
+    }
+  }
+}
 int main()
 {
-  __libc_init_array();
-
+  init();
   printf("Object 1 contains: (%d, %d, %f)\n", o.a, o.b, o.c);
   printf("Object 2 contains: (%d, %d, %f)\n", o2.a, o2.b, o2.c);
 

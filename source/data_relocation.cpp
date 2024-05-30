@@ -36,12 +36,12 @@ uint32_t DataRelocation::to() const
 
 uint32_t DataRelocation::from() const
 {
-  return from_ >> 1;
+  return from_ >> 2;
 }
 
 Section DataRelocation::section() const
 {
-  return static_cast<Section>(from_ & 1);
+  return static_cast<Section>(from_ & 0x3);
 }
 
 const DataRelocation &DataRelocation::next() const

@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
       free(ptr);
     });
 
-  void *module     = reinterpret_cast<void *>(0x08010000);
+  void *module     = reinterpret_cast<void *>(0x08013000);
   auto  executable = loader.load_executable(module);
 
   if (executable)

@@ -33,6 +33,6 @@ add_test_with_module(
   BOARD_FILE
   ${CMAKE_CURRENT_SOURCE_DIR}/../../nucleo_f091rc.repl
   LAYOUT
-  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_nucleo_f091_rc_executable_with_shared_libraries.bin:0x11000
+  ${CMAKE_CURRENT_BINARY_DIR}/stm32f0_nucleo_f091_rc_executable_with_shared_libraries.bin:0x13000
   ${STM32F0_TEST_MODULES_DIR}/stm32f0_hello_world_shared_libc.yaff:0x1000
   ${STM32F0_TEST_MODULES_DIR}/stm32f0_shared_libc.yaff:0x10000)

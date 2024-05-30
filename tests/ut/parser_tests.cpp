@@ -36,30 +36,30 @@ alignas(16) const std::vector<uint8_t> example_header = {
   0x01, 0x00, 0x01, 0x01, // executable, armv6-m, YASIFF version 1
 
   0x04, 0x00, 0x00, 0x00, // code length = 4B
-  0x02, 0x00, 0x00, 0x00, // data length = 2B
+  0x00, 0x00, 0x00, 0x00, // init length = 4B
 
+  0x02, 0x00, 0x00, 0x00, // data length = 4B
   0x08, 0x00, 0x00, 0x00, // bss length
+
   0x00, 0x00, 0x08, 0x00, // external libraries, alignment: 8, reserved
-
   0x0a, 0x00, 0x05, 0x10, // version major, minor
-  0x03, 0x00, 0x02, 0x00, // external, local relocations amount
 
+  0x03, 0x00, 0x02, 0x00, // external, local relocations amount
   0x01, 0x00, 0x00, 0x00, // data, exported relocations amount
   0x02, 0x00, 0x03, 0x00, // exported, external symbols amount
+  0x00, 0x00, 0x00, 0x00,
 
   0x00, 0x00, 0x00, 0x00, // external symbol relocation 1 index
   0x50, 0x00, 0x00, 0x00, // external symbol relocation 1 offset
-
   0x01, 0x00, 0x00, 0x00, // external symbol relocation 2 index
   0x50, 0x00, 0x00, 0x00, // external symbol relocation 2 offset
-
   0x02, 0x00, 0x00, 0x00, // external symbol relocation 3 index
   0x58, 0x00, 0x00, 0x00, // external symbol relocation 3 offset
 
-  0x07, 0x00, 0x00, 0x00, // local relocation 1 index
+  0x0d, 0x00, 0x00, 0x00, // local relocation 1 index
   0x30, 0x42, 0x21, 0x24, // local relocation 1 offset
 
-  0x08, 0x00, 0x00, 0x00, // local relocation 2 index
+  0x10, 0x00, 0x00, 0x00, // local relocation 2 index
   0x5e, 0x44, 0x01, 0x24, // local relocation 2 offset
 
   0x05, 0x00, 0x00, 0x00, // data relocation 1 index
@@ -81,7 +81,7 @@ alignas(16) const std::vector<uint8_t> example_header = {
   'n',  0x00, 0x00, 0x00, //
   0x00, 0x00, 0x00, 0x00,
 
-  0x13, 0x23, 0x34, 0x51, // exported symbol 1 - section data
+  0x11, 0x23, 0x34, 0x51, // exported symbol 1 - section data
   'a',  'b',  'c',  'd',  // exported symbol 1 - name
   '\0', 0x00, 0x00, 0x00, // exported symbol 1 name
 
@@ -206,11 +206,11 @@ TEST_F(ParserShould, ParseExportedSymbolTable)
   auto it = exported_symbols.begin();
   EXPECT_EQ(it->name(), "abcd");
   EXPECT_EQ(it->section(), yasld::Section::data);
-  EXPECT_EQ(it->offset(), 0x289a1189);
+  EXPECT_EQ(it->offset(), 0x144d08c4);
   ++it;
   EXPECT_EQ(it->name(), "thatfun");
   EXPECT_EQ(it->section(), yasld::Section::code);
-  EXPECT_EQ(it->offset(), 0x8088000);
+  EXPECT_EQ(it->offset(), 0x4044000);
 }
 
 TEST_F(ParserShould, ParseExternalSymbolTable)
@@ -220,16 +220,16 @@ TEST_F(ParserShould, ParseExternalSymbolTable)
   EXPECT_EQ(external_symbols.size(), 52);
   auto it = external_symbols.begin();
   EXPECT_EQ(it->name(), "zta");
-  EXPECT_EQ(it->section(), yasld::Section::code);
-  EXPECT_EQ(it->offset(), 0x28820181);
+  EXPECT_EQ(it->section(), yasld::Section::init);
+  EXPECT_EQ(it->offset(), 0x144100c0);
   ++it;
   EXPECT_EQ(it->name(), "heyyou_");
   EXPECT_EQ(it->section(), yasld::Section::code);
-  EXPECT_EQ(it->offset(), 0x8088080);
+  EXPECT_EQ(it->offset(), 0x4044040);
   ++it;
   EXPECT_EQ(it->name(), "nameisthefunction");
   EXPECT_EQ(it->section(), yasld::Section::data);
-  EXPECT_EQ(it->offset(), 0x21018180);
+  EXPECT_EQ(it->offset(), 0x1080c0c0);
 }
 
 TEST_F(ParserShould, ParseTextSection)

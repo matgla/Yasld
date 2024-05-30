@@ -116,15 +116,15 @@ std::optional<const void *> resolver(const std::string_view &name)
   printf("[host] Resolving module: %s\n", name.data());
   if (name == "stm32f0_shared_libc")
   {
-    return reinterpret_cast<const void *>(0x08012000);
+    return reinterpret_cast<const void *>(0x08014000);
   }
   if (name == "stm32f0_cat_spawner")
   {
-    return reinterpret_cast<const void *>(0x08022000);
+    return reinterpret_cast<const void *>(0x08024000);
   }
   if (name == "stm32f0_rule_world")
   {
-    return reinterpret_cast<const void *>(0x08023000);
+    return reinterpret_cast<const void *>(0x08025000);
   }
 
   return std::nullopt;
@@ -160,10 +160,10 @@ int main(int argc, char *argv[])
   loader.register_file_resolver(&resolver);
   loader.set_environment(environment);
 
-  void *module   = reinterpret_cast<void *>(0x08011000);
+  void *module   = reinterpret_cast<void *>(0x08013000);
   auto  exec     = loader.load_executable(module);
 
-  void *rule_lib = reinterpret_cast<void *>(0x08023000);
+  void *rule_lib = reinterpret_cast<void *>(0x08025000);
   auto  lib      = loader.load_library(rule_lib);
 
   if (exec && lib)

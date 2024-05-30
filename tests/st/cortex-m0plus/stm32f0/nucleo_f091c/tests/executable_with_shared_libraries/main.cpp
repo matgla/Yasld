@@ -64,7 +64,7 @@ std::optional<const void *> resolver(const std::string_view &name)
   printf("[host] Resolving module: %s\n", name.data());
   if (name == "stm32f0_shared_libc")
   {
-    return reinterpret_cast<const void *>(0x08012000);
+    return reinterpret_cast<const void *>(0x08014000);
   }
   return std::nullopt;
 }
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
   loader.register_file_resolver(&resolver);
   loader.set_environment(environment);
 
-  void *module = reinterpret_cast<void *>(0x08011000);
+  void *module = reinterpret_cast<void *>(0x08013000);
   auto  exec   = loader.load_executable(module);
   if (exec)
   {

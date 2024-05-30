@@ -55,6 +55,7 @@ public:
 
   std::span<std::size_t>            get_lot();
   std::span<const std::byte>        get_text() const;
+  std::span<std::size_t>            get_init();
   std::span<std::byte>              get_data();
   std::span<std::byte>              get_bss();
   std::span<const std::byte>        get_data() const;
