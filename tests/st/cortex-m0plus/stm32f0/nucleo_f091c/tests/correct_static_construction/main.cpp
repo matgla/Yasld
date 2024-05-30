@@ -31,8 +31,6 @@
 #include "yasld/arch.hpp"
 #include "yasld/supervisor_call.hpp"
 
-#include "globals.h"
-
 yasld::Loader *l;
 
 int            main(int argc, char *argv[])
@@ -40,14 +38,11 @@ int            main(int argc, char *argv[])
   static_cast<void>(argc);
   static_cast<void>(argv);
   board_init();
-  init_baselibc_stdout();
   puts("[host] STM32F0 Nucleo Board started!");
 
-  const yasld::StaticEnvironment environment{
-    yasld::SymbolEntry{"stdout", &stdout_file}
-  };
+  const yasld::StaticEnvironment environment{};
 
-  yasld::Loader loader(
+  yasld::Loader                  loader(
     [](std::size_t size, yasld::AllocationType)
     {
       return malloc(size);

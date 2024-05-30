@@ -48,6 +48,7 @@ function(
       BUILD_ALWAYS 1
       DEPENDS ${depends})
   endif()
+
 endfunction()
 
 macro(configure_with_toolchain)

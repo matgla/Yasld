@@ -29,6 +29,7 @@ namespace yasld
 Module::Module()
   : lot_{}
   , text_{}
+  , init_{}
   , data_{}
   , bss_{}
   , exported_symbols_{}
@@ -145,6 +146,43 @@ bool Module::allocate_modules(std::size_t number_of_modules)
 {
   imported_modules_.reserve(number_of_modules);
   return imported_modules_.capacity() == number_of_modules;
+}
+
+bool Module::relocate_init(const std::span<const std::size_t> &init)
+{
+  init_.resize(init.size());
+  std::copy(init.begin(), init.end(), init_.begin());
+  // init entries contains jumps to original addresses, let's relocate them
+  log("Init relocated values:\n");
+  int         i        = 0;
+  std::size_t text_end = text_.size_bytes();
+  std::size_t init_end = text_.size_bytes();
+  std::size_t data_end = data_.size_bytes();
+  std::size_t bss_end  = data_.size_bytes();
+
+  for (auto &e : init_)
+  {
+    log(" [%d] = %x -> ", i++, e);
+    if (e < text_end)
+    {
+      e = e + reinterpret_cast<std::size_t>(text_.data());
+    }
+    else if (e < init_end)
+    {
+      e = e + reinterpret_cast<std::size_t>(init_.data());
+    }
+    else if (e < data_end)
+    {
+      e = e + reinterpret_cast<std::size_t>(data_.data());
+    }
+    else if (e < bss_end)
+    {
+      e = e + reinterpret_cast<std::size_t>(bss_.data());
+    }
+    log("%x\n", e);
+  }
+
+  return true;
 }
 
 Module::ModulesContainer &Module::get_modules()

@@ -49,6 +49,7 @@ public:
   bool allocate_data(std::size_t data_size, std::size_t bss_size);
   bool allocate_modules(std::size_t number_of_modules);
 
+  bool relocate_init(const std::span<const std::size_t> &init);
   void set_text(const std::span<const std::byte> &text);
   void set_exported_symbol_table(const SymbolTable &table);
 
@@ -103,6 +104,7 @@ protected:
   std::vector<std::size_t, OffsetTableAllocator<std::size_t>> lot_;
   std::vector<std::byte, DataAllocator<std::byte>>            data_memory_;
   std::span<const std::byte>                                  text_;
+  std::vector<std::size_t, InitAllocator<std::size_t>>        init_;
   std::span<std::byte>                                        data_;
   std::span<std::byte>                                        bss_;
   std::optional<SymbolTable>                                  exported_symbols_;

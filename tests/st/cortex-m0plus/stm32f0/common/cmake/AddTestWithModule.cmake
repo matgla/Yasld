@@ -18,6 +18,12 @@
 
 set(CURRENT_DIR ${CMAKE_CURRENT_LIST_DIR})
 
+if (${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
+  set(renode_executable mono /Applications/Renode.app/Contents/MacOS/bin/Renode.exe)
+else () 
+  find_program(renode_executable renode)
+endif ()
+
 function(import_module TEST_MODULE)
   get_filename_component(module_name ${TEST_MODULE} NAME)
   add_executable(${module_name}.yaff IMPORTED)
@@ -118,9 +124,6 @@ macro(add_test_with_module)
   configure_file(${TEST_SCRIPTS}/execute.resc
                  ${CMAKE_CURRENT_BINARY_DIR}/execute.resc)
 
-  configure_file(${TEST_SCRIPTS}/execute_gdb.resc
-                 ${CMAKE_CURRENT_BINARY_DIR}/execute_gdb.resc)
-
   configure_file(${CMAKE_CURRENT_SOURCE_DIR}/${TEST_NAME}.robot
                  ${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.robot @ONLY)
 
@@ -130,4 +133,11 @@ macro(add_test_with_module)
   include(RegisterTest)
 
   register_st(${CMAKE_CURRENT_BINARY_DIR}/${TEST_NAME}.robot)
+
+  add_custom_target(${TEST_NAME}_run
+    COMMAND ${renode_executable} --console --disable-xwt ${CMAKE_CURRENT_BINARY_DIR}/execute.resc
+    DEPENDS ${TEST_NAME}_image 
+    VERBATIM
+    USES_TERMINAL
+  )
 endmacro()

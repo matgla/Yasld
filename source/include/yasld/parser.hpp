@@ -49,6 +49,7 @@ public:
   const RelocationTable<Relocation>      get_symbol_table_relocations() const;
 
   std::span<const std::byte>             get_data() const;
+  std::span<const std::size_t>           get_init() const;
   std::span<const std::byte>             get_text() const;
 
   const std::string_view                &name() const;
@@ -68,6 +69,7 @@ private:
   const SymbolTable                      exported_symbol_table_;
 
   const uintptr_t                        text_address_;
+  const uintptr_t                        init_address_;
   const uintptr_t                        data_address_;
 };
 

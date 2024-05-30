@@ -44,19 +44,26 @@ SECTIONS
     *(.rodata*)
     *(.ARM.extab*)
     *(.ARM.exidx*)
-    PROVIDE_HIDDEN(__preinit_array_start = .);
+    . = ALIGN(8);
+  } > image
+
+  .init_arrays :
+  {
+    . = ALIGN(4); 
+    PROVIDE_HIDDEN(__preinit_array_start_orig = .);
     KEEP(*SORT(.preinit_array.*))
     KEEP(*(.preinit_array))
-    PROVIDE_HIDDEN(__preinit_array_end = .);
-    PROVIDE_HIDDEN(__init_array_start = .);
+    PROVIDE_HIDDEN(__preinit_array_end_orig = .);
+    . = ALIGN(4); 
+    PROVIDE_HIDDEN(__init_array_start_orig = .);
     KEEP(*SORT(.init_array.*))
     KEEP(*(.init_array))
-    PROVIDE_HIDDEN(__init_array_end = .);
-    PROVIDE_HIDDEN(__fini_array_start = .);
+    PROVIDE_HIDDEN(__init_array_end_orig = .);
+    . = ALIGN(4);
+    PROVIDE_HIDDEN(__fini_array_start_orig = .);
     KEEP(*SORT(.fini_array.*))
     KEEP(*SORT(.fini_array))
-    PROVIDE_HIDDEN(__fini_array_end = .);
-    . = ALIGN(8);
+    PROVIDE_HIDDEN(__fini_array_end_orig = .);
   } > image
 
   .data :

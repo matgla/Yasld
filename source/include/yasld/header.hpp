@@ -46,6 +46,7 @@ public:
   Architecture arch;
   uint8_t      yasiff_version;
   uint32_t     code_length;
+  uint32_t     init_length;
   uint32_t     data_length;
   uint32_t     bss_length;
   uint16_t     external_libraries_amount;

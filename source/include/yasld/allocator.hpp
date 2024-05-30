@@ -30,6 +30,7 @@ enum class AllocationType : uint8_t
 {
   OffsetTable,
   Data,
+  Init,
   Module
 };
 
@@ -117,6 +118,18 @@ public:
   T *allocate(std::size_t n) noexcept
   {
     return YasldAllocator<T>::allocate(n, AllocationType::Data);
+  }
+};
+
+template <typename T>
+class InitAllocator : public YasldAllocator<T>
+{
+public:
+  using value_type = T;
+
+  T *allocate(std::size_t n) noexcept
+  {
+    return YasldAllocator<T>::allocate(n, AllocationType::Init);
   }
 };
 

@@ -77,6 +77,7 @@ bool Loader::load_module(const void *module_address, Module &module)
     module.get_lot().size());
 
   module.set_text(parser.get_text());
+  module.relocate_init(parser.get_init());
 
   // import modules
   if (header->external_libraries_amount)

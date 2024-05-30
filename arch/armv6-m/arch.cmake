@@ -60,7 +60,7 @@ target_compile_options(yasld_standalone_executable_flags
 target_link_options(yasld_standalone_executable_flags 
   INTERFACE
     -fvisibility=hidden 
-    -fpic
+    -fpie
 )
 
 target_link_libraries(yasld_standalone_executable_flags

@@ -30,7 +30,8 @@ enum class Section : uint8_t
 {
   code    = 0,
   data    = 1,
-  unknown = 2
+  init    = 2,
+  unknown = 3
 };
 
 std::string_view to_string(Section s);

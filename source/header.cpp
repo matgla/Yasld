@@ -61,6 +61,7 @@ void print(const Header &header)
   log("Yasiff version: %u\n", header.yasiff_version);
   log("Sections size:\n");
   log("  .text: %u B\n", header.code_length);
+  log("  .init: %u B\n", header.init_length);
   log("  .data: %u B\n", header.data_length);
   log("  .bss:  %u B\n", header.bss_length);
   log("External libraries amount: %u\n", header.external_libraries_amount);

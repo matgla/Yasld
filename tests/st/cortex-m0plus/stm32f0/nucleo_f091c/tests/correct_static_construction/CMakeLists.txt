@@ -27,7 +27,6 @@ add_test_with_module(
   ${CMAKE_CURRENT_SOURCE_DIR}/..
   LIBRARIES
   test::st::cortex_m0_plus::nucleo_f091rc
-  baselibc_variables
   ROBOT_COMMON_FILE
   stm32f0_nucleo_f091rc_common.robot
   BOARD_FILE

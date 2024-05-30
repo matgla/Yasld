@@ -38,7 +38,8 @@ from pathlib import Path
 class SectionCode(Enum):
     Code = 0
     Data = 1
-    Unknown = 2
+    Init = 2
+    Unknown = 3
 
 
 def parse_cli_arguments():
@@ -133,6 +134,12 @@ class Application:
             self.logger.error("Current address is: " + hex(section["address"]))
             raise RuntimeError("Section validation failed")
 
+    def __has_section(self, name):
+        if name in self.elf.sections:
+            return True 
+        else:
+            return False
+
     def __fetch_section(self, name, position):
         section = self.elf.sections[name]
         self.__validate_section(section, position, name)
@@ -145,7 +152,18 @@ class Application:
         self.text_section = self.__fetch_section(".text", 0x00000000)
         self.text = bytearray(self.text_section["data"])
 
-        data_section_address = self.text_section["address"] + self.text_section["size"]
+        # let's place init arrays in ram and fix addresses in yasld
+
+        if self.__has_section(".init_arrays"):
+            init_arrays_section_address = self.text_section["address"] + self.text_section["size"]
+            self.init_arrays_section = self.__fetch_section(".init_arrays", init_arrays_section_address)
+            self.init_arrays = bytearray(self.init_arrays_section["data"])
+            data_section_address = self.init_arrays_section["address"] + self.init_arrays_section["size"]
+        else: 
+            self.init_arrays_section = None
+            self.init_arrays = bytearray()
+            data_section_address = self.text_section["address"] + self.text_section["size"]
+
         self.data_section = self.__fetch_section(".data", data_section_address)
         self.data = bytearray(self.data_section["data"])
 
@@ -419,8 +437,13 @@ class Application:
         self.__process_symbols()
         self.__dump_symbol_table()
         self.__process_relocations()
+        if self.init_arrays_section:
+            init_offset = self.init_arrays_section["size"] 
+        else:
+            init_offset = 0
+
         self.__process_data_relocations(
-            self.text_section["address"] + self.text_section["size"]
+            self.text_section["address"] + self.text_section["size"] + init_offset
         )
         self.__dump_relocations()
 
@@ -438,13 +461,15 @@ class Application:
             relative_offset = rel["offset"]
 
             if rel["offset"] > len(self.text):
-                if rel["offset"] > len(self.text) + len(self.data):
+                if rel["offset"] > len(self.text) + len(self.init_arrays) + len(self.data):
                     data_base = self.bss 
-                    relative_offset = rel["offset"] - len(self.text) - len(self.data)
-                else:
+                    relative_offset = rel["offset"] - len(self.text) - len(self.data) - len(self.init_arrays)
+                elif rel["offset"] > len(self.text) + len(self.init_arrays):
                     data_base = self.data 
+                    relative_offset = rel["offset"] - len(self.text) - len(self.init_arrays)
+                else:
+                    data_base = self.init_arrays
                     relative_offset = rel["offset"] - len(self.text)
-
             try: 
                 old = struct.unpack_from("<I", data_base, relative_offset)[0]
             except struct.error as err: 
@@ -467,12 +492,16 @@ class Application:
             relative_offset = rel["offset"]
 
             if rel["offset"] > len(self.text):
-                if rel["offset"] > len(self.text) + len(self.data):
+                if rel["offset"] > len(self.text) + len(self.init_arrays) + len(self.data):
                     data_base = self.bss 
-                    relative_offset = rel["offset"] - len(self.text) - len(self.data)
-                else:
+                    relative_offset = rel["offset"] - len(self.text) - len(self.data) - len(self.init_arrays)
+                elif rel["offset"] > len(self.text) + len(self.init_arrays):
                     data_base = self.data 
+                    relative_offset = rel["offset"] - len(self.text) - len(self.init_arrays)
+                else:
+                    data_base = self.init_arrays
                     relative_offset = rel["offset"] - len(self.text)
+ 
             old = struct.unpack_from("<I", data_base, relative_offset)[0]
             new = rel["index"] * 4
             struct.pack_into("<I", data_base, relative_offset, new)
@@ -490,6 +519,8 @@ class Application:
         index = symbol["section_index"]
         if index == self.text_section["index"]:
             return SectionCode.Code
+        elif self.init_arrays_section != None and index == self.init_arrays_section["index"]:
+            return SectionCode.Init
         elif index == self.data_section["index"] or index == self.bss_section["index"]:
             return SectionCode.Data
         return None
@@ -498,6 +529,8 @@ class Application:
         index = relocation["section"]
         if index == self.text_section["index"]:
             return SectionCode.Code
+        elif self.init_arrays_section != None and index == self.init_arrays_section["index"]:
+            return SectionCode.Init
         elif index == self.data_section["index"] or index == self.bss_section["index"]:
             return SectionCode.Data
 
@@ -547,11 +580,12 @@ class Application:
         for symbol in symbols:
             value = symbol["value"]
             if symbol["section"] == SectionCode.Data:
+                value -= (len(self.text) + len(self.init_arrays))
+            elif symbol["section"] == SectionCode.Init:
                 value -= len(self.text)
-
             # if undefined treat same as text
             section = symbol["section"].value if symbol["section"] is not None else 0
-            value = value << 1 | section
+            value = value << 2 | section
             table += struct.pack("<I", value)
             table += Application.__align_bytes(
                 bytearray(symbol["name"] + "\0", "ascii"), 4
@@ -598,8 +632,10 @@ class Application:
         for rel in local_relocations:
             section = self.__get_relocation_section(rel)
             value = rel["symbol_value"]
-            if section == SectionCode.Data:
+            if section == SectionCode.Init:
                 value -= len(self.text)
+            if section == SectionCode.Data:
+                value -= (len(self.text) + len(self.init_arrays))
 
             if section == SectionCode.Unknown or section is None:
                 raise RuntimeError(
@@ -625,7 +661,7 @@ class Application:
             module_type = 2
 
         image += struct.pack("<BHB", module_type, 1, 1)  # dummy values for now
-        image += struct.pack("<III", len(self.text), len(self.data), len(self.bss))
+        image += struct.pack("<IIII", len(self.text), len(self.init_arrays), len(self.data), len(self.bss)) 
         image += struct.pack("<HBB", len(self.dependant_libraries), alignment, 0)
         image += struct.pack("<HH", 0, 0)
 
@@ -677,6 +713,7 @@ class Application:
 
         image = Application.__align_bytes(image, 16)
         image += self.text
+        image += self.init_arrays
         image += self.data
         self.image = image
         if not self.args.dryrun:

@@ -38,7 +38,10 @@ bool Executable::initialize_main()
 
 int Executable::execute(int argc, char *argv[]) const
 {
-  log("Executing 'main' inside module, lot: %p\n", lot_.data());
+  log(
+    "Executing 'main' inside module, lot: %p, text: %p\n",
+    lot_.data(),
+    text_.data());
   if (!main_address_)
   {
     return -1;
@@ -48,7 +51,10 @@ int Executable::execute(int argc, char *argv[]) const
 
 int Executable::execute() const
 {
-  log("Executing 'main' inside module, lot: %p\n", lot_.data());
+  log(
+    "Executing 'main' inside module, lot: %p, text: %p\n",
+    lot_.data(),
+    text_.data());
   if (!main_address_)
   {
     return -1;

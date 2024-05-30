@@ -26,6 +26,7 @@ showAnalyzer sysbus.usart1
 
 sysbus LoadBinary $bin 0x08000000
 sysbus.cpu VectorTableOffset 0x08000000
- 
-start
+
+machine StartGdbServer 3333 
+
 

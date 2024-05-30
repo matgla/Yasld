@@ -56,7 +56,8 @@ Parser::Parser(const Header *header)
   , text_address_{ align<uintptr_t>(
       exported_symbol_table_.address() + exported_symbol_table_.size(),
       16) }
-  , data_address_{ text_address_ + header->code_length }
+  , init_address_{ text_address_ + header->code_length }
+  , data_address_{ init_address_ + header->init_length }
 
 {
   log("Module name: %s\n", name_.data());
@@ -85,6 +86,10 @@ Parser::Parser(const Header *header)
     "Text section at : 0x%lx, size: 0x%lx\n",
     text_address_,
     header->code_length);
+  log(
+    "Init section at: 0x%lx, size: 0x%lx\n",
+    init_address_,
+    header->init_length);
   log(
     "Data section at : 0x%lx, size: 0x%lx\n",
     data_address_,
@@ -126,6 +131,13 @@ const RelocationTable<DataRelocation> Parser::get_data_relocations() const
 const RelocationTable<Relocation> Parser::get_symbol_table_relocations() const
 {
   return symbol_table_relocation_table_;
+}
+
+std::span<const std::size_t> Parser::get_init() const
+{
+  return std::span<const std::size_t>(
+    reinterpret_cast<const std::size_t *>(init_address_),
+    header_->init_length / sizeof(std::size_t));
 }
 
 std::span<const std::byte> Parser::get_data() const

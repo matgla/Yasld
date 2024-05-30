@@ -110,14 +110,14 @@ Symbol Table Relocation Entry
 
 Local Relocation Entry
 +---------------+
-|    index    |s| 31 bits - lot index of relocation, 1 bit section flag (code/data)
+|    index    |s| 30 bits - lot index of relocation, 2 bit section flag (code/data)
 +---------------+
 |    offset     | 4 bytes - relocation offset
 +---------------+
 
 Data Relocation Entry
 +---------------+
-|     to      |s| 31 bits - offset to relocate, 1 bit section flag (code/data)
+|     to      |s| 30 bits - offset to relocate, 2 bit section flag (code/data)
 +---------------+
 |     from      | 4 bytes - offset from relocate 
 +---------------+

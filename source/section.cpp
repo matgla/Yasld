@@ -31,6 +31,8 @@ std::string_view to_string(Section s)
     return "code";
   case Section::data:
     return "data";
+  case Section::init:
+    return "init";
   default:
     return "unknown";
   }
