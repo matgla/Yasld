@@ -18,11 +18,16 @@
 
 add_executable(stm32f0_static_constructors)
 
-target_sources(stm32f0_static_constructors PRIVATE main.cpp)
+target_sources(stm32f0_static_constructors PRIVATE main.cpp entry.S)
 
 target_link_libraries(
   stm32f0_static_constructors PRIVATE test::st::cortex_m0_plus::stm32f0::modules_common
                       yasld_standalone_executable_flags)
+
+target_link_options(stm32f0_static_constructors 
+  PUBLIC 
+    -Wl,--entry=_entry
+)
 
 include(ConvertElfToYasiff)
 convert_elf_to_yasiff(

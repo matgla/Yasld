@@ -60,6 +60,10 @@ Parser::Parser(const Header *header)
   , data_address_{ init_address_ + header->init_length }
 
 {
+  if (header->entry != 0xffffffff)
+  {
+    log("Module has entry at: 0x%x\n", header->entry);
+  }
   log("Module name: %s\n", name_.data());
   log("Header starts at       : %p\n", header);
   log(

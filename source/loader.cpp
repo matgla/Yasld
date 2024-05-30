@@ -140,6 +140,7 @@ bool Loader::load_module(const void *module_address, Module &module)
 
   if (!process_data(*header, parser, module))
   {
+    log("Data processing failed\n");
     return false;
   }
 
@@ -147,10 +148,39 @@ bool Loader::load_module(const void *module_address, Module &module)
 
   if (!process_symbol_table_relocations(parser, module))
   {
+    log("Symbol table processing failed\n");
     return false;
   }
   process_local_relocations(parser, module);
   process_data_relocations(parser, module);
+
+  if (header->entry != 0xffffffff && header->type == Header::Type::Executable)
+  {
+    std::size_t base_address = 0;
+    if (header->entry < module.get_text().size_bytes())
+    {
+      base_address = reinterpret_cast<std::size_t>(module.get_text().data());
+    }
+    else if (
+      header->entry <
+      module.get_text().size_bytes() + module.get_init().size_bytes())
+    {
+      base_address = reinterpret_cast<std::size_t>(module.get_init().data());
+    }
+    else if (
+      header->entry < module.get_text().size_bytes() +
+                        module.get_init().size_bytes() +
+                        module.get_data().size_bytes())
+    {
+      base_address = reinterpret_cast<std::size_t>(module.get_data().data());
+    }
+    else
+    {
+      base_address = reinterpret_cast<std::size_t>(module.get_bss().data());
+    }
+
+    static_cast<Executable *>(&module)->set_entry(base_address + header->entry);
+  }
 
   return true;
 }

@@ -33,9 +33,12 @@ class ElfParser:
         self.relocations = ElfParser._parse_relocations(filename)
         self.filename = filename
         self.executable = None
+        self.entry = None
         with open(filename, "rb") as file:
             elf = ELFFile(file)
+            print (elf.header)
             self.executable = elf.header["e_type"] == "ET_EXEC"
+            self.entry = elf.header["e_entry"]
 
     @staticmethod
     def _parse_symbols(filename):

@@ -194,7 +194,6 @@ Module::ModulesContainer &Module::get_modules()
 {
   return imported_modules_;
 }
-
 void Module::set_name(const std::string_view &name)
 {
   name_ = name;

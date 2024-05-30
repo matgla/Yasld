@@ -24,14 +24,26 @@
 
 extern "C"
 {
+  int call_entry(std::size_t address, const void *lot);
   int call_main(int argc, char *argv[], std::size_t address, const void *lot);
 } // extern "C"
 
 namespace yasld
 {
 
+void Executable::set_entry(std::size_t entry)
+{
+  log("Setting executable entry to: 0x%x\n", entry);
+  main_address_ = entry;
+  has_entry_    = true;
+}
+
 bool Executable::initialize_main()
 {
+  if (has_entry_)
+  {
+    return true;
+  }
   main_address_ = find_symbol("main");
   return main_address_.has_value();
 }
@@ -42,7 +54,7 @@ int Executable::execute(int argc, char *argv[]) const
     "Executing 'main' inside module, lot: %p, text: %p\n",
     lot_.data(),
     text_.data());
-  if (!main_address_)
+  if (!main_address_ || has_entry_)
   {
     return -1;
   }
@@ -51,15 +63,28 @@ int Executable::execute(int argc, char *argv[]) const
 
 int Executable::execute() const
 {
-  log(
-    "Executing 'main' inside module, lot: %p, text: %p\n",
-    lot_.data(),
-    text_.data());
-  if (!main_address_)
+  if (has_entry_)
   {
-    return -1;
+    log(
+      "Executing from entry point '%x', lot: %p, text: %p\n",
+      *main_address_,
+      lot_.data(),
+      text_.data());
+
+    return call_entry(*main_address_, lot_.data());
   }
-  return call_main(0, nullptr, *main_address_, lot_.data());
+  else
+  {
+    log(
+      "Executing 'main' inside module, lot: %p, text: %p\n",
+      lot_.data(),
+      text_.data());
+    if (!main_address_)
+    {
+      return -1;
+    }
+    return call_main(0, nullptr, *main_address_, lot_.data());
+  }
 }
 
 } // namespace yasld

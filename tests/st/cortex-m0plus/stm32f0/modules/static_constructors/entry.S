@@ -1,7 +1,7 @@
 // 
-// call.s
+// entry.S
 // 
-// Copyright (C) 2023 Mateusz Stadnik <matgla@live.com>
+// Copyright (C) 2024 Mateusz Stadnik <matgla@live.com>
 // 
 // This program is free software: you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,38 +23,25 @@
 .arch armv6-m
 .cpu cortex-m0plus
 
-/*
-r0 - int argc
-r1 - char *argv[]
-r2 - std::size_t main_address
-r3 - std::size_t *lot
-*/
-
-.global call_main
+.global _entry 
 .thumb_func
-.type call_main, %function
-call_main:
-  push {r4, lr}
-  mov r4, r9
-  push {r4, r5}
-  mov r9, r3
-  blx r2
-  pop {r4, r5}
-  mov r9, r4
-  pop {r4, pc}
+.type _entry, %function
+_entry:
+  push {r4, r5, r6, lr} 
+  mov r4, r9 
+  adr r5, runtime_init_symbol
+  ldr r5, [r5]
+  ldr r5, [r4, r5] 
+  blx r5 
+  adr r5, main_symbol
+  ldr r5, [r5]
+  ldr r5, [r4, r5]
+  blx r5
+  pop {r4, r5, r6, pc}
 
-
-.global call_entry
-.thumb_func
-.type call_entry, %function
-call_entry:
-  push {r4, lr}
-  mov r4, r9
-  push {r4, r5}
-  mov r9, r1
-  blx r0
-  pop {r4, r5}
-  mov r9, r4
-  pop {r4, pc}
-  
+.align 4
+runtime_init_symbol:
+  .word runtime_init(GOT)
+main_symbol:
+  .word main(GOT)
 

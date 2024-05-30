@@ -174,6 +174,11 @@ class Application:
     def __process_symbols(self):
         self.logger.info("Processing symbol table")
         self.symbols = {}
+        
+        self.main_is_entry = False
+        if "main" in self.elf.symbols and self.elf.entry != None:
+            self.main_is_entry = (self.elf.entry & 0xfffffffe) == (self.elf.symbols["main"]["value"] & 0xfffffffe)
+
         for name, data in self.elf.symbols.items():
             if not name or name == "$t" or name == "$d":
                 continue
@@ -200,7 +205,7 @@ class Application:
                 else:
                     # only main can be exported in executable
                     if self.is_executable:
-                        if is_main:
+                        if is_main and self.main_is_entry:
                             self.symbols[name]["localization"] = "exported"
                         else:
                             self.symbols[name]["localization"] = "internal"
@@ -664,6 +669,10 @@ class Application:
 
         image += struct.pack("<BHB", module_type, 1, 1)  # dummy values for now
         image += struct.pack("<IIII", len(self.text), len(self.init_arrays), len(self.data), len(self.bss)) 
+        entry = 0xffffffff
+        if not self.main_is_entry: 
+            entry = self.elf.entry
+        image += struct.pack("<I", entry)
         image += struct.pack("<HBB", len(self.dependant_libraries), alignment, 0)
         image += struct.pack("<HH", 0, 0)
 

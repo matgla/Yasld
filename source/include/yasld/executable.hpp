@@ -21,7 +21,6 @@
 #pragma once
 
 #include <cstdlib>
-#include <span>
 
 #include "yasld/module.hpp"
 
@@ -37,8 +36,11 @@ public:
   int  execute(int argc, char *argv[]) const;
   int  execute() const;
 
+  void set_entry(std::size_t entry);
+
 private:
   std::optional<std::size_t> main_address_;
+  bool                       has_entry_;
 };
 
 } // namespace yasld

@@ -38,8 +38,7 @@ static SomeStaticObject o2 = generate();
 
 extern "C"
 {
-
-  void init()
+  void runtime_init()
   {
     extern void (*__preinit_array_start)(void);
     extern void (*__preinit_array_end)(void);
@@ -58,9 +57,9 @@ extern "C"
     }
   }
 }
+
 int main()
 {
-  init();
   printf("Object 1 contains: (%d, %d, %f)\n", o.a, o.b, o.c);
   printf("Object 2 contains: (%d, %d, %f)\n", o2.a, o2.b, o2.c);
 

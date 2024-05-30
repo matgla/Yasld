@@ -41,13 +41,13 @@ alignas(16) const std::vector<uint8_t> example_header = {
   0x02, 0x00, 0x00, 0x00, // data length = 4B
   0x08, 0x00, 0x00, 0x00, // bss length
 
+  0xff, 0xff, 0xff, 0xff, // no entry
   0x00, 0x00, 0x08, 0x00, // external libraries, alignment: 8, reserved
   0x0a, 0x00, 0x05, 0x10, // version major, minor
 
   0x03, 0x00, 0x02, 0x00, // external, local relocations amount
   0x01, 0x00, 0x00, 0x00, // data, exported relocations amount
   0x02, 0x00, 0x03, 0x00, // exported, external symbols amount
-  0x00, 0x00, 0x00, 0x00,
 
   0x00, 0x00, 0x00, 0x00, // external symbol relocation 1 index
   0x50, 0x00, 0x00, 0x00, // external symbol relocation 1 offset
@@ -96,8 +96,7 @@ namespace yasld
 
 void PrintTo(const yasld::Relocation &rel, ::std::ostream *os)
 {
-  *os << "Relocation { "
-      << ".index: 0x" << std::hex << rel.lot_index() << ", "
+  *os << "Relocation { " << ".index: 0x" << std::hex << rel.lot_index() << ", "
       << ".offset: 0x" << std::hex << rel.symbol_index() << " }";
 }
 
