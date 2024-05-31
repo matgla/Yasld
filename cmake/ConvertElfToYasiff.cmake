@@ -45,11 +45,11 @@ macro(convert_elf_to_yasiff)
     OUTPUT ${YASIFF_TARGET}.yaff
     COMMAND ${CMAKE_OBJCOPY} --localize-hidden $<TARGET_FILE:${YASIFF_TARGET}>
     COMMAND cmake -E copy $<TARGET_FILE:${YASIFF_TARGET}>
-            $<TARGET_FILE:${YASIFF_TARGET}>.bak
-    COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${YASIFF_TARGET}>
+            $<TARGET_FILE:${YASIFF_TARGET}>.pre
+    COMMAND ${CMAKE_STRIP} -d $<TARGET_FILE:${YASIFF_TARGET}>.pre
     COMMAND
       ${mkimage_python_executable} ${MKIMAGE_DIR}/mkimage.py
-      --type=${YASIFF_TYPE} --input=$<TARGET_FILE:${YASIFF_TARGET}>
+      --type=${YASIFF_TYPE} --input=$<TARGET_FILE:${YASIFF_TARGET}>.pre
       --output=${CMAKE_CURRENT_BINARY_DIR}/${YASIFF_TARGET}.yaff --libraries
       ${YASIFF_LIBRARIES} --verbose
     VERBATIM

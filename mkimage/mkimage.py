@@ -289,8 +289,8 @@ class Application:
                     )
                 )
 
-    def __process_data_relocations(self, data_offset):
-        self.logger.verbose("Processing data relocations")
+    def __process_data_relocations(self, init_offset, data_offset):
+        self.logger.verbose("Processing data relocations with init offset: " + hex(init_offset) + ", data offset: " + hex(data_offset))
 
         skipped_relocations = [
             "R_ARM_CALL",  # PC Relative
@@ -312,24 +312,36 @@ class Application:
                         )
                         raise RuntimeError("Data relocation processing failure")
                     from_address = int(relocation["offset"] - data_offset)
+                    data = self.data
+                    section_code = SectionCode.Data
+                    offset = data_offset 
                     if from_address < 0:
-                        self.logger.error(
-                            "Only .data relocations are allowed, symbol '{}' relocation inside .text".format(
-                                relocation["symbol_name"]
+                        from_address = int(relocation["offset"] - init_offset)
+                        if from_address < 0:
+                            self.logger.error(
+                                "Only .data and .init_arrays relocations are allowed, symbol '{}' relocation inside .text".format(
+                                    relocation["symbol_name"]
+                                )
                             )
-                        )
-                        self.logger.error(
-                            "Original relocation offset: " + hex(relocation["offset"])
-                        )
-                        raise RuntimeError("Data relocation processing failure")
-                    original_offset = struct.unpack_from("<I", self.data, from_address)[
+                            self.logger.error(
+                                "Original relocation offset: " + hex(relocation["offset"])
+                            )
+                            raise RuntimeError("Data relocation processing failure")
+                        data = self.init_arrays 
+                        section_code = SectionCode.Init
+                        offset = init_offset
+                    original_offset = struct.unpack_from("<I", data, from_address)[
                         0
                     ]
-
-                    if relocation["symbol_value"] <= data_offset:
-                        offset = original_offset << 2
+                    
+                    if relocation["symbol_name"] == ".data":
+                        print("Rel: ", hex(relocation["symbol_value"]), "offset:", hex(offset), "section_code: ", section_code.value)
+                    if relocation["symbol_value"] < offset:
+                        if relocation["symbol_name"] == ".data":
+                            print("But i take code...")
+                        offset = original_offset << 2 | SectionCode.Code.value
                     else:
-                        offset = ((original_offset - data_offset) << 2) | SectionCode.Data.value 
+                        offset = ((original_offset - offset) << 2) | section_code.value 
 
                     self.relocations.add_data_relocation(
                         relocation, from_address, offset
@@ -415,9 +427,10 @@ class Application:
         )
 
         for rel in rels:
-            if rel["offset"] == 1:
+            section = rel["offset"] & 0x3
+            if section == 1:
                 section = ".data"
-            elif rel["offset"] == 2:
+            elif section == 2:
                 section = ".init_arrays"
             else:
                 section = ".text"
@@ -450,6 +463,7 @@ class Application:
             init_offset = 0
 
         self.__process_data_relocations(
+            self.text_section["address"] + self.text_section["size"],
             self.text_section["address"] + self.text_section["size"] + init_offset
         )
         self.__dump_relocations()
