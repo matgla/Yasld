@@ -60,6 +60,7 @@ Parser::Parser(const Header *header)
   , data_address_{ init_address_ + header->init_length }
 
 {
+#if defined(LOGGER_ENABLED) && (LOGGER_ENABLED == 1)
   if (header->entry != 0xffffffff)
   {
     log("Module has entry at: 0x%x\n", header->entry);
@@ -110,6 +111,7 @@ Parser::Parser(const Header *header)
   {
     log("  %s\n", l.name().data());
   }
+#endif
 }
 
 const SymbolTable Parser::get_exported_symbol_table() const

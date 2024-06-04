@@ -73,7 +73,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/arch/${YASLD_ARCH}/arch.cmake)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 if(NOT YASLD_ONLY_CMAKE)
-  add_definitions("-DLOGGER_ENABLED=1")
   add_library(yasld_flags INTERFACE)
   target_link_libraries(yasld_flags INTERFACE yasld_arch_flags)
 

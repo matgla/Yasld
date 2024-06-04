@@ -159,7 +159,6 @@ bool Module::relocate_init(const std::span<const std::size_t> &init)
   std::copy(init.begin(), init.end(), init_.begin());
   // init entries contains jumps to original addresses, let's relocate them
   log("Init relocated values:\n");
-  int         i        = 0;
   std::size_t text_end = text_.size_bytes();
   std::size_t init_end = text_.size_bytes();
   std::size_t data_end = data_.size_bytes();
@@ -167,7 +166,7 @@ bool Module::relocate_init(const std::span<const std::size_t> &init)
 
   for (auto &e : init_)
   {
-    log(" [%d] = %x -> ", i++, e);
+    log("  %x -> ", e);
     if (e < text_end)
     {
       e = e + reinterpret_cast<std::size_t>(text_.data());
