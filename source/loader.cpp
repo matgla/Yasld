@@ -436,6 +436,7 @@ Module *Loader::find_module_for_pc_and_lot(
         return &(*module);
       }
     }
+    return nullptr;
   }
 
   auto module = parent->find_module_for_program_counter(program_counter);
